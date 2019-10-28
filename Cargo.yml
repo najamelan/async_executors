@@ -46,9 +46,8 @@ features:
   async_std : [ async_std_crate ]
 
   # Enables the tokio current_thread executor. Not available on WASM.
-  # This will pull network dependencies. There is no way in tokio to turn that off.
   #
-  tokio_ct  : [ tokio ]
+  tokio_ct  : [ tokio-executor/current-thread ]
 
   # Enables futures::executor::LocalPool. If no other executors are enabled, this one will be enabled
   # by default. Not available on WASM. This is provided by the futures library on which we depend anyways,
@@ -84,10 +83,10 @@ badges:
 
 dependencies:
 
-  futures-preview     : { version: ^0.3.0-alpha, features: [std], default-features: false                       }
-  juliex_crate        : { version: ^0.3.0-alpha, optional: true, package: juliex                                }
-  async_std_crate     : { version: ^0.99       , optional: true, package: async-std                             }
-  tokio               : { version: =0.2.0-alpha.5, optional: true, default-features: false, features: [ rt-full ] }
+  futures-preview     : { version: ^0.3.0-alpha, features: [std], default-features: false }
+  juliex_crate        : { version: ^0.3.0-alpha, optional: true, package: juliex          }
+  async_std_crate     : { version: ^0.99       , optional: true, package: async-std       }
+  tokio-executor      : { version: ^0.2.0-alpha, optional: true, default-features: false  }
 
   # necessary for the crate to compile for `cargo doc`
   #

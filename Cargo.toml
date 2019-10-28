@@ -22,11 +22,10 @@ optional = true
 package = "juliex"
 version = "^0.3.0-alpha"
 
-[dependencies.tokio]
+[dependencies.tokio-executor]
 default-features = false
-features = ["rt-full"]
 optional = true
-version = "=0.2.0-alpha.5"
+version = "^0.2.0-alpha"
 
 [dependencies.wasm-bindgen-futures]
 optional = true
@@ -44,7 +43,7 @@ juliex = ["juliex_crate"]
 localpool = []
 notwasm = []
 threadpool = []
-tokio_ct = ["tokio"]
+tokio_ct = ["tokio-executor/current-thread"]
 
 [package]
 authors = ["Naja Melan <najamelan@autistici.org>"]

@@ -28,6 +28,9 @@
 #[ cfg( feature = "localpool" ) ] mod localpool;
 #[ cfg( feature = "localpool" ) ] pub use localpool::*;
 
+#[ cfg( feature = "tokio_ct"  ) ] mod tokio_ct;
+#[ cfg( feature = "tokio_ct"  ) ] pub use tokio_ct::*;
+
 
 
 // External dependencies
@@ -46,8 +49,9 @@ mod import
 	//
 	pub(crate) use
 	{
-		std :: { future::Future } ,
-		futures::future::{ FutureExt, FutureObj } ,
+		futures :: { future::{ FutureObj } } ,
+		futures :: { task::SpawnError as FutSpawnErr  } ,
+
 	};
 
 
@@ -55,15 +59,7 @@ mod import
 	//
 	pub(crate) use
 	{
-			futures   :: { future::LocalFutureObj } ,
-	};
-
-
-	#[ cfg(any( feature = "localpool", feature = "threadpool" )) ]
-	//
-	pub(crate) use
-	{
-		futures :: { task::SpawnError as FutSpawnErr } ,
+		futures :: { future::LocalFutureObj } ,
 	};
 
 
@@ -71,7 +67,18 @@ mod import
 	//
 	pub(crate) use
 	{
-		futures :: { task::{ LocalSpawnExt, SpawnExt }, executor::{ LocalPool as FutLocalPool, LocalSpawner } } ,
+		std     :: { future::Future } ,
+
+		futures :: { future::FutureExt, task::{ LocalSpawnExt, SpawnExt }  } ,
+		futures :: { executor::{ LocalPool as FutLocalPool, LocalSpawner } } ,
+	};
+
+
+	#[ cfg( feature = "tokio_ct" ) ]
+	//
+	pub(crate) use
+	{
+		tokio_executor::current_thread:: { CurrentThread as TokioCtExec, RunError as TokioRunError } ,
 	};
 }
 
