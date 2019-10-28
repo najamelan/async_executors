@@ -6,9 +6,9 @@
 
 
 #![ doc    ( html_root_url = "https://docs.rs/async_executors" ) ]
-#![ deny   ( missing_docs                                     ) ]
-#![ forbid ( unsafe_code                                      ) ]
-#![ allow  ( clippy::suspicious_else_formatting               ) ]
+#![ deny   ( missing_docs                                      ) ]
+#![ forbid ( unsafe_code                                       ) ]
+#![ allow  ( clippy::suspicious_else_formatting                ) ]
 
 #![ warn
 (
@@ -25,22 +25,53 @@
 )]
 
 
+#[ cfg( feature = "localpool" ) ] mod localpool;
+#[ cfg( feature = "localpool" ) ] pub use localpool::*;
+
+
 
 // External dependencies
 //
 mod import
 {
-	pub(crate) use
-	{
-		std :: {  } ,
-	};
+	// #[ cfg( test ) ]
+	// //
+	// pub(crate) use
+	// {
+	// 	pretty_assertions :: { assert_eq } ,
+	// };
 
 
-	#[ cfg( test ) ]
+	#[ cfg(any( feature = "bindgen", feature = "localpool", feature = "juliex", feature = "tokio_ct" )) ]
 	//
 	pub(crate) use
 	{
-		pretty_assertions :: { assert_eq } ,
+		std :: { future::Future } ,
+		futures::future::{ FutureExt, FutureObj } ,
+	};
+
+
+	#[ cfg(any( feature = "localpool", feature = "tokio_ct" )) ]
+	//
+	pub(crate) use
+	{
+			futures   :: { future::LocalFutureObj } ,
+	};
+
+
+	#[ cfg(any( feature = "localpool", feature = "threadpool" )) ]
+	//
+	pub(crate) use
+	{
+		futures :: { task::SpawnError as FutSpawnErr } ,
+	};
+
+
+	#[ cfg( feature = "localpool" ) ]
+	//
+	pub(crate) use
+	{
+		futures :: { task::{ LocalSpawnExt, SpawnExt }, executor::{ LocalPool as FutLocalPool, LocalSpawner } } ,
 	};
 }
 

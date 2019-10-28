@@ -7,13 +7,44 @@ status = "actively-developed"
 repository = "najamelan/async_executors"
 
 [dependencies]
-futures-preview = "^0.3.0-alpha"
+[dependencies.async_std_crate]
+optional = true
+package = "async-std"
+version = "^0.99"
+
+[dependencies.futures-preview]
+default-features = false
+features = ["std"]
+version = "^0.3.0-alpha"
+
+[dependencies.juliex_crate]
+optional = true
+package = "juliex"
+version = "^0.3.0-alpha"
+
+[dependencies.tokio]
+default-features = false
+features = ["rt-full"]
+optional = true
+version = "=0.2.0-alpha.5"
+
+[dependencies.wasm-bindgen-futures]
+optional = true
+version = "^0.4"
 
 [dev-dependencies]
 pretty_assertions = "^0.6"
 
 [features]
+async_std = ["async_std_crate"]
+bindgen = ["wasm-bindgen-futures"]
+default = ["notwasm"]
 external_doc = []
+juliex = ["juliex_crate"]
+localpool = []
+notwasm = []
+threadpool = []
+tokio_ct = ["tokio"]
 
 [package]
 authors = ["Naja Melan <najamelan@autistici.org>"]
