@@ -1,0 +1,34 @@
+# Auto-generated from "Cargo.yml"
+[badges]
+[badges.maintenance]
+status = "actively-developed"
+
+[badges.travis-ci]
+repository = "najamelan/async_executors"
+
+[dependencies]
+futures-preview = "^0.3.0-alpha"
+
+[dev-dependencies]
+pretty_assertions = "^0.6"
+
+[features]
+external_doc = []
+
+[package]
+authors = ["Naja Melan <najamelan@autistici.org>"]
+categories = ["asynchronous", "concurrency"]
+description = "Abstract over different executors."
+documentation = "https://docs.rs/async_executors"
+edition = "2018"
+keywords = ["async", "executor", "futures"]
+license = "Unlicense"
+name = "async_executors"
+readme = "README.md"
+repository = "https://github.com/najamelan/async_executors"
+version = "0.0.0"
+
+[package.metadata]
+[package.metadata.docs]
+[package.metadata.docs.rs]
+features = ["external_doc"]
