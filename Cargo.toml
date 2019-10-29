@@ -6,6 +6,14 @@ status = "actively-developed"
 [badges.travis-ci]
 repository = "najamelan/async_executors"
 
+[[bench]]
+harness = false
+name = "current_thread"
+
+[[bench]]
+harness = false
+name = "ring"
+
 [dependencies]
 [dependencies.async_std_crate]
 optional = true
@@ -32,6 +40,7 @@ optional = true
 version = "^0.4"
 
 [dev-dependencies]
+criterion = "^0.3"
 pretty_assertions = "^0.6"
 
 [features]

@@ -28,7 +28,7 @@ impl LocalPool
 	}
 
 
-	/// Obtain a handle to this localpool that can easily be cloned and that implements
+	/// Obtain a handle to this executor that can easily be cloned and that implements
 	/// Spawn and LocalSpawn traits.
 	//
 	pub fn handle( &self ) -> LocalPoolHandle

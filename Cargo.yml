@@ -92,9 +92,21 @@ dependencies:
   #
   wasm-bindgen-futures: { version: ^0.4, optional: true }
 
+
 dev-dependencies:
 
   pretty_assertions : ^0.6
+  criterion         : ^0.3
 
   # log               : ^0.4
   # flexi_logger      : ^0.11
+
+
+bench:
+
+  - name   : current_thread
+    harness: false
+
+  - name   : ring
+    harness: false
+
