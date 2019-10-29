@@ -24,11 +24,14 @@
 )]
 
 
-#[ cfg( feature = "localpool" ) ] mod localpool;
-#[ cfg( feature = "localpool" ) ] pub use localpool::*;
+#[ cfg( feature = "localpool"  ) ] mod localpool;
+#[ cfg( feature = "localpool"  ) ] pub use localpool::*;
 
-#[ cfg( feature = "tokio_ct"  ) ] mod tokio_ct;
-#[ cfg( feature = "tokio_ct"  ) ] pub use tokio_ct::*;
+#[ cfg( feature = "threadpool" ) ] mod threadpool;
+#[ cfg( feature = "threadpool" ) ] pub use threadpool::*;
+
+#[ cfg( feature = "tokio_ct"   ) ] mod tokio_ct;
+#[ cfg( feature = "tokio_ct"   ) ] pub use tokio_ct::*;
 
 
 
@@ -44,13 +47,22 @@ mod import
 	// };
 
 
-	#[ cfg(any( feature = "bindgen", feature = "localpool", feature = "juliex", feature = "tokio_ct" )) ]
+	#[ cfg(any( feature = "bindgen", feature = "threadpool", feature = "localpool", feature = "juliex", feature = "tokio_ct" )) ]
 	//
 	pub(crate) use
 	{
-		futures :: { future::{ FutureObj } } ,
-		futures :: { task::SpawnError as FutSpawnErr  } ,
+		futures :: { future::{ FutureObj }           } ,
+		futures :: { task::SpawnError as FutSpawnErr } ,
 
+	};
+
+
+	#[ cfg(any( feature = "threadpool", feature = "localpool" )) ]
+	//
+	pub(crate) use
+	{
+		futures :: { future::FutureExt, task::SpawnExt } ,
+		std     :: { future::Future    } ,
 	};
 
 
@@ -59,12 +71,6 @@ mod import
 	pub(crate) use
 	{
 		futures :: { future::LocalFutureObj } ,
-	};
-
-
-	//
-	pub(crate) use
-	{
 	};
 }
 
