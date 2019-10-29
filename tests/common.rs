@@ -22,6 +22,28 @@ pub fn increment_local( a: u8, exec: &mut impl LocalSpawnExt, tx: Sender<u8> )
 		assert!( res.is_ok() );
 }
 
+// A function that takes a generic executor by value, clones it and spawns a task.
+//
+pub fn increment_by_value( a: u8, exec: impl SpawnExt + Clone, tx: Sender<u8> )
+{
+	let mut second = exec.clone();
+
+	let res = second.spawn( sum( a, 1, tx ) );
+
+		assert!( res.is_ok() );
+}
+
+// A function that takes a generic executor by value, clones it and spawns a task.
+//
+pub fn increment_by_value_local( a: u8, exec: impl LocalSpawnExt + Clone, tx: Sender<u8> )
+{
+	let mut second = exec.clone();
+
+	let res = second.spawn_local( sum( a, 1, tx ) );
+
+		assert!( res.is_ok() );
+}
+
 
 async fn sum( a: u8, b: u8, mut tx: Sender<u8> )
 {
