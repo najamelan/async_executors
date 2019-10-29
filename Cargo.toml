@@ -14,6 +14,10 @@ name = "current_thread"
 harness = false
 name = "ring"
 
+[[bench]]
+harness = false
+name = "threadpools"
+
 [dependencies]
 [dependencies.async_std_crate]
 optional = true

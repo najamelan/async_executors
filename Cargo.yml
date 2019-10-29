@@ -110,3 +110,6 @@ bench:
   - name   : ring
     harness: false
 
+  - name   : threadpools
+    harness: false
+

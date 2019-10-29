@@ -48,6 +48,21 @@ fn ring( c: &mut Criterion )
 				pool.run().expect( "run tokio_ct" );
 			});
 		});
+
+
+		group.bench_function( format!( "ThreadPool spawn {}", &nodes ), |b|
+		{
+			b.iter( ||
+			{
+				let mut pool = ThreadPool::new().expect( "create threadpool" );
+				let mut ring = Ring::new( *nodes );
+
+				for node in ring.start_parallel()
+				{
+					pool.spawn( node ).expect( "spawn" );
+				}
+			});
+		});
 	}
 }
 
