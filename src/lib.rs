@@ -7,7 +7,6 @@
 
 #![ doc    ( html_root_url = "https://docs.rs/async_executors" ) ]
 #![ deny   ( missing_docs                                      ) ]
-#![ forbid ( unsafe_code                                       ) ]
 #![ allow  ( clippy::suspicious_else_formatting                ) ]
 
 #![ warn
@@ -78,7 +77,20 @@ mod import
 	//
 	pub(crate) use
 	{
-		tokio_executor::current_thread:: { CurrentThread as TokioCtExec, RunError as TokioRunError } ,
+		tokio_executor::
+		{
+			SpawnError    as TokioSpawnError ,
+
+			current_thread::
+			{
+				CurrentThread as TokioCtExec     ,
+				Handle        as TokioCtSpawner  ,
+				RunError      as TokioRunError   ,
+			},
+		},
+
+
+		std::marker::PhantomData,
 	};
 }
 
