@@ -62,35 +62,9 @@ mod import
 	};
 
 
-	#[ cfg( feature = "localpool" ) ]
 	//
 	pub(crate) use
 	{
-		std     :: { future::Future } ,
-
-		futures :: { future::FutureExt, task::{ LocalSpawnExt, SpawnExt }  } ,
-		futures :: { executor::{ LocalPool as FutLocalPool, LocalSpawner } } ,
-	};
-
-
-	#[ cfg( feature = "tokio_ct" ) ]
-	//
-	pub(crate) use
-	{
-		tokio_executor::
-		{
-			SpawnError    as TokioSpawnError ,
-
-			current_thread::
-			{
-				CurrentThread as TokioCtExec     ,
-				Handle        as TokioCtSpawner  ,
-				RunError      as TokioRunError   ,
-			},
-		},
-
-
-		std::marker::PhantomData,
 	};
 }
 

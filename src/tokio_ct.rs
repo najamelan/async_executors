@@ -1,6 +1,24 @@
 //! Provides TokioCt executor specific functionality.
 //
-use crate :: { import::* };
+use
+{
+	crate::import::*,
+
+	tokio_executor::
+	{
+		SpawnError    as TokioSpawnError ,
+
+		current_thread::
+		{
+			CurrentThread as TokioCtExec     ,
+			Handle        as TokioCtSpawner  ,
+			RunError      as TokioRunError   ,
+		},
+	},
+
+
+	std::marker::PhantomData,
+};
 
 
 mod cast_future_obj;
@@ -24,7 +42,7 @@ impl TokioCt
 	//
 	pub fn new() -> Self
 	{
-		Self { exec: TokioCtExec::new() }
+		Self::default()
 	}
 
 
@@ -81,6 +99,25 @@ impl TokioCt
 	// 	self.exec.spawn_local( fut )?;
 	// 	Ok(Box::new( handle ))
 	// }
+}
+
+
+
+impl Default for TokioCt
+{
+	fn default() -> Self
+	{
+		Self { exec: TokioCtExec::new() }
+	}
+}
+
+
+impl From<TokioCtExec> for TokioCt
+{
+	fn from( exec: TokioCtExec ) -> Self
+	{
+		Self { exec }
+	}
 }
 
 
@@ -158,6 +195,7 @@ pub struct TokioCtHandle
 	// provide us with the API to do so as their handle is Send and requires Send on the futures.
 	//
 	// We will solve this by crating a Send
+	//
 	_no_send: PhantomData<*mut fn()> ,
 }
 

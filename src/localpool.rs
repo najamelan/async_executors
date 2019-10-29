@@ -1,6 +1,10 @@
 //! Provides localpool executor specific functionality.
 
-use crate :: { import::* };
+use
+{
+	crate   :: { import::*                                                                  } ,
+	futures :: { executor::{ LocalPool as FutLocalPool, LocalSpawner }, task::LocalSpawnExt } ,
+};
 
 
 /// An executor that uses [futures 0.3 LocalPool](https://rust-lang-nursery.github.io/futures-api-docs/0.3.0-alpha.19/futures/executor/struct.LocalPool.html).
@@ -17,14 +21,11 @@ pub struct LocalPool
 
 impl LocalPool
 {
-	/// Create a new LocalPool from an [Config](crate::Config) configuration.
+	/// Create a new LocalPool.
 	//
 	pub fn new() -> Self
 	{
-		let pool    = FutLocalPool::new();
-		let spawner = pool.spawner();
-
-		Self { pool, spawner }
+		Self::default()
 	}
 
 
@@ -103,6 +104,26 @@ impl LocalPool
 }
 
 
+
+impl Default for LocalPool
+{
+	fn default() -> Self
+	{
+		let pool    = FutLocalPool::new();
+		let spawner = pool.spawner();
+
+		Self { pool, spawner }
+	}
+}
+
+
+impl From<FutLocalPool> for LocalPool
+{
+	fn from( pool: FutLocalPool ) -> Self
+	{
+		Self { spawner: pool.spawner(), pool }
+	}
+}
 
 
 impl futures::task::LocalSpawn for LocalPool
