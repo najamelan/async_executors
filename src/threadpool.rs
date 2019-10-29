@@ -20,15 +20,14 @@ pub struct ThreadPool
 
 impl ThreadPool
 {
-	/// Create a new ThreadPool from an existing ThreadPool from the futures library. This allows
-	/// you to use the ThreadPoolBuilder to change the default configuration. If you just want
-	/// default configuration, use [`Default::default`].
+	/// Create a new ThreadPool. This operation is fallible if the OS fails to spawn
+	/// threads. I haven't yet figured out which io::ErrorKind this will throw as it's
+	/// not documented in std.
 	//
 	pub fn new() -> Result< Self, futures::io::Error >
 	{
 		Ok( Self { pool: FutThreadPool::new()? } )
 	}
-
 
 
 
@@ -39,6 +38,7 @@ impl ThreadPool
 	{
 		self.clone()
 	}
+
 
 
 	/// Spawn a future, keeping a handle to await it's completion and recover the returned value.
@@ -57,21 +57,24 @@ impl ThreadPool
 }
 
 
+impl From<FutThreadPool> for ThreadPool
+{
+	/// Create a new ThreadPool from an existing ThreadPool from the futures library. This allows
+	/// you to use the ThreadPoolBuilder to change the default configuration.
+	//
+	fn from( pool: FutThreadPool ) -> Self
+	{
+		Self { pool }
+	}
+}
+
+
 
 impl futures::task::Spawn for ThreadPool
 {
 	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		self.pool.spawn_obj( future )
-	}
-}
-
-
-impl From<FutThreadPool> for ThreadPool
-{
-	fn from( pool: FutThreadPool ) -> Self
-	{
-		Self { pool }
 	}
 }
 
