@@ -49,6 +49,10 @@ features:
   #
   tokio_ct  : [ tokio-executor/current-thread ]
 
+  # Enables the tokio thread_pool executor. Not available on WASM.
+  #
+  tokio_tp  : [ tokio-executor/thread-pool ]
+
   # Enables futures::executor::LocalPool. If no other executors are enabled, this one will be enabled
   # by default. Not available on WASM. This is provided by the futures library on which we depend anyways,
   # so enabling this will not pull in extra dependencies.
@@ -77,7 +81,7 @@ features:
 
 badges:
 
-  maintenance : { status     : actively-developed       }
+  maintenance : { status     : actively-developed        }
   travis-ci   : { repository : najamelan/async_executors }
 
 

@@ -1,9 +1,9 @@
-#![ cfg( feature = "threadpool" ) ]
+#![ cfg( feature = "tokio_tp" ) ]
 
 // Tested:
 //
-// ✔ pass a &mut ThreadPool to a function that takes exec: `&mut impl SpawnExt`
-// ✔ pass a      ThreadPool to a function that takes exec: `impl SpawnExt + Clone`
+// ✔ pass a &mut TokioTp to a function that takes exec: `&mut impl SpawnExt`
+// ✔ pass a      TokioTp to a function that takes exec: `impl SpawnExt + Clone`
 //
 mod common;
 
@@ -15,14 +15,14 @@ use
 };
 
 
-// pass a &mut ThreadPool to a function that takes exec: `&mut impl SpawnExt`
+// pass a &mut TokioTp to a function that takes exec: `&mut impl SpawnExt`
 //
 #[ test ]
 //
 fn test_spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec = ThreadPool::new().expect( "create threadpool" );
+	let mut exec = TokioTp::new();
 
 	increment( 4, &mut exec, tx );
 
@@ -32,14 +32,14 @@ fn test_spawn()
 }
 
 
-// pass a &mut ThreadPool to a function that takes exec: `impl LocalSpawnExt + Clone`
+// pass a &mut TokioTp to a function that takes exec: `impl LocalSpawnExt + Clone`
 //
 #[ test ]
 //
 fn test_spawn_handle()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec = ThreadPool::new().expect( "create threadpool" );
+	let exec = TokioTp::new();
 
 	increment_by_value( 4, exec.handle(), tx );
 

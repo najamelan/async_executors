@@ -25,7 +25,7 @@ mod cast_future_obj;
 use cast_future_obj::*;
 
 
-/// An executor that uses [tokio::runtime::current_thread::Runtime]
+/// An executor that uses [tokio_executor::current_thread::CurrentThread]
 //
 #[ derive( Debug ) ]
 //
@@ -38,7 +38,7 @@ pub struct TokioCt
 
 impl TokioCt
 {
-	/// Create a new TokioCt from an [Config](crate::Config) configuration.
+	/// Create a new TokioCt.
 	//
 	pub fn new() -> Self
 	{

@@ -33,6 +33,9 @@
 #[ cfg( feature = "tokio_ct"   ) ] mod tokio_ct;
 #[ cfg( feature = "tokio_ct"   ) ] pub use tokio_ct::*;
 
+#[ cfg( feature = "tokio_tp"   ) ] mod tokio_tp;
+#[ cfg( feature = "tokio_tp"   ) ] pub use tokio_tp::*;
+
 
 
 // External dependencies
@@ -47,7 +50,7 @@ mod import
 	// };
 
 
-	#[ cfg(any( feature = "bindgen", feature = "threadpool", feature = "localpool", feature = "juliex", feature = "tokio_ct" )) ]
+	#[ cfg(any( feature = "bindgen", feature = "threadpool", feature = "localpool", feature = "juliex", feature = "tokio_ct", feature = "tokio_tp" )) ]
 	//
 	pub(crate) use
 	{

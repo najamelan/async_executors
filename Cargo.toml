@@ -57,6 +57,7 @@ localpool = []
 notwasm = []
 threadpool = []
 tokio_ct = ["tokio-executor/current-thread"]
+tokio_tp = ["tokio-executor/thread-pool"]
 
 [package]
 authors = ["Naja Melan <najamelan@autistici.org>"]
