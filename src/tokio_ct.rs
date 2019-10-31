@@ -21,9 +21,6 @@ use
 };
 
 
-mod cast_future_obj;
-use cast_future_obj::*;
-
 
 /// An executor that uses [tokio_executor::current_thread::CurrentThread]
 //
@@ -189,7 +186,7 @@ impl futures::task::Spawn for TokioCtSendHandle
 //
 pub struct TokioCtHandle
 {
-	spawner : TokioCtSpawner         ,
+	spawner : TokioCtSpawner,
 
 	// This handle must not be Send. We want to be able to impl LocalSpawn for it, but tokio does not
 	// provide us with the API to do so as their handle is Send and requires Send on the futures.
@@ -226,7 +223,7 @@ impl futures::task::LocalSpawn for TokioCtHandle
 
 		unsafe
 		{
-			fut = CastFutureObj::new_no_send_bound( future );
+			fut = future.into_future_obj();
 		}
 
 		self.spawner.spawn( fut ).map_err( tok_to_fut_spawn_error )
