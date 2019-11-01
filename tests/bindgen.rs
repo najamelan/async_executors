@@ -67,7 +67,7 @@ fn test_spawn_local()
 //
 #[wasm_bindgen_test]
 //
-fn test_spawn_handle()
+fn test_spawn_from_handle()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let mut exec     = Bindgen::new();
@@ -89,7 +89,7 @@ fn test_spawn_handle()
 //
 #[wasm_bindgen_test]
 //
-fn test_spawn_handle_local()
+fn test_spawn_from_handle_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let mut exec     = Bindgen::new();

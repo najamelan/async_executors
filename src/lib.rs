@@ -45,6 +45,16 @@
 #[ cfg( feature = "bindgen"    ) ] mod bindgen;
 #[ cfg( feature = "bindgen"    ) ] pub use bindgen::*;
 
+mod spawn_handle;
+mod local_spawn_handle;
+mod join_handle;
+
+pub use
+{
+	spawn_handle       :: * ,
+	local_spawn_handle :: * ,
+	join_handle        :: * ,
+};
 
 
 // External dependencies
@@ -59,12 +69,19 @@ mod import
 	// };
 
 
+	pub(crate) use
+	{
+		futures    :: { task::{ Spawn, LocalSpawn } } ,
+		std        :: { future::Future, pin::Pin, task::{ Context, Poll }, marker::PhantomData } ,
+		futures    :: { task::SpawnError as FutSpawnErr } ,
+	};
+
+
 	#[ cfg(any( feature = "bindgen", feature = "threadpool", feature = "localpool", feature = "juliex", feature = "tokio_ct", feature = "tokio_tp", feature = "async_std" )) ]
 	//
 	pub(crate) use
 	{
 		futures :: { future::{ FutureObj }           } ,
-		futures :: { task::SpawnError as FutSpawnErr } ,
 
 	};
 

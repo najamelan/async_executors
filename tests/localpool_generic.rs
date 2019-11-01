@@ -57,7 +57,7 @@ fn test_spawn_local()
 //
 #[ test ]
 //
-fn test_spawn_handle()
+fn test_spawn_from_handle()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let mut exec = LocalPool::new();
@@ -75,7 +75,7 @@ fn test_spawn_handle()
 //
 #[ test ]
 //
-fn test_spawn_handle_local()
+fn test_spawn_from_handle_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let mut exec = LocalPool::new();

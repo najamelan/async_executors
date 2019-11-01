@@ -1,12 +1,12 @@
 use
 {
-	crate :: { import::* } ,
+	crate :: { import::*, JoinHandle, SpawnHandle } ,
 };
 
 
-/// We currently only support a global AsyncStd threadpool. In principle this is the only supported
-/// executor that allows full control. We could expose an interface that allows users to control
-/// the lifetime and scope of a AsyncStd threadpool.
+/// An executor that spawns tasks on async-std. In contrast to the other executors, this one
+/// is not self contained, because async-std does not provide an API that allows that.
+/// So the threadpool is global.
 //
 #[ derive( Clone ) ]
 //
@@ -15,7 +15,8 @@ pub struct AsyncStd {}
 
 impl AsyncStd
 {
-	/// Create a new AsyncStd threadpool.
+	/// Create a new AsyncStd executor (note that this is a NOOP because async-std only has
+	/// a global spawn function).
 	//
 	pub fn new() -> Self
 	{
@@ -25,7 +26,7 @@ impl AsyncStd
 
 
 	/// Obtain a handle to this executor that can easily be cloned and that implements
-	/// Spawn the trait.
+	/// Spawn the trait. This one is zero-size.
 	//
 	pub fn handle( &self ) -> AsyncStd
 	{
@@ -57,13 +58,26 @@ impl AsyncStd
 
 
 
-impl futures::task::Spawn for AsyncStd
+impl Spawn for AsyncStd
 {
 	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		async_std_crate::task::spawn( future );
 
 		Ok(())
+	}
+}
+
+
+
+impl SpawnHandle for AsyncStd
+{
+	fn spawn_handle<T: 'static + Send>( &mut self, fut: impl Future< Output=T > + Send + 'static )
+
+		-> Result< JoinHandle<T>, FutSpawnErr >
+
+	{
+		Ok( async_std_crate::task::spawn( fut ).into() )
 	}
 }
 

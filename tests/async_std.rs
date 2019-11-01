@@ -4,6 +4,7 @@
 //
 // ✔ pass a &mut AsyncStd to a function that takes exec: `&mut impl SpawnExt`
 // ✔ pass a      AsyncStd to a function that takes exec: `impl SpawnExt + Clone`
+// ✔ test spawn_handle
 //
 mod common;
 
@@ -11,7 +12,7 @@ use
 {
 	common          :: * ,
 	async_executors :: * ,
-	futures         :: { channel::mpsc, executor::block_on, StreamExt },
+	futures         :: { channel::{ mpsc, oneshot }, executor::block_on, StreamExt },
 };
 
 
@@ -36,7 +37,7 @@ fn test_spawn()
 //
 #[ test ]
 //
-fn test_spawn_handle()
+fn test_spawn_from_handle()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec = AsyncStd::new();
@@ -46,5 +47,27 @@ fn test_spawn_handle()
 	let result = block_on( rx.next() ).expect( "Some" );
 
 		assert_eq!( 5u8, result );
+}
+
+
+// test spawn_handle
+//
+#[ test ]
+//
+fn test_spawn_with_handle()
+{
+	let (tx, rx) = oneshot::channel();
+	let mut exec = AsyncStd::new();
+
+	let fut = async move
+	{
+		rx.await.expect( "Some" )
+	};
+
+	let join_handle = exec.spawn_handle( fut ).expect( "spawn" );
+
+	tx.send( 5 ).expect( "send" );
+
+		assert_eq!( 5u8, block_on( join_handle ) );
 }
 
