@@ -32,12 +32,13 @@ version = "^0.3.0-alpha"
 [dependencies.juliex_crate]
 optional = true
 package = "juliex"
-version = "^0.3.0-alpha"
+path = "../juliex"
 
 [dependencies.tokio-executor]
 default-features = false
+features = ["blocking"]
 optional = true
-version = "^0.2.0-alpha"
+path = "../tokio/tokio-executor"
 
 [dependencies.wasm-bindgen-futures]
 optional = true

@@ -30,11 +30,20 @@
 #[ cfg( feature = "threadpool" ) ] mod threadpool;
 #[ cfg( feature = "threadpool" ) ] pub use threadpool::*;
 
+#[ cfg( feature = "juliex"     ) ] mod juliex;
+#[ cfg( feature = "juliex"     ) ] pub use juliex::*;
+
 #[ cfg( feature = "tokio_ct"   ) ] mod tokio_ct;
 #[ cfg( feature = "tokio_ct"   ) ] pub use tokio_ct::*;
 
 #[ cfg( feature = "tokio_tp"   ) ] mod tokio_tp;
 #[ cfg( feature = "tokio_tp"   ) ] pub use tokio_tp::*;
+
+#[ cfg( feature = "async_std"  ) ] mod async_std;
+#[ cfg( feature = "async_std"  ) ] pub use async_std::*;
+
+#[ cfg( feature = "bindgen"    ) ] mod bindgen;
+#[ cfg( feature = "bindgen"    ) ] pub use bindgen::*;
 
 
 
@@ -50,7 +59,7 @@ mod import
 	// };
 
 
-	#[ cfg(any( feature = "bindgen", feature = "threadpool", feature = "localpool", feature = "juliex", feature = "tokio_ct", feature = "tokio_tp" )) ]
+	#[ cfg(any( feature = "bindgen", feature = "threadpool", feature = "localpool", feature = "juliex", feature = "tokio_ct", feature = "tokio_tp", feature = "async_std" )) ]
 	//
 	pub(crate) use
 	{
@@ -69,7 +78,7 @@ mod import
 	};
 
 
-	#[ cfg(any( feature = "localpool", feature = "tokio_ct" )) ]
+	#[ cfg(any( feature = "localpool", feature = "tokio_ct", feature = "bindgen" )) ]
 	//
 	pub(crate) use
 	{
