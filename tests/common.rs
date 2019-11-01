@@ -15,7 +15,7 @@ pub fn increment( a: u8, exec: &mut impl Spawn, tx: Sender<u8> )
 
 // A function that takes a generic executor and spawns a task.
 //
-#[ cfg(any( feature = "localpool", feature = "tokio_ct" )) ]
+#[ cfg(any( feature = "localpool", feature = "tokio_ct", feature = "bindgen" )) ]
 //
 pub fn increment_local( a: u8, exec: &mut impl LocalSpawn, tx: Sender<u8> )
 {
@@ -37,7 +37,7 @@ pub fn increment_by_value( a: u8, exec: impl Spawn + Clone, tx: Sender<u8> )
 
 // A function that takes a generic executor by value, clones it and spawns a task.
 //
-#[ cfg(any( feature = "localpool", feature = "tokio_ct" )) ]
+#[ cfg(any( feature = "localpool", feature = "tokio_ct", feature = "bindgen" )) ]
 //
 pub fn increment_by_value_local( a: u8, exec: impl LocalSpawn + Clone, tx: Sender<u8> )
 {

@@ -6,18 +6,6 @@ status = "actively-developed"
 [badges.travis-ci]
 repository = "najamelan/async_executors"
 
-[[bench]]
-harness = false
-name = "current_thread"
-
-[[bench]]
-harness = false
-name = "ring"
-
-[[bench]]
-harness = false
-name = "threadpools"
-
 [dependencies]
 [dependencies.async_std_crate]
 optional = true
@@ -77,3 +65,8 @@ version = "0.0.0"
 [package.metadata.docs]
 [package.metadata.docs.rs]
 features = ["external_doc"]
+
+[target]
+[target."cfg(target_arch = \"wasm32\")"]
+[target."cfg(target_arch = \"wasm32\")".dev-dependencies]
+wasm-bindgen-test = "^0.3"

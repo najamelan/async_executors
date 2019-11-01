@@ -108,13 +108,10 @@ dev-dependencies:
   # flexi_logger      : ^0.11
 
 
-bench:
+target:
 
-  - name   : current_thread
-    harness: false
+  'cfg(target_arch = "wasm32")':
 
-  - name   : ring
-    harness: false
+    dev-dependencies:
 
-  - name   : threadpools
-    harness: false
+      wasm-bindgen-test: ^0.3
