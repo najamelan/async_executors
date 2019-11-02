@@ -1,7 +1,7 @@
 use
 {
-	crate                :: { import::*   } ,
-	wasm_bindgen_futures :: { spawn_local } ,
+	crate                :: { import::*, JoinHandle, SpawnHandle, LocalSpawnHandle  } ,
+	wasm_bindgen_futures :: { spawn_local                                           } ,
 };
 
 
@@ -32,33 +32,11 @@ impl Bindgen
 	{
 		self.clone()
 	}
-
-
-	// pub(crate) fn spawn_handle<T: 'static + Send>( &self, fut: impl Future< Output=T > + Send + 'static )
-
-	// 	-> Result< Box< dyn Future< Output=T > + Send + 'static + Unpin >, Error >
-
-	// {
-	// 	let (fut, handle) = fut.remote_handle();
-
-	// 	self.spawn( fut )?;
-	// 	Ok(Box::new( handle ))
-	// }
-
-
-
-	// pub(crate) fn spawn_handle_local<T: 'static + Send>( &self, _: impl Future< Output=T > + 'static )
-
-	// 	-> Result< Box< dyn Future< Output=T > + 'static + Unpin >, Error >
-
-	// {
-	// 	Err( ErrorKind::SpawnLocalOnThreadPool.into() )
-	// }
 }
 
 
 
-impl futures::task::Spawn for Bindgen
+impl Spawn for Bindgen
 {
 	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
@@ -70,13 +48,57 @@ impl futures::task::Spawn for Bindgen
 
 
 
-impl futures::task::LocalSpawn for Bindgen
+impl LocalSpawn for Bindgen
 {
 	fn spawn_local_obj( &mut self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		spawn_local( future );
 
 		Ok(())
+	}
+}
+
+
+impl SpawnHandle for Bindgen
+{
+	fn spawn_handle<T: 'static + Send>( &mut self, fut: impl Future< Output=T > + Send + 'static )
+
+		-> Result< JoinHandle<T>, FutSpawnErr >
+
+	{
+		let (tx, rx) = oneshot::channel();
+
+		let task = async move
+		{
+			let t = fut.await;
+			let _ = tx.send(t);
+		};
+
+		spawn_local( task );
+
+		Ok( rx.into() )
+	}
+}
+
+
+impl LocalSpawnHandle for Bindgen
+{
+	fn spawn_handle_local<T: 'static>( &mut self, fut: impl Future< Output=T > + 'static )
+
+		-> Result< JoinHandle<T>, FutSpawnErr >
+
+	{
+		let (tx, rx) = oneshot::channel();
+
+		let task = async move
+		{
+			let t = fut.await;
+			let _ = tx.send(t);
+		};
+
+		spawn_local( task );
+
+		Ok( rx.into() )
 	}
 }
 

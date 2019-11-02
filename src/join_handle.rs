@@ -45,7 +45,7 @@ impl<T> From< async_std_crate::task::JoinHandle<T> > for JoinHandle<T>
 }
 
 
-#[ cfg(any( feature = "juliex", feature = "threadpool", feature = "tokio_tp", feature = "tokio_ct", feature = "localpool" )) ]
+#[ cfg(any( feature = "bindgen", feature = "juliex", feature = "threadpool", feature = "tokio_tp", feature = "tokio_ct", feature = "localpool" )) ]
 //
 impl<T> From< oneshot::Receiver<T> > for JoinHandle<T>
 {
@@ -64,7 +64,7 @@ pub(crate) enum Inner<T>
 	//
 	AsyncStd( async_std_crate::task::JoinHandle<T> ),
 
-	#[ cfg(any( feature = "juliex", feature = "threadpool", feature = "tokio_tp", feature = "tokio_ct", feature = "localpool" )) ]
+	#[ cfg(any( feature = "bindgen", feature = "juliex", feature = "threadpool", feature = "tokio_tp", feature = "tokio_ct", feature = "localpool" )) ]
 	//
 	Oneshot( oneshot::Receiver<T> ),
 
@@ -94,7 +94,7 @@ impl<T: 'static > Future for Inner<T>
 			}
 
 
-			#[ cfg(any( feature = "juliex", feature = "threadpool", feature = "tokio_ct", feature = "tokio_tp", feature = "localpool" )) ]
+			#[ cfg(any( feature = "bindgen", feature = "juliex", feature = "threadpool", feature = "tokio_ct", feature = "tokio_tp", feature = "localpool" )) ]
 			//
 			Inner::Oneshot( inner ) =>
 			{

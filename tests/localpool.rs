@@ -116,7 +116,7 @@ fn test_spawn_with_handle()
 }
 
 
-// test spawn_handle
+// test spawn_handle_local
 //
 #[ test ]
 //
