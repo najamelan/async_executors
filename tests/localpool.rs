@@ -60,12 +60,12 @@ fn test_spawn_local()
 //
 #[ test ]
 //
-fn test_spawn_from_handle()
+fn test_spawn_with_clone()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let mut exec = LocalPool::new();
 
-	increment_by_value( 4, exec.handle(), tx );
+	increment_by_value( 4, exec.clone(), tx );
 	exec.run();
 
 	let result = block_on( rx.next() ).expect( "Some" );
@@ -78,12 +78,12 @@ fn test_spawn_from_handle()
 //
 #[ test ]
 //
-fn test_spawn_from_handle_local()
+fn test_spawn_with_clone_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let mut exec = LocalPool::new();
 
-	increment_by_value_local( 4, exec.handle(), tx );
+	increment_by_value_local( 4, exec.clone(), tx );
 	exec.run();
 
 	let result = block_on( rx.next() ).expect( "Some" );

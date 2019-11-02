@@ -18,18 +18,19 @@ use
 
 	futures::task::{ SpawnExt, LocalSpawnExt } ,
 
-	std::marker::PhantomData,
+	std::{ marker::PhantomData, sync::{ Arc, Mutex } },
 };
 
 
 
 /// An executor that uses [tokio_executor::current_thread::CurrentThread]
 //
-#[ derive( Debug ) ]
+#[ derive( Debug, Clone ) ]
 //
 pub struct TokioCt
 {
-	exec: TokioCtExec,
+	exec   : Arc<Mutex< TokioCtExec >>,
+	spawner: TokioCtHandle            ,
 }
 
 
@@ -50,16 +51,7 @@ impl TokioCt
 	//
 	pub fn run( &mut self ) -> Result< (), TokioRunError >
 	{
-		self.exec.run()
-	}
-
-
-	/// Obtain a handle to this executor that can easily be cloned and that implements the
-	/// Spawn and LocalSpawn traits.
-	//
-	pub fn handle( &self ) -> TokioCtHandle
-	{
-		TokioCtHandle::new( self.exec.handle() )
+		self.exec.lock().expect( "lock tokio_ct executor" ).run()
 	}
 
 
@@ -71,7 +63,7 @@ impl TokioCt
 	//
 	pub fn send_handle( &self ) -> TokioCtSendHandle
 	{
-		TokioCtSendHandle::new( self.exec.handle() )
+		TokioCtSendHandle::new( self.exec.lock().expect( "lock tokio_ct executor" ).handle() )
 	}
 }
 
@@ -81,7 +73,10 @@ impl Default for TokioCt
 {
 	fn default() -> Self
 	{
-		Self { exec: TokioCtExec::new() }
+		let exec = TokioCtExec::new();
+		let spawner = TokioCtHandle::new( exec.handle() );
+
+		Self { exec: Arc::new( Mutex::new( exec )), spawner }
 	}
 }
 
@@ -90,7 +85,9 @@ impl From<TokioCtExec> for TokioCt
 {
 	fn from( exec: TokioCtExec ) -> Self
 	{
-		Self { exec }
+		let spawner = TokioCtHandle::new( exec.handle() );
+
+		Self { exec: Arc::new( Mutex::new( exec )), spawner }
 	}
 }
 
@@ -100,8 +97,7 @@ impl LocalSpawn for TokioCt
 {
 	fn spawn_local_obj( &mut self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
-		self.exec.spawn( future );
-		Ok(())
+		self.spawner.spawn_local( future )
 	}
 }
 
@@ -112,8 +108,7 @@ impl Spawn for TokioCt
 {
 	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
-		self.exec.spawn( future );
-		Ok(())
+		self.spawner.spawn( future )
 	}
 }
 

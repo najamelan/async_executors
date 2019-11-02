@@ -28,16 +28,6 @@ impl ThreadPool
 	{
 		Ok( Self { pool: FutThreadPool::new()? } )
 	}
-
-
-
-	/// Obtain a handle to this executor that can easily be cloned and that implements
-	/// Spawn the trait.
-	//
-	pub fn handle( &self ) -> ThreadPool
-	{
-		self.clone()
-	}
 }
 
 

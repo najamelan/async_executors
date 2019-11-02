@@ -22,16 +22,6 @@ impl Bindgen
 	{
 		Self{}
 	}
-
-
-
-	/// Obtain a handle to this executor that can easily be cloned and that implements
-	/// Spawn the trait.
-	//
-	pub fn handle( &self ) -> Bindgen
-	{
-		self.clone()
-	}
 }
 
 

@@ -27,16 +27,6 @@ impl Juliex
 			pool: juliex_crate::ThreadPool::new()
 		}
 	}
-
-
-
-	/// Obtain a handle to this executor that can easily be cloned and that implements
-	/// Spawn the trait.
-	//
-	pub fn handle( &self ) -> Juliex
-	{
-		self.clone()
-	}
 }
 
 

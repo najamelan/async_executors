@@ -6,8 +6,6 @@ use
 
 	tokio_executor::
 	{
-		Executor,
-
 		thread_pool::
 		{
 			ThreadPool as TokioTpExec    ,
@@ -15,17 +13,20 @@ use
 		},
 	},
 
-	futures::task::SpawnExt
+	futures::task::SpawnExt,
+
+	std :: { sync::{ Arc, Mutex } },
 };
 
 
 /// An executor that uses [tokio_executor::thread_pool::ThreadPool]
 //
-#[ derive( Debug ) ]
+#[ derive( Debug, Clone ) ]
 //
 pub struct TokioTp
 {
-	exec: TokioTpExec,
+	exec   : Arc<Mutex< TokioTpExec >> ,
+	spawner: TokioTpSpawner            ,
 }
 
 
@@ -38,15 +39,6 @@ impl TokioTp
 	{
 		Self::default()
 	}
-
-
-	/// Obtain a handle to this executor that can easily be cloned and that implements the
-	/// Spawn and LocalSpawn traits.
-	//
-	pub fn handle( &self ) -> TokioTpHandle
-	{
-		TokioTpHandle::new( self.exec.spawner().clone() )
-	}
 }
 
 
@@ -55,7 +47,10 @@ impl Default for TokioTp
 {
 	fn default() -> Self
 	{
-		Self { exec: TokioTpExec::new() }
+		let exec = TokioTpExec::new();
+		let spawner = exec.spawner().clone();
+
+		Self { exec: Arc::new( Mutex::new( exec )), spawner }
 	}
 }
 
@@ -64,7 +59,8 @@ impl From<TokioTpExec> for TokioTp
 {
 	fn from( exec: TokioTpExec ) -> Self
 	{
-		Self { exec }
+		let spawner = exec.spawner().clone();
+		Self { exec: Arc::new( Mutex::new( exec )), spawner }
 	}
 }
 
@@ -80,7 +76,7 @@ impl Spawn for TokioTp
 		//
 		// Impl in tokio is actually infallible, so no point in converting the error type.
 		//
-		let _ = <&TokioTpExec as Executor>::spawn( &mut &self.exec, Box::pin( future ) );
+		let _ = self.spawner.spawn( future );
 
 		Ok(())
 	}
@@ -108,43 +104,12 @@ impl SpawnHandle for TokioTp
 			let _ = tx.send(t);
 		};
 
-		self.spawn( task );
+		// impl in tokio is infallible.
+		//
+		let _ = self.spawn( task );
 
 		Ok( rx.into() )
 	}
 }
 
 
-
-//------------------------------------------------------------------------ Handle
-//
-//
-/// A handle to this localpool that can easily be cloned and that implements
-/// Spawn and LocalSpawn traits.
-//
-#[ derive( Debug, Clone ) ]
-//
-pub struct TokioTpHandle
-{
-	spawner : TokioTpSpawner,
-}
-
-
-impl TokioTpHandle
-{
-	pub(crate) fn new( spawner: TokioTpSpawner ) -> Self
-	{
-		Self { spawner }
-	}
-}
-
-
-
-impl Spawn for TokioTpHandle
-{
-	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
-	{
-		self.spawner.spawn( future );
-		Ok(())
-	}
-}

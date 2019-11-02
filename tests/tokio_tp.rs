@@ -37,13 +37,15 @@ fn test_spawn()
 //
 #[ test ]
 //
-fn test_spawn_handle()
+fn test_spawn_with_clone()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec = TokioTp::new();
 
-	increment_by_value( 4, exec.handle(), tx );
+	increment_by_value( 4, exec, tx );
 
+	// TODO: fails sometimes with panic on expect
+	//
 	let result = block_on( rx.next() ).expect( "Some" );
 
 		assert_eq!( 5u8, result );

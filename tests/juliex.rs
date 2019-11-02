@@ -37,12 +37,12 @@ fn test_spawn()
 //
 #[ test ]
 //
-fn test_spawn_from_handle()
+fn test_spawn_with_clone()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec = Juliex::new();
 
-	increment_by_value( 4, exec.handle(), tx );
+	increment_by_value( 4, exec, tx );
 
 	let result = block_on( rx.next() ).expect( "Some" );
 

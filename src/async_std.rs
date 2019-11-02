@@ -22,16 +22,6 @@ impl AsyncStd
 	{
 		Self{}
 	}
-
-
-
-	/// Obtain a handle to this executor that can easily be cloned and that implements
-	/// Spawn the trait. This one is zero-size.
-	//
-	pub fn handle( &self ) -> AsyncStd
-	{
-		self.clone()
-	}
 }
 
 

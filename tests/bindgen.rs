@@ -70,12 +70,12 @@ fn test_spawn_local()
 //
 #[wasm_bindgen_test]
 //
-fn test_spawn_from_handle()
+fn test_spawn_with_clone()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let mut exec     = Bindgen::new();
 
-	increment_by_value( 4, exec.handle(), tx );
+	increment_by_value( 4, exec.clone(), tx );
 
 	let fut = async move
 	{
@@ -92,12 +92,12 @@ fn test_spawn_from_handle()
 //
 #[wasm_bindgen_test]
 //
-fn test_spawn_from_handle_local()
+fn test_spawn_with_clone_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let mut exec     = Bindgen::new();
 
-	increment_by_value_local( 4, exec.handle(), tx );
+	increment_by_value_local( 4, exec.clone(), tx );
 
 	let fut = async move
 	{
