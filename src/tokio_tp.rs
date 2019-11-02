@@ -2,7 +2,7 @@
 //
 use
 {
-	crate::import::*,
+	crate::{ import::*, JoinHandle, SpawnHandle },
 
 	tokio_executor::
 	{
@@ -14,6 +14,8 @@ use
 			Spawner    as TokioTpSpawner ,
 		},
 	},
+
+	futures::task::SpawnExt
 };
 
 
@@ -45,18 +47,6 @@ impl TokioTp
 	{
 		TokioTpHandle::new( self.exec.spawner().clone() )
 	}
-
-
-	// pub fn spawn_handle<T: 'static + Send>( &self, fut: impl Future< Output=T > + Send + 'static )
-
-	// 	-> Result< Box< dyn Future< Output=T > + Send + 'static + Unpin >, Error >
-
-	// {
-	// 	let (fut, handle) = fut.remote_handle();
-
-	// 	self.exec.spawn_local( fut )?;
-	// 	Ok(Box::new( handle ))
-	// }
 }
 
 
@@ -80,7 +70,7 @@ impl From<TokioTpExec> for TokioTp
 
 
 
-impl futures::task::Spawn for TokioTp
+impl Spawn for TokioTp
 {
 	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
@@ -93,6 +83,34 @@ impl futures::task::Spawn for TokioTp
 		let _ = <&TokioTpExec as Executor>::spawn( &mut &self.exec, Box::pin( future ) );
 
 		Ok(())
+	}
+}
+
+
+
+impl SpawnHandle for TokioTp
+{
+	fn spawn_handle<T: 'static + Send>( &mut self, fut: impl Future< Output=T > + Send + 'static )
+
+		-> Result< JoinHandle<T>, FutSpawnErr >
+
+	{
+		// Even though the tokio threadpool has a JoinHandle, we use a oneshot::channel here because
+		// the JoinHandle requires return types to be Send, which gives trouble if we want to use our
+		// JoinHandle impl for current thread executors.
+		// TODO: does this affect performance?
+		//
+		let (tx, rx) = oneshot::channel();
+
+		let task = async move
+		{
+			let t = fut.await;
+			let _ = tx.send(t);
+		};
+
+		self.spawn( task );
+
+		Ok( rx.into() )
 	}
 }
 
@@ -122,7 +140,7 @@ impl TokioTpHandle
 
 
 
-impl futures::task::Spawn for TokioTpHandle
+impl Spawn for TokioTpHandle
 {
 	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{

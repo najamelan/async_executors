@@ -23,7 +23,7 @@ impl<T> JoinHandle<T>
 	}
 }
 
-impl<T> Future for JoinHandle<T>
+impl<T: 'static> Future for JoinHandle<T>
 {
 	type Output = T;
 
@@ -45,7 +45,7 @@ impl<T> From< async_std_crate::task::JoinHandle<T> > for JoinHandle<T>
 }
 
 
-#[ cfg(any( feature = "juliex", feature = "threadpool" )) ]
+#[ cfg(any( feature = "juliex", feature = "threadpool", feature = "tokio_tp" )) ]
 //
 impl<T> From< oneshot::Receiver<T> > for JoinHandle<T>
 {
@@ -64,7 +64,7 @@ pub(crate) enum Inner<T>
 	//
 	AsyncStd( async_std_crate::task::JoinHandle<T> ),
 
-	#[ cfg(any( feature = "juliex", feature = "threadpool" )) ]
+	#[ cfg(any( feature = "juliex", feature = "threadpool", feature = "tokio_tp" )) ]
 	//
 	Oneshot( oneshot::Receiver<T> ),
 
@@ -76,7 +76,7 @@ impl<T> Unpin for Inner<T> {}
 
 // This currently forwards panics from the spawned tasks.
 //
-impl<T> Future for Inner<T>
+impl<T: 'static > Future for Inner<T>
 {
 	type Output = T;
 
@@ -93,7 +93,8 @@ impl<T> Future for Inner<T>
 				Pin::new( inner ).poll(cx)
 			}
 
-			#[ cfg(any( feature = "juliex", feature = "threadpool" )) ]
+
+			#[ cfg(any( feature = "juliex", feature = "threadpool", feature = "tokio_tp" )) ]
 			//
 			Inner::Oneshot( inner ) =>
 			{

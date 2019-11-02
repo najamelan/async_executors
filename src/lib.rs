@@ -86,7 +86,7 @@ mod import
 	};
 
 
-	#[ cfg(any( feature = "juliex", feature = "threadpool" )) ]
+	#[ cfg(any( feature = "juliex", feature = "threadpool", feature = "tokio_tp" )) ]
 	//
 	pub(crate) use
 	{
