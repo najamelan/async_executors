@@ -32,28 +32,6 @@ impl AsyncStd
 	{
 		self.clone()
 	}
-
-
-	// pub(crate) fn spawn_handle<T: 'static + Send>( &self, fut: impl Future< Output=T > + Send + 'static )
-
-	// 	-> Result< Box< dyn Future< Output=T > + Send + 'static + Unpin >, Error >
-
-	// {
-	// 	let (fut, handle) = fut.remote_handle();
-
-	// 	self.spawn( fut )?;
-	// 	Ok(Box::new( handle ))
-	// }
-
-
-
-	// pub(crate) fn spawn_handle_local<T: 'static + Send>( &self, _: impl Future< Output=T > + 'static )
-
-	// 	-> Result< Box< dyn Future< Output=T > + 'static + Unpin >, Error >
-
-	// {
-	// 	Err( ErrorKind::SpawnLocalOnThreadPool.into() )
-	// }
 }
 
 

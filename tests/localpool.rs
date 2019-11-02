@@ -6,6 +6,8 @@
 // ✔ pass a &mut LocalPool to a function that takes exec: `&mut impl LocalSpawn`
 // ✔ pass a      LocalPool to a function that takes exec: `impl Spawn      + Clone`
 // ✔ pass a      LocalPool to a function that takes exec: `impl LocalSpawn + Clone`
+// ✔ test spawn_handle
+// ✔ test spawn_handle_local
 //
 mod common;
 
@@ -13,7 +15,8 @@ use
 {
 	common          :: * ,
 	async_executors :: * ,
-	futures         :: { channel::mpsc, executor::block_on, StreamExt },
+	futures         :: { channel::{ mpsc, oneshot }, executor::block_on, StreamExt } ,
+	std             :: { rc::Rc                                                    } ,
 };
 
 
@@ -87,3 +90,54 @@ fn test_spawn_from_handle_local()
 
 		assert_eq!( 5u8, result );
 }
+
+
+// test spawn_handle
+//
+#[ test ]
+//
+fn test_spawn_with_handle()
+{
+	let (tx, rx) = oneshot::channel();
+	let mut exec = LocalPool::new();
+
+	let fut = async move
+	{
+		rx.await.expect( "Some" )
+	};
+
+	let join_handle = exec.spawn_handle( fut ).expect( "spawn" );
+
+	tx.send( 5u8 ).expect( "send" );
+
+	exec.run();
+
+		assert_eq!( 5u8, block_on( join_handle ) );
+}
+
+
+// test spawn_handle
+//
+#[ test ]
+//
+fn test_spawn_with_local_handle()
+{
+	let (tx, rx) = oneshot::channel();
+	let mut exec = LocalPool::new();
+
+	let fut = async move
+	{
+		rx.await.expect( "Some" )
+	};
+
+	let join_handle = exec.spawn_handle_local( fut ).expect( "spawn" );
+
+	// Use Rc to make sure we get a !Send output.
+	//
+	tx.send( Rc::new( 5u8 ) ).expect( "send" );
+
+	exec.run();
+
+		assert_eq!( Rc::new( 5u8 ), block_on( join_handle ) );
+}
+

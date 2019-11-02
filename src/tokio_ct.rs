@@ -2,7 +2,7 @@
 //
 use
 {
-	crate::import::*,
+	crate::{ import::*, JoinHandle, SpawnHandle, LocalSpawnHandle } ,
 
 	tokio_executor::
 	{
@@ -16,6 +16,7 @@ use
 		},
 	},
 
+	futures::task::{ SpawnExt, LocalSpawnExt } ,
 
 	std::marker::PhantomData,
 };
@@ -72,30 +73,6 @@ impl TokioCt
 	{
 		TokioCtSendHandle::new( self.exec.handle() )
 	}
-
-
-	// pub fn spawn_handle<T: 'static + Send>( &self, fut: impl Future< Output=T > + Send + 'static )
-
-	// 	-> Result< Box< dyn Future< Output=T > + Send + 'static + Unpin >, Error >
-
-	// {
-	// 	let (fut, handle) = fut.remote_handle();
-
-	// 	self.exec.spawn_local( fut )?;
-	// 	Ok(Box::new( handle ))
-	// }
-
-
-
-	// pub fn spawn_handle_local<T: 'static + Send>( &self, fut: impl Future< Output=T > + 'static )
-
-	// 	-> Result< Box< dyn Future< Output=T > + 'static + Unpin >, Error >
-	// {
-	// 	let (fut, handle) = fut.remote_handle();
-
-	// 	self.exec.spawn_local( fut )?;
-	// 	Ok(Box::new( handle ))
-	// }
 }
 
 
@@ -119,7 +96,7 @@ impl From<TokioCtExec> for TokioCt
 
 
 
-impl futures::task::LocalSpawn for TokioCt
+impl LocalSpawn for TokioCt
 {
 	fn spawn_local_obj( &mut self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
@@ -131,7 +108,7 @@ impl futures::task::LocalSpawn for TokioCt
 
 
 
-impl futures::task::Spawn for TokioCt
+impl Spawn for TokioCt
 {
 	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
@@ -139,6 +116,51 @@ impl futures::task::Spawn for TokioCt
 		Ok(())
 	}
 }
+
+
+impl SpawnHandle for TokioCt
+{
+	fn spawn_handle<T: 'static + Send>( &mut self, fut: impl Future< Output=T > + Send + 'static )
+
+		-> Result< JoinHandle<T>, FutSpawnErr >
+
+	{
+		let (tx, rx) = oneshot::channel();
+
+		let task = async move
+		{
+			let t = fut.await;
+			let _ = tx.send(t);
+		};
+
+		self.spawn( task ).unwrap();
+
+		Ok( rx.into() )
+	}
+}
+
+
+impl LocalSpawnHandle for TokioCt
+{
+	fn spawn_handle_local<T: 'static>( &mut self, fut: impl Future< Output=T > + 'static )
+
+		-> Result< JoinHandle<T>, FutSpawnErr >
+
+	{
+		let (tx, rx) = oneshot::channel();
+
+		let task = async move
+		{
+			let t = fut.await;
+			let _ = tx.send(t);
+		};
+
+		self.spawn_local( task ).unwrap();
+
+		Ok( rx.into() )
+	}
+}
+
 
 
 
@@ -165,7 +187,7 @@ impl TokioCtSendHandle
 }
 
 
-impl futures::task::Spawn for TokioCtSendHandle
+impl Spawn for TokioCtSendHandle
 {
 	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
@@ -208,7 +230,7 @@ impl TokioCtHandle
 
 
 
-impl futures::task::LocalSpawn for TokioCtHandle
+impl LocalSpawn for TokioCtHandle
 {
 	fn spawn_local_obj( &mut self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
@@ -233,13 +255,15 @@ impl futures::task::LocalSpawn for TokioCtHandle
 
 
 
-impl futures::task::Spawn for TokioCtHandle
+impl Spawn for TokioCtHandle
 {
 	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		self.spawner.spawn( future ).map_err( tok_to_fut_spawn_error )
 	}
 }
+
+
 
 
 

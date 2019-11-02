@@ -2,8 +2,8 @@
 
 use
 {
-	crate   :: { import::*                                             } ,
-	futures :: { future::FutureExt,  task::{ SpawnExt, LocalSpawnExt } } ,
+	crate   :: { import::*, JoinHandle, SpawnHandle, LocalSpawnHandle  } ,
+	futures :: { task::{ SpawnExt, LocalSpawnExt }                     } ,
 	futures :: { executor::{ LocalPool as FutLocalPool, LocalSpawner } } ,
 };
 
@@ -71,37 +71,6 @@ impl LocalPool
 	{
 		self.pool.run_until_stalled()
 	}
-
-
-	/// Spawn a future, keeping a handle to await it's completion and recover the returned value.
-	/// Dropping the handle cancels the future instantly.
-	//
-	pub fn spawn_handle<T: 'static + Send>( &mut self, fut: impl Future< Output=T > + Send + 'static )
-
-		-> Result< Box< dyn Future< Output=T > + Send + 'static + Unpin >, FutSpawnErr >
-
-	{
-		let (fut, handle) = fut.remote_handle();
-
-		self.spawner.spawn( fut )?;
-		Ok(Box::new( handle ))
-	}
-
-
-	/// Spawn a future, keeping a handle to await it's completion and recover the returned value.
-	/// Dropping the handle cancels the future instantly.
-	///
-	/// TODO: why is T: Send
-	//
-	pub fn spawn_handle_local<T: 'static + Send>( &mut self, fut: impl Future< Output=T > + 'static )
-
-		-> Result< Box< dyn Future< Output=T > + 'static + Unpin >, FutSpawnErr >
-	{
-		let (fut, handle) = fut.remote_handle();
-
-		self.spawner.spawn_local( fut )?;
-		Ok(Box::new( handle ))
-	}
 }
 
 
@@ -127,7 +96,7 @@ impl From<FutLocalPool> for LocalPool
 }
 
 
-impl futures::task::LocalSpawn for LocalPool
+impl LocalSpawn for LocalPool
 {
 	fn spawn_local_obj( &mut self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
@@ -138,11 +107,55 @@ impl futures::task::LocalSpawn for LocalPool
 
 
 
-impl futures::task::Spawn for LocalPool
+impl Spawn for LocalPool
 {
 	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		self.spawner.spawn_obj( future )
+	}
+}
+
+
+impl SpawnHandle for LocalPool
+{
+	fn spawn_handle<T: 'static + Send>( &mut self, fut: impl Future< Output=T > + Send + 'static )
+
+		-> Result< JoinHandle<T>, FutSpawnErr >
+
+	{
+		let (tx, rx) = oneshot::channel();
+
+		let task = async move
+		{
+			let t = fut.await;
+			let _ = tx.send(t);
+		};
+
+		self.spawner.spawn( task )?;
+
+		Ok( rx.into() )
+	}
+}
+
+
+impl LocalSpawnHandle for LocalPool
+{
+	fn spawn_handle_local<T: 'static>( &mut self, fut: impl Future< Output=T > + 'static )
+
+		-> Result< JoinHandle<T>, FutSpawnErr >
+
+	{
+		let (tx, rx) = oneshot::channel();
+
+		let task = async move
+		{
+			let t = fut.await;
+			let _ = tx.send(t);
+		};
+
+		self.spawner.spawn_local( task )?;
+
+		Ok( rx.into() )
 	}
 }
 
@@ -170,7 +183,7 @@ impl LocalPoolHandle
 
 
 
-impl futures::task::LocalSpawn for LocalPoolHandle
+impl LocalSpawn for LocalPoolHandle
 {
 	fn spawn_local_obj( &mut self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
@@ -181,7 +194,7 @@ impl futures::task::LocalSpawn for LocalPoolHandle
 
 
 
-impl futures::task::Spawn for LocalPoolHandle
+impl Spawn for LocalPoolHandle
 {
 	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
