@@ -81,7 +81,7 @@ mod import
 	//
 	pub(crate) use
 	{
-		futures :: { future::{ FutureObj }           } ,
+		futures :: { future::{ FutureObj } } ,
 
 	};
 
@@ -92,6 +92,14 @@ mod import
 	{
 		futures :: { future::FutureExt, task::SpawnExt } ,
 		std     :: { future::Future    } ,
+	};
+
+
+	#[ cfg(any( feature = "juliex" )) ]
+	//
+	pub(crate) use
+	{
+		futures :: { ready, channel::oneshot } ,
 	};
 
 
