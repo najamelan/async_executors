@@ -2,8 +2,9 @@
 
 use
 {
-	crate   :: { import::*                                                                  } ,
-	futures :: { executor::{ LocalPool as FutLocalPool, LocalSpawner }, task::LocalSpawnExt } ,
+	crate   :: { import::*                                             } ,
+	futures :: { future::FutureExt,  task::{ SpawnExt, LocalSpawnExt } } ,
+	futures :: { executor::{ LocalPool as FutLocalPool, LocalSpawner } } ,
 };
 
 

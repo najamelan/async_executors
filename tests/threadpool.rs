@@ -4,6 +4,7 @@
 //
 // ✔ pass a &mut ThreadPool to a function that takes exec: `&mut impl Spawn`
 // ✔ pass a      ThreadPool to a function that takes exec: `impl Spawn + Clone`
+// ✔ test spawn_handle
 //
 mod common;
 
@@ -11,7 +12,7 @@ use
 {
 	common          :: * ,
 	async_executors :: * ,
-	futures         :: { channel::mpsc, executor::block_on, StreamExt },
+	futures         :: { channel::{ mpsc, oneshot }, executor::block_on, StreamExt },
 };
 
 
@@ -47,4 +48,27 @@ fn test_spawn_handle()
 
 		assert_eq!( 5u8, result );
 }
+
+
+// test spawn_handle
+//
+#[ test ]
+//
+fn test_spawn_with_handle()
+{
+	let (tx, rx) = oneshot::channel();
+	let mut exec = ThreadPool::new().expect( "create threadpool" );
+
+	let fut = async move
+	{
+		rx.await.expect( "Some" )
+	};
+
+	let join_handle = exec.spawn_handle( fut ).expect( "spawn" );
+
+	tx.send( 5 ).expect( "send" );
+
+		assert_eq!( 5u8, block_on( join_handle ) );
+}
+
 

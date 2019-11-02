@@ -2,7 +2,7 @@
 
 use
 {
-	crate   :: { import::*                                 } ,
+	crate   :: { import::*, JoinHandle, SpawnHandle        } ,
 	futures :: { executor::{ ThreadPool as FutThreadPool } } ,
 };
 
@@ -38,22 +38,6 @@ impl ThreadPool
 	{
 		self.clone()
 	}
-
-
-
-	/// Spawn a future, keeping a handle to await it's completion and recover the returned value.
-	/// Dropping the handle cancels the future instantly.
-	//
-	pub fn spawn_handle<T: 'static + Send>( &mut self, fut: impl Future< Output=T > + Send + 'static )
-
-		-> Result< Box< dyn Future< Output=T > + Send + 'static + Unpin >, FutSpawnErr >
-
-	{
-		let (fut, handle) = fut.remote_handle();
-
-		self.spawn( fut )?;
-		Ok(Box::new( handle ))
-	}
 }
 
 
@@ -70,11 +54,33 @@ impl From<FutThreadPool> for ThreadPool
 
 
 
-impl futures::task::Spawn for ThreadPool
+impl Spawn for ThreadPool
 {
 	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		self.pool.spawn_obj( future )
+	}
+}
+
+
+impl SpawnHandle for ThreadPool
+{
+	fn spawn_handle<T: 'static + Send>( &mut self, fut: impl Future< Output=T > + Send + 'static )
+
+		-> Result< JoinHandle<T>, FutSpawnErr >
+
+	{
+		let (tx, rx) = oneshot::channel();
+
+		let task = async move
+		{
+			let t = fut.await;
+			let _ = tx.send(t);
+		};
+
+		self.pool.spawn_ok( task );
+
+		Ok( rx.into() )
 	}
 }
 

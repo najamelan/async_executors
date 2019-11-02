@@ -45,7 +45,7 @@ impl<T> From< async_std_crate::task::JoinHandle<T> > for JoinHandle<T>
 }
 
 
-#[ cfg( feature = "juliex" ) ]
+#[ cfg(any( feature = "juliex", feature = "threadpool" )) ]
 //
 impl<T> From< oneshot::Receiver<T> > for JoinHandle<T>
 {
@@ -64,7 +64,7 @@ pub(crate) enum Inner<T>
 	//
 	AsyncStd( async_std_crate::task::JoinHandle<T> ),
 
-	#[ cfg( feature = "juliex" ) ]
+	#[ cfg(any( feature = "juliex", feature = "threadpool" )) ]
 	//
 	Oneshot( oneshot::Receiver<T> ),
 
@@ -93,7 +93,7 @@ impl<T> Future for Inner<T>
 				Pin::new( inner ).poll(cx)
 			}
 
-			#[ cfg( feature = "juliex" ) ]
+			#[ cfg(any( feature = "juliex", feature = "threadpool" )) ]
 			//
 			Inner::Oneshot( inner ) =>
 			{

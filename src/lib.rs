@@ -86,16 +86,7 @@ mod import
 	};
 
 
-	#[ cfg(any( feature = "threadpool", feature = "localpool" )) ]
-	//
-	pub(crate) use
-	{
-		futures :: { future::FutureExt, task::SpawnExt } ,
-		std     :: { future::Future    } ,
-	};
-
-
-	#[ cfg(any( feature = "juliex" )) ]
+	#[ cfg(any( feature = "juliex", feature = "threadpool" )) ]
 	//
 	pub(crate) use
 	{
