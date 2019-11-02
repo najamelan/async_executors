@@ -2,8 +2,8 @@
 
 // Tested:
 //
-// ✔ pass a &mut TokioTp to a function that takes exec: `&mut impl SpawnExt`
-// ✔ pass a      TokioTp to a function that takes exec: `impl SpawnExt + Clone`
+// ✔ pass a &mut TokioTp to a function that takes exec: `&mut impl Spawn`
+// ✔ pass a      TokioTp to a function that takes exec: `impl Spawn + Clone`
 //
 mod common;
 
@@ -15,7 +15,7 @@ use
 };
 
 
-// pass a &mut TokioTp to a function that takes exec: `&mut impl SpawnExt`
+// pass a &mut TokioTp to a function that takes exec: `&mut impl Spawn`
 //
 #[ test ]
 //
@@ -32,7 +32,7 @@ fn test_spawn()
 }
 
 
-// pass a &mut TokioTp to a function that takes exec: `impl LocalSpawnExt + Clone`
+// pass a &mut TokioTp to a function that takes exec: `impl Spawn + Clone`
 //
 #[ test ]
 //

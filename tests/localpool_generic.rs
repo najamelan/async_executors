@@ -2,10 +2,10 @@
 
 // Tested:
 //
-// ✔ pass a &mut LocalPool to a function that takes exec: `&mut impl SpawnExt`
-// ✔ pass a &mut LocalPool to a function that takes exec: `&mut impl LocalSpawnExt`
-// ✔ pass a      LocalPool to a function that takes exec: `impl SpawnExt      + Clone`
-// ✔ pass a      LocalPool to a function that takes exec: `impl LocalSpawnExt + Clone`
+// ✔ pass a &mut LocalPool to a function that takes exec: `&mut impl Spawn`
+// ✔ pass a &mut LocalPool to a function that takes exec: `&mut impl LocalSpawn`
+// ✔ pass a      LocalPool to a function that takes exec: `impl Spawn      + Clone`
+// ✔ pass a      LocalPool to a function that takes exec: `impl LocalSpawn + Clone`
 //
 mod common;
 
@@ -17,7 +17,7 @@ use
 };
 
 
-// pass a &mut LocalPool to a function that takes exec: `&mut impl SpawnExt`
+// pass a &mut LocalPool to a function that takes exec: `&mut impl Spawn`
 //
 #[ test ]
 //
@@ -35,7 +35,7 @@ fn test_spawn()
 }
 
 
-// pass a &mut LocalPool to a function that takes exec: `&mut impl LocalSpawnExt`
+// pass a &mut LocalPool to a function that takes exec: `&mut impl LocalSpawn`
 //
 #[ test ]
 //
@@ -53,7 +53,7 @@ fn test_spawn_local()
 }
 
 
-// pass a &mut LocalPool to a function that takes exec: `impl LocalSpawnExt + Clone`
+// pass a &mut LocalPool to a function that takes exec: `impl Spawn + Clone`
 //
 #[ test ]
 //
@@ -71,7 +71,7 @@ fn test_spawn_from_handle()
 }
 
 
-// pass a &mut LocalPool to a function that takes exec: `impl LocalSpawnExt + Clone`
+// pass a &mut LocalPool to a function that takes exec: `impl LocalSpawn + Clone`
 //
 #[ test ]
 //

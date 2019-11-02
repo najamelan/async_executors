@@ -2,8 +2,8 @@
 
 // Tested:
 //
-// ✔ pass a &mut AsyncStd to a function that takes exec: `&mut impl SpawnExt`
-// ✔ pass a      AsyncStd to a function that takes exec: `impl SpawnExt + Clone`
+// ✔ pass a &mut AsyncStd to a function that takes exec: `&mut impl Spawn`
+// ✔ pass a      AsyncStd to a function that takes exec: `impl Spawn + Clone`
 // ✔ test spawn_handle
 //
 mod common;
@@ -16,7 +16,7 @@ use
 };
 
 
-// pass a &mut AsyncStd to a function that takes exec: `&mut impl SpawnExt`
+// pass a &mut AsyncStd to a function that takes exec: `&mut impl Spawn`
 //
 #[ test ]
 //
@@ -33,7 +33,7 @@ fn test_spawn()
 }
 
 
-// pass a &mut AsyncStd to a function that takes exec: `impl LocalSpawnExt + Clone`
+// pass a &mut AsyncStd to a function that takes exec: `impl Spawn + Clone`
 //
 #[ test ]
 //

@@ -2,10 +2,10 @@
 
 // Tested:
 //
-// ✔ pass a &mut Bindgen to a function that takes exec: `&mut impl SpawnExt`
-// ✔ pass a &mut Bindgen to a function that takes exec: `&mut impl LocalSpawnExt`
-// ✔ pass a      Bindgen to a function that takes exec: `impl SpawnExt      + Clone`
-// ✔ pass a      Bindgen to a function that takes exec: `impl LocalSpawnExt + Clone`
+// ✔ pass a &mut Bindgen to a function that takes exec: `&mut impl Spawn`
+// ✔ pass a &mut Bindgen to a function that takes exec: `&mut impl LocalSpawn`
+// ✔ pass a      Bindgen to a function that takes exec: `impl Spawn      + Clone`
+// ✔ pass a      Bindgen to a function that takes exec: `impl LocalSpawn + Clone`
 //
 mod common;
 
@@ -19,7 +19,7 @@ use
 
 wasm_bindgen_test_configure!(run_in_browser);
 
-// pass a &mut Bindgen to a function that takes exec: `&mut impl SpawnExt`
+// pass a &mut Bindgen to a function that takes exec: `&mut impl Spawn`
 //
 #[wasm_bindgen_test]
 //
@@ -41,7 +41,7 @@ fn test_spawn()
 }
 
 
-// pass a &mut Bindgen to a function that takes exec: `&mut impl LocalSpawnExt`
+// pass a &mut Bindgen to a function that takes exec: `&mut impl LocalSpawn`
 //
 #[wasm_bindgen_test]
 //
@@ -63,7 +63,7 @@ fn test_spawn_local()
 }
 
 
-// pass a &mut Bindgen to a function that takes exec: `impl LocalSpawnExt + Clone`
+// pass a &mut Bindgen to a function that takes exec: `impl Spawn + Clone`
 //
 #[wasm_bindgen_test]
 //
@@ -85,7 +85,7 @@ fn test_spawn_from_handle()
 }
 
 
-// pass a &mut Bindgen to a function that takes exec: `impl LocalSpawnExt + Clone`
+// pass a &mut Bindgen to a function that takes exec: `impl LocalSpawn + Clone`
 //
 #[wasm_bindgen_test]
 //
