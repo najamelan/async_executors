@@ -65,7 +65,7 @@ fn test_spawn_with_clone()
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let mut exec = LocalPool::new();
 
-	increment_by_value( 4, exec.clone(), tx );
+	increment_by_value( 4, &mut exec, tx );
 	exec.run();
 
 	let result = block_on( rx.next() ).expect( "Some" );
@@ -83,7 +83,7 @@ fn test_spawn_with_clone_local()
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let mut exec = LocalPool::new();
 
-	increment_by_value_local( 4, exec.clone(), tx );
+	increment_by_value_local( 4, &mut exec, tx );
 	exec.run();
 
 	let result = block_on( rx.next() ).expect( "Some" );

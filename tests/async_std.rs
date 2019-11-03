@@ -40,9 +40,9 @@ fn test_spawn()
 fn test_spawn_with_clone()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec = AsyncStd::new();
+	let mut exec     = AsyncStd::new();
 
-	increment_by_value( 4, exec, tx );
+	increment_by_value( 4, &mut exec, tx );
 
 	let result = block_on( rx.next() ).expect( "Some" );
 

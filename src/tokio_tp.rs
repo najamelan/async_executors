@@ -60,6 +60,7 @@ impl From<TokioTpExec> for TokioTp
 	fn from( exec: TokioTpExec ) -> Self
 	{
 		let spawner = exec.spawner().clone();
+
 		Self { exec: Arc::new( Mutex::new( exec )), spawner }
 	}
 }
@@ -70,13 +71,9 @@ impl Spawn for TokioTp
 {
 	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
-		// Tokio ThreadPool also has a spawn function which returns a JoinHandle, and when not
-		// keeping the JoinHandle, the task is immediately dropped, so it's important we use the
-		// spawn function from the Executor trait.
-		//
 		// Impl in tokio is actually infallible, so no point in converting the error type.
 		//
-		let _ = self.spawner.spawn( future );
+		self.spawner.spawn( future );
 
 		Ok(())
 	}

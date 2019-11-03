@@ -40,13 +40,13 @@ fn test_spawn()
 fn test_spawn_with_clone()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec = ThreadPool::new().expect( "create threadpool" );
+	let mut exec     = ThreadPool::new().expect( "create threadpool" );
 
-	increment_by_value( 4, exec, tx );
+	increment_by_value( 4, &mut exec, tx );
 
-	let result = block_on( rx.next() ).expect( "Some" );
+	let result = block_on( rx.next() );
 
-		assert_eq!( 5u8, result );
+		assert_eq!( Some( 5u8 ), result );
 }
 
 
