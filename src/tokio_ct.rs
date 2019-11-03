@@ -37,14 +37,6 @@ pub struct TokioCt
 
 impl TokioCt
 {
-	/// Create a new TokioCt.
-	//
-	pub fn new() -> Self
-	{
-		Self::default()
-	}
-
-
 	/// Run all spawned futures to completion. Note that this does nothing for the threadpool,
 	/// but if you are using a local pool, you will need to run this or futures will not be polled.
 	/// This blocks the current thread.

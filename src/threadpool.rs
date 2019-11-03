@@ -8,6 +8,9 @@ use
 
 
 /// An executor that uses [futures 0.3 ThreadPool](https://rust-lang-nursery.github.io/futures-api-docs/0.3.0-alpha.19/futures/executor/struct.ThreadPool.html).
+///
+/// This does not implement [`Default`] because the constructor of the futures ThreadPool is fallible. Thus
+/// we have a `new()` function that returns a [`Result`].
 //
 #[ derive( Debug, Clone ) ]
 //

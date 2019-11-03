@@ -8,21 +8,9 @@ use
 /// is not self contained, because async-std does not provide an API that allows that.
 /// So the threadpool is global.
 //
-#[ derive( Clone ) ]
+#[ derive( Clone, Default ) ]
 //
 pub struct AsyncStd {}
-
-
-impl AsyncStd
-{
-	/// Create a new AsyncStd executor (note that this is a NOOP because async-std only has
-	/// a global spawn function).
-	//
-	pub fn new() -> Self
-	{
-		Self{}
-	}
-}
 
 
 

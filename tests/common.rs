@@ -2,7 +2,6 @@
 pub use
 {
 	futures :: { SinkExt, task::{ LocalSpawnExt, SpawnExt, LocalSpawn, Spawn }, channel::mpsc::Sender },
-	log ::*,
 };
 
 // A function that takes a generic executor and spawns a task.
@@ -52,8 +51,6 @@ pub fn increment_by_value_local( a: u8, exec: &mut (impl LocalSpawn + Clone), tx
 
 async fn sum( a: u8, b: u8, mut tx: Sender<u8> )
 {
-	trace!( "sum started" );
-
 	let res = tx.send( a + b ).await;
 
 		assert!( res.is_ok() );

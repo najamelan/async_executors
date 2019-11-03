@@ -27,7 +27,7 @@ use
 fn test_spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec = TokioCt::new();
+	let mut exec = TokioCt::default();
 
 	increment( 4, &mut exec, tx );
 
@@ -50,7 +50,7 @@ fn test_spawn()
 fn test_spawn_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec = TokioCt::new();
+	let mut exec = TokioCt::default();
 
 	increment_local( 4, &mut exec, tx );
 
@@ -73,7 +73,7 @@ fn test_spawn_local()
 fn test_spawn_with_clone()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec = TokioCt::new();
+	let mut exec = TokioCt::default();
 
 	increment_by_value( 4, &mut exec, tx );
 
@@ -96,7 +96,7 @@ fn test_spawn_with_clone()
 fn test_spawn_with_clone_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec = TokioCt::new();
+	let mut exec = TokioCt::default();
 
 	increment_by_value_local( 4, &mut exec, tx );
 
@@ -119,7 +119,7 @@ fn test_spawn_with_clone_local()
 fn test_spawn_with_handle()
 {
 	let (tx, rx) = oneshot::channel();
-	let mut exec = TokioCt::new();
+	let mut exec = TokioCt::default();
 
 	let fut = async move
 	{
@@ -143,7 +143,7 @@ fn test_spawn_with_handle()
 fn test_spawn_with_local_handle()
 {
 	let (tx, rx) = oneshot::channel();
-	let mut exec = TokioCt::new();
+	let mut exec = TokioCt::default();
 
 	let fut = async move
 	{

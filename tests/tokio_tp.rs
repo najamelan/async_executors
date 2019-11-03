@@ -23,7 +23,7 @@ use
 fn test_spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec = TokioTp::new();
+	let mut exec = TokioTp::default();
 
 	increment( 4, &mut exec, tx );
 
@@ -40,7 +40,7 @@ fn test_spawn()
 fn test_spawn_with_clone()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec     = TokioTp::new();
+	let mut exec     = TokioTp::default();
 
 	increment_by_value( 4, &mut exec, tx );
 
@@ -57,7 +57,7 @@ fn test_spawn_with_clone()
 fn test_spawn_with_handle()
 {
 	let (tx, rx) = oneshot::channel();
-	let mut exec = TokioTp::new();
+	let mut exec = TokioTp::default();
 
 	let fut = async move
 	{

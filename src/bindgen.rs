@@ -9,21 +9,9 @@ use
 /// executor that allows full control. We could expose an interface that allows users to control
 /// the lifetime and scope of a Bindgen threadpool.
 //
-#[ derive( Clone ) ]
+#[ derive( Clone, Default ) ]
 //
 pub struct Bindgen {}
-
-
-impl Bindgen
-{
-	/// Create a new Bindgen threadpool.
-	//
-	pub fn new() -> Self
-	{
-		Self{}
-	}
-}
-
 
 
 impl Spawn for Bindgen

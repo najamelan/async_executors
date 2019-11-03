@@ -30,19 +30,6 @@ pub struct TokioTp
 }
 
 
-
-impl TokioTp
-{
-	/// Create a new TokioTp.
-	//
-	pub fn new() -> Self
-	{
-		Self::default()
-	}
-}
-
-
-
 impl Default for TokioTp
 {
 	fn default() -> Self

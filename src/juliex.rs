@@ -16,11 +16,10 @@ pub struct Juliex
 }
 
 
-impl Juliex
+
+impl Default for Juliex
 {
-	/// Create a new Juliex threadpool.
-	//
-	pub fn new() -> Self
+	fn default() -> Self
 	{
 		Self
 		{
