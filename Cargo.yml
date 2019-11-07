@@ -87,9 +87,9 @@ badges:
 
 dependencies:
 
-  futures-preview     : { version: ^0.3.0-alpha, features: [std], default-features: false }
+  futures             : { version: ^0.3.0, features: [std], default-features: false }
   # juliex_crate        : { version: ^0.3.0-alpha, optional: true, package: juliex          }
-  juliex_crate        : { path: ../juliex, optional: true, package: juliex          }
+  juliex_crate        : { version: ^0.3.0-alpha, optional: true, package: juliex          }
   async_std_crate     : { version: ^0.99       , optional: true, package: async-std       }
   # tokio-executor      : { version: ^0.2.0-alpha, optional: true, default-features: false  }
   tokio-executor      : { path: ../tokio/tokio-executor, optional: true, default-features: false, features: [blocking] }
@@ -115,3 +115,10 @@ target:
     dev-dependencies:
 
       wasm-bindgen-test: ^0.3
+
+
+patch:
+
+  crates-io:
+
+    juliex_crate: { package: juliex, git: "https://github.com/najamelan/juliex" }

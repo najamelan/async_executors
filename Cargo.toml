@@ -12,15 +12,15 @@ optional = true
 package = "async-std"
 version = "^0.99"
 
-[dependencies.futures-preview]
+[dependencies.futures]
 default-features = false
 features = ["std"]
-version = "^0.3.0-alpha"
+version = "^0.3.0"
 
 [dependencies.juliex_crate]
 optional = true
 package = "juliex"
-path = "../juliex"
+version = "^0.3.0-alpha"
 
 [dependencies.tokio-executor]
 default-features = false
@@ -65,6 +65,12 @@ version = "0.0.0"
 [package.metadata.docs]
 [package.metadata.docs.rs]
 features = ["external_doc"]
+
+[patch]
+[patch.crates-io]
+[patch.crates-io.juliex_crate]
+git = "https://github.com/najamelan/juliex"
+package = "juliex"
 
 [target]
 [target."cfg(target_arch = \"wasm32\")"]
