@@ -10,7 +10,7 @@ pub trait SpawnHandle: Spawn
 {
 	/// Spawn a task, getting a join handle that can be awaited to recover the output of the task.
 	//
-	fn spawn_handle<T: 'static + Send>( &mut self, fut: impl Future< Output=T > + Send + 'static )
+	fn spawn_handle<T: 'static + Send>( &self, fut: impl Future< Output=T > + Send + 'static )
 
 		-> Result< JoinHandle<T>, FutSpawnErr >;
 }

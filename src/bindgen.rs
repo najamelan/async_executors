@@ -39,7 +39,7 @@ impl LocalSpawn for Bindgen
 
 impl SpawnHandle for Bindgen
 {
-	fn spawn_handle<T: 'static + Send>( &mut self, fut: impl Future< Output=T > + Send + 'static )
+	fn spawn_handle<T: 'static + Send>( &self, fut: impl Future< Output=T > + Send + 'static )
 
 		-> Result< JoinHandle<T>, FutSpawnErr >
 
@@ -61,7 +61,7 @@ impl SpawnHandle for Bindgen
 
 impl LocalSpawnHandle for Bindgen
 {
-	fn spawn_handle_local<T: 'static>( &mut self, fut: impl Future< Output=T > + 'static )
+	fn spawn_handle_local<T: 'static>( &self, fut: impl Future< Output=T > + 'static )
 
 		-> Result< JoinHandle<T>, FutSpawnErr >
 

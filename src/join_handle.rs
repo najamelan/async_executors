@@ -1,6 +1,7 @@
 use crate::import::*;
 
-/// A handle that awaits the result of a task.
+/// A handle that awaits the result of a task. For now there is no way to cancel a task.
+/// Dropping the JoinHandle<T> will just leave the task running detached.
 //
 #[derive(Debug)]
 //
@@ -8,9 +9,6 @@ pub struct JoinHandle<T>
 {
 	inner: Inner<T>
 }
-
-// unsafe impl<T> Send for JoinHandle<T> {}
-// unsafe impl<T> Sync for JoinHandle<T> {}
 
 
 impl<T> JoinHandle<T>
@@ -56,6 +54,9 @@ impl<T> From< oneshot::Receiver<T> > for JoinHandle<T>
 }
 
 
+// The implementation detail for JoinHandle<T>. As an enum it permits an adapted solution for each
+// supported executor.
+//
 #[derive(Debug)]
 //
 pub(crate) enum Inner<T>
@@ -64,6 +65,12 @@ pub(crate) enum Inner<T>
 	//
 	AsyncStd( async_std_crate::task::JoinHandle<T> ),
 
+	// For simplicity now uses oneshot::channel. For threadpools `remote_handle` from the futures
+	// library are is option as well, but it requires a Send bound on the return type, which makes
+	// it unfit for the thread local executors.
+	//
+	// Tokio thread_pool also provides a custom JoinHandle<T> which requires a Send bound.
+	//
 	#[ cfg(any( feature = "bindgen", feature = "juliex", feature = "threadpool", feature = "tokio_tp", feature = "tokio_ct", feature = "localpool" )) ]
 	//
 	Oneshot( oneshot::Receiver<T> ),

@@ -12,7 +12,7 @@ pub trait LocalSpawnHandle: LocalSpawn
 {
 	/// Spawn a task, getting a join handle that can be awaited to recover the output of the task.
 	//
-	fn spawn_handle_local<T: 'static>( &mut self, fut: impl Future< Output=T > + 'static )
+	fn spawn_handle_local<T: 'static>( &self, fut: impl Future< Output=T > + 'static )
 
 		-> Result< JoinHandle<T>, FutSpawnErr >;
 }

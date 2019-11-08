@@ -56,7 +56,7 @@ impl Spawn for Juliex
 
 impl SpawnHandle for Juliex
 {
-	fn spawn_handle<T: 'static + Send>( &mut self, fut: impl Future< Output=T > + Send + 'static )
+	fn spawn_handle<T: 'static + Send>( &self, fut: impl Future< Output=T > + Send + 'static )
 
 		-> Result< JoinHandle<T>, FutSpawnErr >
 
