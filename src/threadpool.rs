@@ -49,7 +49,7 @@ impl From<FutThreadPool> for ThreadPool
 
 impl Spawn for ThreadPool
 {
-	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		self.pool.spawn_obj( future )
 	}

@@ -87,9 +87,9 @@ impl From<TokioCtExec> for TokioCt
 
 impl LocalSpawn for TokioCt
 {
-	fn spawn_local_obj( &mut self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
-		self.spawner.spawn_local( future )
+		self.spawner.spawn_local_obj( future )
 	}
 }
 
@@ -98,9 +98,9 @@ impl LocalSpawn for TokioCt
 
 impl Spawn for TokioCt
 {
-	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
-		self.spawner.spawn( future )
+		self.spawner.spawn_obj( future )
 	}
 }
 
@@ -176,7 +176,7 @@ impl TokioCtSendHandle
 
 impl Spawn for TokioCtSendHandle
 {
-	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		self.spawner.spawn( future ).map_err( tok_to_fut_spawn_error )
 	}
@@ -219,7 +219,7 @@ impl TokioCtHandle
 
 impl LocalSpawn for TokioCtHandle
 {
-	fn spawn_local_obj( &mut self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		// We transform the LocalFutureObj into a FutureObj. Just magic!
 		//
@@ -244,7 +244,7 @@ impl LocalSpawn for TokioCtHandle
 
 impl Spawn for TokioCtHandle
 {
-	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		self.spawner.spawn( future ).map_err( tok_to_fut_spawn_error )
 	}

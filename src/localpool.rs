@@ -82,7 +82,7 @@ impl From<FutLocalPool> for LocalPool
 
 impl LocalSpawn for LocalPool
 {
-	fn spawn_local_obj( &mut self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		self.spawner.spawn_local_obj( future )
 	}
@@ -93,7 +93,7 @@ impl LocalSpawn for LocalPool
 
 impl Spawn for LocalPool
 {
-	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		self.spawner.spawn_obj( future )
 	}

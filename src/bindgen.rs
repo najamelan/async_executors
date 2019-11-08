@@ -16,7 +16,7 @@ pub struct Bindgen {}
 
 impl Spawn for Bindgen
 {
-	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		spawn_local( future );
 
@@ -28,7 +28,7 @@ impl Spawn for Bindgen
 
 impl LocalSpawn for Bindgen
 {
-	fn spawn_local_obj( &mut self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		spawn_local( future );
 

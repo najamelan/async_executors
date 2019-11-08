@@ -16,7 +16,7 @@ pub struct AsyncStd {}
 
 impl Spawn for AsyncStd
 {
-	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		async_std_crate::task::spawn( future );
 

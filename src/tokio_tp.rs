@@ -56,7 +56,7 @@ impl From<TokioTpExec> for TokioTp
 
 impl Spawn for TokioTp
 {
-	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		// Impl in tokio is actually infallible, so no point in converting the error type.
 		//

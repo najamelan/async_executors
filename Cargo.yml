@@ -87,7 +87,7 @@ badges:
 
 dependencies:
 
-  futures             : { version: ^0.3.0, features: [std], default-features: false }
+  futures    : { version: ^0.3.0, features: [ thread-pool ] }
   # juliex_crate        : { version: ^0.3.0-alpha, optional: true, package: juliex          }
   juliex_crate        : { version: ^0.3.0-alpha, optional: true, package: juliex          }
   async_std_crate     : { version: ^0.99       , optional: true, package: async-std       }

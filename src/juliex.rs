@@ -44,7 +44,7 @@ impl From<juliex_crate::ThreadPool> for Juliex
 
 impl Spawn for Juliex
 {
-	fn spawn_obj( &mut self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		self.pool.spawn( future );
 

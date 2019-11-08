@@ -71,9 +71,8 @@ mod import
 
 	pub(crate) use
 	{
-		futures    :: { task::{ Spawn, LocalSpawn } } ,
-		std        :: { future::Future, pin::Pin, task::{ Context, Poll }, marker::PhantomData } ,
-		futures    :: { task::SpawnError as FutSpawnErr } ,
+		futures::task :: { Spawn, LocalSpawn, SpawnError as FutSpawnErr } ,
+		std          :: { future::Future, pin::Pin, task::{ Context, Poll }, marker::PhantomData } ,
 	};
 
 
@@ -81,7 +80,7 @@ mod import
 	//
 	pub(crate) use
 	{
-		futures :: { future::{ FutureObj } } ,
+		futures :: { task::FutureObj } ,
 
 	};
 

@@ -28,7 +28,7 @@ pub fn increment_local( a: u8, exec: &mut impl LocalSpawn, tx: Sender<u8> )
 //
 pub fn increment_by_value( a: u8, exec: &mut (impl Spawn + Clone), tx: Sender<u8> )
 {
-	let mut second = exec.clone();
+	let second = exec.clone();
 
 	let res = second.spawn( sum( a, 1, tx ) );
 
@@ -41,7 +41,7 @@ pub fn increment_by_value( a: u8, exec: &mut (impl Spawn + Clone), tx: Sender<u8
 //
 pub fn increment_by_value_local( a: u8, exec: &mut (impl LocalSpawn + Clone), tx: Sender<u8> )
 {
-	let mut second = exec.clone();
+	let second = exec.clone();
 
 	let res = second.spawn_local( sum( a, 1, tx ) );
 

@@ -13,8 +13,7 @@ package = "async-std"
 version = "^0.99"
 
 [dependencies.futures]
-default-features = false
-features = ["std"]
+features = ["thread-pool"]
 version = "^0.3.0"
 
 [dependencies.juliex_crate]
