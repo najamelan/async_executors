@@ -87,10 +87,10 @@ badges:
 
 dependencies:
 
-  futures    : { version: ^0.3.0, features: [ thread-pool ] }
+  futures             : { version: ^0.3.0, features: [ thread-pool ] }
   # juliex_crate        : { version: ^0.3.0-alpha, optional: true, package: juliex          }
   juliex_crate        : { version: ^0.3.0-alpha, optional: true, package: juliex          }
-  async_std_crate     : { version: ^0.99       , optional: true, package: async-std       }
+  async_std_crate     : { version: ^1          , optional: true, package: async-std       }
   # tokio-executor      : { version: ^0.2.0-alpha, optional: true, default-features: false  }
   tokio-executor      : { path: ../tokio/tokio-executor, optional: true, default-features: false, features: [blocking] }
 
@@ -121,4 +121,4 @@ patch:
 
   crates-io:
 
-    juliex_crate: { package: juliex, git: "https://github.com/najamelan/juliex" }
+    juliex: { git: "https://github.com/najamelan/juliex" }

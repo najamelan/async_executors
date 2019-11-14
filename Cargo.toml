@@ -10,7 +10,7 @@ repository = "najamelan/async_executors"
 [dependencies.async_std_crate]
 optional = true
 package = "async-std"
-version = "^0.99"
+version = "^1"
 
 [dependencies.futures]
 features = ["thread-pool"]
@@ -67,9 +67,8 @@ features = ["external_doc"]
 
 [patch]
 [patch.crates-io]
-[patch.crates-io.juliex_crate]
+[patch.crates-io.juliex]
 git = "https://github.com/najamelan/juliex"
-package = "juliex"
 
 [target]
 [target."cfg(target_arch = \"wasm32\")"]
