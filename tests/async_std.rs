@@ -57,7 +57,7 @@ fn test_spawn_with_clone()
 fn test_spawn_with_handle()
 {
 	let (tx, rx) = oneshot::channel();
-	let mut exec = AsyncStd::default();
+	let     exec = AsyncStd::default();
 
 	let fut = async move
 	{

@@ -4,17 +4,19 @@ use
 {
 	crate::{ import::*, JoinHandle, SpawnHandle, LocalSpawnHandle } ,
 
-	tokio_executor::
-	{
-		SpawnError    as TokioSpawnError ,
+	tokio::runtime::{ Builder, Runtime, Handle as TokioCtHandle } ,
 
-		current_thread::
-		{
-			CurrentThread as TokioCtExec     ,
-			Handle        as TokioCtSpawner  ,
-			RunError      as TokioRunError   ,
-		},
-	},
+	// tokio_executor::
+	// {
+	// 	SpawnError    as TokioSpawnError ,
+
+	// 	current_thread::
+	// 	{
+	// 		CurrentThread as TokioCtExec     ,
+	// 		Handle        as TokioCtSpawner  ,
+	// 		RunError      as TokioRunError   ,
+	// 	},
+	// },
 
 	futures::task::{ SpawnExt, LocalSpawnExt } ,
 
@@ -29,8 +31,8 @@ use
 //
 pub struct TokioCt
 {
-	exec   : Arc<Mutex< TokioCtExec >>,
-	spawner: TokioCtHandle            ,
+	exec   : Arc<Mutex< Runtime >>,
+	spawner: TokioCtHandle        ,
 }
 
 

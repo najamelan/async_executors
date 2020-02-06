@@ -47,11 +47,11 @@ features:
 
   # Enables the tokio current_thread executor. Not available on WASM.
   #
-  tokio_ct  : [ tokio-executor/current-thread ]
+  tokio_ct  : [ tokio/rt-core ]
 
   # Enables the tokio thread_pool executor. Not available on WASM.
   #
-  tokio_tp  : [ tokio-executor/thread-pool ]
+  tokio_tp  : [ tokio/rt-threaded ]
 
   # Enables futures::executor::LocalPool. If no other executors are enabled, this one will be enabled
   # by default. Not available on WASM. This is provided by the futures library on which we depend anyways,
@@ -92,7 +92,7 @@ dependencies:
   juliex_crate        : { version: ^0.3.0-alpha, optional: true, package: juliex          }
   async_std_crate     : { version: ^1          , optional: true, package: async-std       }
   # tokio-executor      : { version: ^0.2.0-alpha, optional: true, default-features: false  }
-  tokio-executor      : { path: ../tokio/tokio-executor, optional: true, default-features: false, features: [blocking] }
+  tokio               : { version: ^0.2, optional: true, default-features: false, features: [ full ] }
 
   # necessary for the crate to compile for `cargo doc`
   #
