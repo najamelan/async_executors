@@ -1,7 +1,7 @@
 use
 {
-	crate                :: { import::*, JoinHandle, SpawnHandle, LocalSpawnHandle  } ,
-	wasm_bindgen_futures :: { spawn_local                                           } ,
+	crate                :: { import::*   } ,
+	wasm_bindgen_futures :: { spawn_local } ,
 };
 
 
@@ -35,51 +35,6 @@ impl LocalSpawn for Bindgen
 		Ok(())
 	}
 }
-
-
-impl SpawnHandle for Bindgen
-{
-	fn spawn_handle<T: 'static + Send>( &self, fut: impl Future< Output=T > + Send + 'static )
-
-		-> Result< JoinHandle<T>, FutSpawnErr >
-
-	{
-		let (tx, rx) = oneshot::channel();
-
-		let task = async move
-		{
-			let t = fut.await;
-			let _ = tx.send(t);
-		};
-
-		spawn_local( task );
-
-		Ok( rx.into() )
-	}
-}
-
-
-impl LocalSpawnHandle for Bindgen
-{
-	fn spawn_handle_local<T: 'static>( &self, fut: impl Future< Output=T > + 'static )
-
-		-> Result< JoinHandle<T>, FutSpawnErr >
-
-	{
-		let (tx, rx) = oneshot::channel();
-
-		let task = async move
-		{
-			let t = fut.await;
-			let _ = tx.send(t);
-		};
-
-		spawn_local( task );
-
-		Ok( rx.into() )
-	}
-}
-
 
 
 impl std::fmt::Debug for Bindgen

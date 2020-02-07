@@ -1,6 +1,6 @@
 use
 {
-	crate :: { import::*, JoinHandle, SpawnHandle } ,
+	crate :: { import::* } ,
 };
 
 
@@ -51,30 +51,6 @@ impl Spawn for Juliex
 		Ok(())
 	}
 }
-
-
-
-impl SpawnHandle for Juliex
-{
-	fn spawn_handle<T: 'static + Send>( &self, fut: impl Future< Output=T > + Send + 'static )
-
-		-> Result< JoinHandle<T>, FutSpawnErr >
-
-	{
-		let (tx, rx) = oneshot::channel();
-
-		let task = async move
-		{
-			let t = fut.await;
-			let _ = tx.send(t);
-		};
-
-		self.pool.spawn( task );
-
-		Ok( rx.into() )
-	}
-}
-
 
 
 impl std::fmt::Debug for Juliex

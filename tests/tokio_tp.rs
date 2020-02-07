@@ -4,7 +4,6 @@
 //
 // ✔ pass a &mut TokioTp to a function that takes exec: `&mut impl Spawn`
 // ✔ pass a      TokioTp to a function that takes exec: `impl Spawn + Clone`
-// ✔ test spawn_handle
 //
 mod common;
 
@@ -25,9 +24,9 @@ use
 fn test_spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec = TokioTp::try_from( Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
 
-	increment( 4, &mut exec, tx );
+	increment( 4, &exec, tx );
 
 	let result = block_on( rx.next() ).expect( "Some" );
 
@@ -42,9 +41,9 @@ fn test_spawn()
 fn test_spawn_with_clone()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec = TokioTp::try_from( Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
 
-	increment_by_value( 4, &mut exec, tx );
+	increment_by_value( 4, &exec, tx );
 
 	let result = block_on( rx.next() );
 
@@ -52,25 +51,28 @@ fn test_spawn_with_clone()
 }
 
 
-// test spawn_handle
+// pass a builder with some config set.
 //
 #[ test ]
 //
-fn test_spawn_with_handle()
+fn test_build_name_thread()
 {
 	let (tx, rx) = oneshot::channel();
-	let exec = TokioTp::try_from( Builder::new() ).expect( "create tokio threadpool" );
 
-	let fut = async move
+	let exec = TokioTp::try_from( Builder::new().thread_name( "test_thread" ) ).expect( "create tokio threadpool" );
+
+	let task = async move
 	{
-		rx.await.expect( "Some" )
+		let name = std::thread::current().name().expect( "some name" ).to_string();
+		tx.send( name ).expect( "send on oneshot" );
 	};
 
-	let join_handle = exec.spawn_handle( fut ).expect( "spawn" );
+	exec.spawn( task ).expect( "spawn" );
 
-	tx.send( 5 ).expect( "send" );
+	block_on( async
+	{
+		assert_eq!( rx.await.expect( "read channel" ), "test_thread" );
 
-		assert_eq!( 5u8, block_on( join_handle ) );
+	});
 }
-
 

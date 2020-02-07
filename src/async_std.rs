@@ -1,6 +1,6 @@
 use
 {
-	crate :: { import::*, JoinHandle, SpawnHandle } ,
+	crate :: { import::* } ,
 };
 
 
@@ -23,20 +23,6 @@ impl Spawn for AsyncStd
 		Ok(())
 	}
 }
-
-
-
-impl SpawnHandle for AsyncStd
-{
-	fn spawn_handle<T: 'static + Send>( &self, fut: impl Future< Output=T > + Send + 'static )
-
-		-> Result< JoinHandle<T>, FutSpawnErr >
-
-	{
-		Ok( async_std_crate::task::spawn( fut ).into() )
-	}
-}
-
 
 
 impl std::fmt::Debug for AsyncStd

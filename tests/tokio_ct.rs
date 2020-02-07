@@ -6,8 +6,6 @@
 // ✔ pass a &mut TokioCt to a function that takes exec: `&mut impl LocalSpawn`
 // ✔ pass a      TokioCt to a function that takes exec: `impl Spawn      + Clone`
 // ✔ pass a      TokioCt to a function that takes exec: `impl LocalSpawn + Clone`
-// ✔ test spawn_handle
-// ✔ test spawn_handle_local
 //
 mod common;
 
@@ -15,9 +13,9 @@ use
 {
 	common          :: * ,
 	async_executors :: * ,
-	futures         :: { channel::{ mpsc, oneshot }, executor::block_on, StreamExt } ,
-	std             :: { rc::Rc, convert::TryFrom                                  } ,
-	tokio::runtime  :: { Builder                                                   } ,
+	futures         :: { channel::mpsc, StreamExt } ,
+	std             :: { convert::TryFrom         } ,
+	tokio::runtime  :: { Builder                  } ,
 };
 
 
@@ -28,19 +26,15 @@ use
 fn test_spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec = TokioCt::try_from( Builder::new() ).expect( "create tokio threadpool" );
+	let mut exec = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio current thread" );
+	let spawner = exec.send_handle();
 
-	increment( 4, &mut exec, tx );
+	exec.block_on( async move
+	{
+		increment( 4, &spawner, tx );
 
-
-	let result = exec.run();
-
-		assert!( result.is_ok() );
-
-
-	let result = block_on( rx.next() ).expect( "Some" );
-
-		assert_eq!( 5u8, result );
+		assert_eq!( 5u8, rx.next().await.expect( "Some" ) );
+	});
 }
 
 
@@ -51,19 +45,15 @@ fn test_spawn()
 fn test_spawn_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec = TokioCt::try_from( Builder::new() ).expect( "create tokio threadpool" );
+	let mut exec = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio current thread" );
+	let spawner = exec.handle();
 
-	increment_local( 4, &mut exec, tx );
+	exec.block_on( async move
+	{
+		increment_local( 4, &spawner, tx );
 
-
-	let result = exec.run();
-
-		assert!( result.is_ok() );
-
-
-	let result = block_on( rx.next() ).expect( "Some" );
-
-		assert_eq!( 5u8, result );
+		assert_eq!( 5u8, rx.next().await.expect( "Some" ) );
+	});
 }
 
 
@@ -74,19 +64,15 @@ fn test_spawn_local()
 fn test_spawn_with_clone()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec = TokioCt::try_from( Builder::new() ).expect( "create tokio threadpool" );
+	let mut exec = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio current thread" );
+	let mut spawner = exec.send_handle();
 
-	increment_by_value( 4, &mut exec, tx );
+	exec.block_on( async move
+	{
+		increment_by_value( 4, &mut spawner, tx );
 
-
-	let result = exec.run();
-
-		assert!( result.is_ok() );
-
-
-	let result = block_on( rx.next() ).expect( "Some" );
-
-		assert_eq!( 5u8, result );
+		assert_eq!( 5u8, rx.next().await.expect( "Some" ) );
+	});
 }
 
 
@@ -97,67 +83,13 @@ fn test_spawn_with_clone()
 fn test_spawn_with_clone_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec = TokioCt::try_from( Builder::new() ).expect( "create tokio threadpool" );
+	let mut exec = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio current thread" );
+	let spawner = exec.handle();
 
-	increment_by_value_local( 4, &mut exec, tx );
-
-
-	let result = exec.run();
-
-		assert!( result.is_ok() );
-
-
-	let result = block_on( rx.next() ).expect( "Some" );
-
-		assert_eq!( 5u8, result );
-}
-
-
-// test spawn_handle
-//
-#[ test ]
-//
-fn test_spawn_with_handle()
-{
-	let (tx, rx) = oneshot::channel();
-	let mut exec = TokioCt::try_from( Builder::new() ).expect( "create tokio threadpool" );
-
-	let fut = async move
+	exec.block_on( async move
 	{
-		rx.await.expect( "Some" )
-	};
+		increment_by_value_local( 4, &spawner, tx );
 
-	let join_handle = exec.spawn_handle( fut ).expect( "spawn" );
-
-	tx.send( 5u8 ).expect( "send" );
-
-	exec.run().expect( "run tokio_ct exec" );
-
-		assert_eq!( 5u8, block_on( join_handle ) );
-}
-
-
-// test spawn_handle_local
-//
-#[ test ]
-//
-fn test_spawn_with_local_handle()
-{
-	let (tx, rx) = oneshot::channel();
-	let mut exec = TokioCt::try_from( Builder::new() ).expect( "create tokio threadpool" );
-
-	let fut = async move
-	{
-		rx.await.expect( "Some" )
-	};
-
-	let join_handle = exec.spawn_handle_local( fut ).expect( "spawn" );
-
-	// Use Rc to make sure we get a !Send output.
-	//
-	tx.send( Rc::new( 5u8 ) ).expect( "send" );
-
-	exec.run().expect( "run tokio_ct exec" );
-
-		assert_eq!( Rc::new( 5u8 ), block_on( join_handle ) );
+		assert_eq!( 5u8, rx.next().await.expect( "Some" ) );
+	});
 }

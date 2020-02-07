@@ -2,37 +2,25 @@
 //
 use
 {
-	crate::{ import::*, JoinHandle, SpawnHandle, LocalSpawnHandle } ,
-
-	tokio::runtime::{ Builder, Runtime, Handle as TokioRtHandle } ,
-
-	// tokio_executor::
-	// {
-	// 	SpawnError    as TokioSpawnError ,
-
-	// 	current_thread::
-	// 	{
-	// 		CurrentThread as TokioCtExec     ,
-	// 		Handle        as TokioCtSpawner  ,
-	// 		RunError      as TokioRunError   ,
-	// 	},
-	// },
-
-	futures::task::{ SpawnExt, LocalSpawnExt } ,
-
-	std::{ marker::PhantomData, sync::{ Arc, Mutex } },
+	crate          :: { import::*                                 } ,
+	tokio::runtime :: { Builder, Runtime, Handle as TokioRtHandle } ,
+	std            :: { marker::PhantomData, future::Future       } ,
 };
 
 
 
 /// An executor that uses [tokio_executor::current_thread::CurrentThread]
 //
-#[ derive( Debug, Clone ) ]
+#[ derive( Debug ) ]
 //
 pub struct TokioCt
 {
-	exec   : Arc<Mutex< Runtime >>,
-	spawner: TokioCtHandle        ,
+	exec: Runtime,
+
+	// This must not be Send. We allow creating TokioCtHandle which must be in the same thread
+	// as the runtime, so the runtime needs to be pinned to the thread it is created in.
+	//
+	_no_send: PhantomData<*mut fn()> ,
 }
 
 
@@ -47,92 +35,46 @@ impl TokioCt
 	//
 	pub fn send_handle( &self ) -> TokioCtSendHandle
 	{
-		TokioCtSendHandle::new( self.exec.lock().expect( "lock tokio_ct executor" ).handle().clone() )
+		TokioCtSendHandle::new( self.exec.handle().clone() )
+	}
+
+	/// Obtain a handle to this executor that can easily be cloned and that implements the
+	/// Spawn and SpawnLocal traits.
+	///
+	/// Note that this handle is `!Send` and cannot be sent to another thread. It allows spawning
+	/// futures that are !Send.
+	//
+	pub fn handle( &self ) -> TokioCtHandle
+	{
+		TokioCtHandle::new( self.exec.handle().clone() )
+	}
+
+	/// This is the entry point for this executor. You must call spawn on the handle from within a future that is run with block_on.
+	//
+	pub fn block_on< F: Future >( &mut self, f: F ) -> F::Output
+	{
+		self.exec.block_on( f )
 	}
 }
 
 
 
 
-impl TryFrom<Builder> for TokioCt
+impl TryFrom<&mut Builder> for TokioCt
 {
 	type Error = std::io::Error;
 
-	fn try_from( mut builder: Builder ) -> Result<Self, Self::Error>
+	fn try_from( builder: &mut Builder ) -> Result<Self, Self::Error>
 	{
 		let exec = builder.basic_scheduler().build()?;
-		let spawner = TokioCtHandle::new( exec.handle().clone() );
 
-		Ok( Self { exec: Arc::new( Mutex::new( exec )), spawner } )
-	}
-}
-
-
-
-impl LocalSpawn for TokioCt
-{
-	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
-	{
-		self.spawner.spawn_local_obj( future )
-	}
-}
-
-
-
-
-impl Spawn for TokioCt
-{
-	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
-	{
-		self.spawner.spawn_obj( future )
-	}
-}
-
-
-impl SpawnHandle for TokioCt
-{
-	fn spawn_handle<T: 'static + Send>( &self, fut: impl Future< Output=T > + Send + 'static )
-
-		-> Result< JoinHandle<T>, FutSpawnErr >
-
-	{
-		let (tx, rx) = oneshot::channel();
-
-		let task = async move
+		Ok( Self
 		{
-			let t = fut.await;
-			let _ = tx.send(t);
-		};
-
-		self.spawn( task ).unwrap();
-
-		Ok( rx.into() )
+			 exec                  ,
+			_no_send : PhantomData ,
+		})
 	}
 }
-
-
-impl LocalSpawnHandle for TokioCt
-{
-	fn spawn_handle_local<T: 'static>( &self, fut: impl Future< Output=T > + 'static )
-
-		-> Result< JoinHandle<T>, FutSpawnErr >
-
-	{
-		let (tx, rx) = oneshot::channel();
-
-		let task = async move
-		{
-			let t = fut.await;
-			let _ = tx.send(t);
-		};
-
-		self.spawn_local( task ).unwrap();
-
-		Ok( rx.into() )
-	}
-}
-
-
 
 
 //------------------------------------------------------------------------ SendHandle
@@ -169,9 +111,7 @@ impl Spawn for TokioCtSendHandle
 
 
 
-
 //------------------------------------------------------------------------ Handle
-//
 //
 /// A handle to this localpool that can easily be cloned and that implements
 /// Spawn and LocalSpawn traits.
@@ -184,8 +124,6 @@ pub struct TokioCtHandle
 
 	// This handle must not be Send. We want to be able to impl LocalSpawn for it, but tokio does not
 	// provide us with the API to do so as their handle is Send and requires Send on the futures.
-	//
-	// We will solve this by crating a Send
 	//
 	_no_send: PhantomData<*mut fn()> ,
 }
@@ -211,7 +149,7 @@ impl LocalSpawn for TokioCtHandle
 		// This is safe because TokioCtHandle is not Send, so it can never venture to another thread than the
 		// current_thread executor it's created from.
 		//
-		// This is necessary because tokio does not provide a clonable handle that can spawn !Send futures.
+		// This is necessary because tokio does not provide a handle that can spawn !Send futures.
 		//
 		let fut;
 
@@ -224,8 +162,6 @@ impl LocalSpawn for TokioCtHandle
 		Ok(())
 	}
 }
-
-
 
 
 impl Spawn for TokioCtHandle

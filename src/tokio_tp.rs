@@ -2,13 +2,9 @@
 //
 use
 {
-	crate::{ import::*, JoinHandle, SpawnHandle },
-
-	tokio::runtime::{ Builder, Runtime, Handle as TokioRtHandle } ,
-
-	futures::task::SpawnExt,
-
-	std :: { sync::{ Arc, Mutex } },
+	crate          :: { import::*                                 } ,
+	tokio::runtime :: { Builder, Runtime, Handle as TokioRtHandle } ,
+	std            :: { sync::Arc                                 } ,
 };
 
 
@@ -18,22 +14,22 @@ use
 //
 pub struct TokioTp
 {
-	exec   : Arc<Mutex< Runtime >> ,
-	spawner: TokioRtHandle            ,
+	exec   : Arc<Runtime>  ,
+	spawner: TokioRtHandle ,
 }
 
 
 
-impl TryFrom<Builder> for TokioTp
+impl TryFrom<&mut Builder> for TokioTp
 {
 	type Error = std::io::Error;
 
-	fn try_from( mut builder: Builder ) -> Result<Self, Self::Error>
+	fn try_from( builder: &mut Builder ) -> Result<Self, Self::Error>
 	{
-		let exec = builder.threaded_scheduler().build()?;
+		let exec    = builder.threaded_scheduler().build()?;
 		let spawner = exec.handle().clone();
 
-		Ok( Self { exec: Arc::new( Mutex::new( exec )), spawner } )
+		Ok( Self { exec: Arc::new( exec ), spawner } )
 	}
 }
 
@@ -53,32 +49,5 @@ impl Spawn for TokioTp
 
 
 
-impl SpawnHandle for TokioTp
-{
-	fn spawn_handle<T: 'static + Send>( &self, fut: impl Future< Output=T > + Send + 'static )
-
-		-> Result< JoinHandle<T>, FutSpawnErr >
-
-	{
-		// Even though the tokio threadpool has a JoinHandle, we use a oneshot::channel here because
-		// the JoinHandle requires return types to be Send, which gives trouble if we want to use our
-		// JoinHandle impl for current thread executors.
-		// TODO: does this affect performance?
-		//
-		let (tx, rx) = oneshot::channel();
-
-		let task = async move
-		{
-			let t = fut.await;
-			let _ = tx.send(t);
-		};
-
-		// impl in tokio is infallible.
-		//
-		let _ = self.spawn( task );
-
-		Ok( rx.into() )
-	}
-}
 
 

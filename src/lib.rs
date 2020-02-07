@@ -24,12 +24,6 @@
 )]
 
 
-#[ cfg( feature = "localpool"  ) ] mod localpool;
-#[ cfg( feature = "localpool"  ) ] pub use localpool::*;
-
-#[ cfg( feature = "threadpool" ) ] mod threadpool;
-#[ cfg( feature = "threadpool" ) ] pub use threadpool::*;
-
 #[ cfg( feature = "juliex"     ) ] mod juliex;
 #[ cfg( feature = "juliex"     ) ] pub use juliex::*;
 
@@ -45,16 +39,6 @@
 #[ cfg( feature = "bindgen"    ) ] mod bindgen;
 #[ cfg( feature = "bindgen"    ) ] pub use bindgen::*;
 
-mod spawn_handle;
-mod local_spawn_handle;
-mod join_handle;
-
-pub use
-{
-	spawn_handle       :: * ,
-	local_spawn_handle :: * ,
-	join_handle        :: * ,
-};
 
 
 // External dependencies
@@ -67,37 +51,19 @@ mod import
 	// {
 	// 	pretty_assertions :: { assert_eq } ,
 	// };
-
-
-	pub(crate) use
-	{
-		futures::task :: { Spawn, LocalSpawn, SpawnError as FutSpawnErr } ,
-		std           :: { future::Future, pin::Pin, task::{ Context, Poll }, marker::PhantomData } ,
-	};
-
-
-	#[ cfg(any( feature = "bindgen", feature = "threadpool", feature = "localpool", feature = "juliex", feature = "tokio_ct", feature = "tokio_tp", feature = "async_std" )) ]
+	#[ cfg(any( feature = "bindgen", feature = "juliex", feature = "tokio_ct", feature = "tokio_tp", feature = "async_std" )) ]
 	//
 	pub(crate) use
 	{
-		futures :: { task::FutureObj } ,
-
+		futures::task :: { FutureObj, Spawn, SpawnError as FutSpawnErr } ,
 	};
 
 
-	#[ cfg(any( feature = "bindgen", feature = "juliex", feature = "threadpool", feature = "tokio_ct", feature = "tokio_tp", feature = "localpool" )) ]
+	#[ cfg(any( feature = "tokio_ct", feature = "bindgen" )) ]
 	//
 	pub(crate) use
 	{
-		futures :: { ready, channel::oneshot } ,
-	};
-
-
-	#[ cfg(any( feature = "localpool", feature = "tokio_ct", feature = "bindgen" )) ]
-	//
-	pub(crate) use
-	{
-		futures :: { future::LocalFutureObj } ,
+		futures :: { future::LocalFutureObj, task::LocalSpawn } ,
 	};
 
 

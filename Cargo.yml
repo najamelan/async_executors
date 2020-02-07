@@ -53,18 +53,6 @@ features:
   #
   tokio_tp  : [ tokio/rt-threaded ]
 
-  # Enables futures::executor::LocalPool. If no other executors are enabled, this one will be enabled
-  # by default. Not available on WASM. This is provided by the futures library on which we depend anyways,
-  # so enabling this will not pull in extra dependencies.
-  #
-  localpool : []
-
-  # Enables futures::executor::ThreadPool. If no other executors are enabled, this one will be enabled
-  # by default. Not available on WASM. This is provided by the futures library on which we depend anyways,
-  # so enabling this will not pull in extra dependencies.
-  #
-  threadpool : []
-
   # Enables the wasm-bindgen-futures executor. Only available on WASM. If no other executors are enabled
   # this will be enabled by default. Currently the only executor available on WASM, so it makes no sense
   # for it not to be enabled, and it's providing dependency wasm-bindgen-futures will always be compiled
@@ -88,10 +76,8 @@ badges:
 dependencies:
 
   futures             : { version: ^0.3, features: [ thread-pool ] }
-  # juliex_crate        : { version: ^0.3.0-alpha, optional: true, package: juliex          }
   juliex_crate        : { version: ^0.3.0-alpha, optional: true, package: juliex          }
   async_std_crate     : { version: ^1          , optional: true, package: async-std       }
-  # tokio-executor      : { version: ^0.2.0-alpha, optional: true, default-features: false  }
   tokio               : { version: ^0.2, optional: true }
 
   # necessary for the crate to compile for `cargo doc`
