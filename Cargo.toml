@@ -14,7 +14,7 @@ version = "^1"
 
 [dependencies.futures]
 features = ["thread-pool"]
-version = "^0.3.0"
+version = "^0.3"
 
 [dependencies.juliex_crate]
 optional = true
@@ -22,8 +22,6 @@ package = "juliex"
 version = "^0.3.0-alpha"
 
 [dependencies.tokio]
-default-features = false
-features = ["full"]
 optional = true
 version = "^0.2"
 

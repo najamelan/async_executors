@@ -4,7 +4,7 @@ use
 {
 	crate::{ import::*, JoinHandle, SpawnHandle, LocalSpawnHandle } ,
 
-	tokio::runtime::{ Builder, Runtime, Handle as TokioCtHandle } ,
+	tokio::runtime::{ Builder, Runtime, Handle as TokioRtHandle } ,
 
 	// tokio_executor::
 	// {
@@ -39,16 +39,6 @@ pub struct TokioCt
 
 impl TokioCt
 {
-	/// Run all spawned futures to completion. Note that this does nothing for the threadpool,
-	/// but if you are using a local pool, you will need to run this or futures will not be polled.
-	/// This blocks the current thread.
-	//
-	pub fn run( &mut self ) -> Result< (), TokioRunError >
-	{
-		self.exec.lock().expect( "lock tokio_ct executor" ).run()
-	}
-
-
 	/// Obtain a handle to this executor that can easily be cloned and that implements the
 	/// Spawn trait.
 	///
@@ -57,31 +47,23 @@ impl TokioCt
 	//
 	pub fn send_handle( &self ) -> TokioCtSendHandle
 	{
-		TokioCtSendHandle::new( self.exec.lock().expect( "lock tokio_ct executor" ).handle() )
+		TokioCtSendHandle::new( self.exec.lock().expect( "lock tokio_ct executor" ).handle().clone() )
 	}
 }
 
 
 
-impl Default for TokioCt
+
+impl TryFrom<Builder> for TokioCt
 {
-	fn default() -> Self
+	type Error = std::io::Error;
+
+	fn try_from( mut builder: Builder ) -> Result<Self, Self::Error>
 	{
-		let exec = TokioCtExec::new();
-		let spawner = TokioCtHandle::new( exec.handle() );
+		let exec = builder.basic_scheduler().build()?;
+		let spawner = TokioCtHandle::new( exec.handle().clone() );
 
-		Self { exec: Arc::new( Mutex::new( exec )), spawner }
-	}
-}
-
-
-impl From<TokioCtExec> for TokioCt
-{
-	fn from( exec: TokioCtExec ) -> Self
-	{
-		let spawner = TokioCtHandle::new( exec.handle() );
-
-		Self { exec: Arc::new( Mutex::new( exec )), spawner }
+		Ok( Self { exec: Arc::new( Mutex::new( exec )), spawner } )
 	}
 }
 
@@ -163,13 +145,13 @@ impl LocalSpawnHandle for TokioCt
 //
 pub struct TokioCtSendHandle
 {
-	spawner: TokioCtSpawner,
+	spawner: TokioRtHandle,
 }
 
 
 impl TokioCtSendHandle
 {
-	pub(crate) fn new( spawner: TokioCtSpawner ) -> Self
+	pub(crate) fn new( spawner: TokioRtHandle ) -> Self
 	{
 		Self { spawner }
 	}
@@ -180,7 +162,8 @@ impl Spawn for TokioCtSendHandle
 {
 	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
-		self.spawner.spawn( future ).map_err( tok_to_fut_spawn_error )
+		self.spawner.spawn( future );
+		Ok(())
 	}
 }
 
@@ -197,7 +180,7 @@ impl Spawn for TokioCtSendHandle
 //
 pub struct TokioCtHandle
 {
-	spawner : TokioCtSpawner,
+	spawner : TokioRtHandle,
 
 	// This handle must not be Send. We want to be able to impl LocalSpawn for it, but tokio does not
 	// provide us with the API to do so as their handle is Send and requires Send on the futures.
@@ -210,7 +193,7 @@ pub struct TokioCtHandle
 
 impl TokioCtHandle
 {
-	pub(crate) fn new( spawner: TokioCtSpawner ) -> Self
+	pub(crate) fn new( spawner: TokioRtHandle ) -> Self
 	{
 		Self { spawner, _no_send: PhantomData::default() }
 	}
@@ -237,7 +220,8 @@ impl LocalSpawn for TokioCtHandle
 			fut = future.into_future_obj();
 		}
 
-		self.spawner.spawn( fut ).map_err( tok_to_fut_spawn_error )
+		self.spawner.spawn( fut );
+		Ok(())
 	}
 }
 
@@ -248,20 +232,8 @@ impl Spawn for TokioCtHandle
 {
 	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
-		self.spawner.spawn( future ).map_err( tok_to_fut_spawn_error )
+		self.spawner.spawn( future );
+		Ok(())
 	}
 }
 
-
-
-
-
-/// Convert a tokio SpawnError to a futures-rs SpawnError.
-///
-/// The tokio error can also be `at_capacity`, but the futures one only supports shutdown,
-/// so we haven't much choice here.
-//
-fn tok_to_fut_spawn_error( _e: TokioSpawnError  ) -> FutSpawnErr
-{
-	FutSpawnErr::shutdown()
-}

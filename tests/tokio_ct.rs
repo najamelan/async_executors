@@ -16,7 +16,8 @@ use
 	common          :: * ,
 	async_executors :: * ,
 	futures         :: { channel::{ mpsc, oneshot }, executor::block_on, StreamExt } ,
-	std             :: { rc::Rc                                                    } ,
+	std             :: { rc::Rc, convert::TryFrom                                  } ,
+	tokio::runtime  :: { Builder                                                   } ,
 };
 
 
@@ -27,7 +28,7 @@ use
 fn test_spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec = TokioCt::default();
+	let mut exec = TokioCt::try_from( Builder::new() ).expect( "create tokio threadpool" );
 
 	increment( 4, &mut exec, tx );
 
@@ -50,7 +51,7 @@ fn test_spawn()
 fn test_spawn_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec = TokioCt::default();
+	let mut exec = TokioCt::try_from( Builder::new() ).expect( "create tokio threadpool" );
 
 	increment_local( 4, &mut exec, tx );
 
@@ -73,7 +74,7 @@ fn test_spawn_local()
 fn test_spawn_with_clone()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec = TokioCt::default();
+	let mut exec = TokioCt::try_from( Builder::new() ).expect( "create tokio threadpool" );
 
 	increment_by_value( 4, &mut exec, tx );
 
@@ -96,7 +97,7 @@ fn test_spawn_with_clone()
 fn test_spawn_with_clone_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec = TokioCt::default();
+	let mut exec = TokioCt::try_from( Builder::new() ).expect( "create tokio threadpool" );
 
 	increment_by_value_local( 4, &mut exec, tx );
 
@@ -119,7 +120,7 @@ fn test_spawn_with_clone_local()
 fn test_spawn_with_handle()
 {
 	let (tx, rx) = oneshot::channel();
-	let mut exec = TokioCt::default();
+	let mut exec = TokioCt::try_from( Builder::new() ).expect( "create tokio threadpool" );
 
 	let fut = async move
 	{
@@ -143,7 +144,7 @@ fn test_spawn_with_handle()
 fn test_spawn_with_local_handle()
 {
 	let (tx, rx) = oneshot::channel();
-	let mut exec = TokioCt::default();
+	let mut exec = TokioCt::try_from( Builder::new() ).expect( "create tokio threadpool" );
 
 	let fut = async move
 	{

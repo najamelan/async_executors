@@ -12,7 +12,9 @@ use
 {
 	common          :: * ,
 	async_executors :: * ,
-	futures         :: { channel::{ mpsc, oneshot }, executor::block_on, StreamExt },
+	futures         :: { channel::{ mpsc, oneshot }, executor::block_on, StreamExt } ,
+	tokio::runtime  :: { Builder                                                   } ,
+	std             :: { convert::TryFrom                                          } ,
 };
 
 
@@ -23,7 +25,7 @@ use
 fn test_spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec = TokioTp::default();
+	let mut exec = TokioTp::try_from( Builder::new() ).expect( "create tokio threadpool" );
 
 	increment( 4, &mut exec, tx );
 
@@ -40,7 +42,7 @@ fn test_spawn()
 fn test_spawn_with_clone()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec     = TokioTp::default();
+	let mut exec = TokioTp::try_from( Builder::new() ).expect( "create tokio threadpool" );
 
 	increment_by_value( 4, &mut exec, tx );
 
@@ -57,7 +59,7 @@ fn test_spawn_with_clone()
 fn test_spawn_with_handle()
 {
 	let (tx, rx) = oneshot::channel();
-	let     exec = TokioTp::default();
+	let exec = TokioTp::try_from( Builder::new() ).expect( "create tokio threadpool" );
 
 	let fut = async move
 	{

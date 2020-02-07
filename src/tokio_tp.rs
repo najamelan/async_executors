@@ -4,14 +4,7 @@ use
 {
 	crate::{ import::*, JoinHandle, SpawnHandle },
 
-	tokio_executor::
-	{
-		thread_pool::
-		{
-			ThreadPool as TokioTpExec    ,
-			Spawner    as TokioTpSpawner ,
-		},
-	},
+	tokio::runtime::{ Builder, Runtime, Handle as TokioRtHandle } ,
 
 	futures::task::SpawnExt,
 
@@ -25,30 +18,22 @@ use
 //
 pub struct TokioTp
 {
-	exec   : Arc<Mutex< TokioTpExec >> ,
-	spawner: TokioTpSpawner            ,
+	exec   : Arc<Mutex< Runtime >> ,
+	spawner: TokioRtHandle            ,
 }
 
 
-impl Default for TokioTp
+
+impl TryFrom<Builder> for TokioTp
 {
-	fn default() -> Self
+	type Error = std::io::Error;
+
+	fn try_from( mut builder: Builder ) -> Result<Self, Self::Error>
 	{
-		let exec = TokioTpExec::new();
-		let spawner = exec.spawner().clone();
+		let exec = builder.threaded_scheduler().build()?;
+		let spawner = exec.handle().clone();
 
-		Self { exec: Arc::new( Mutex::new( exec )), spawner }
-	}
-}
-
-
-impl From<TokioTpExec> for TokioTp
-{
-	fn from( exec: TokioTpExec ) -> Self
-	{
-		let spawner = exec.spawner().clone();
-
-		Self { exec: Arc::new( Mutex::new( exec )), spawner }
+		Ok( Self { exec: Arc::new( Mutex::new( exec )), spawner } )
 	}
 }
 

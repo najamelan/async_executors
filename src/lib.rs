@@ -72,7 +72,7 @@ mod import
 	pub(crate) use
 	{
 		futures::task :: { Spawn, LocalSpawn, SpawnError as FutSpawnErr } ,
-		std          :: { future::Future, pin::Pin, task::{ Context, Poll }, marker::PhantomData } ,
+		std           :: { future::Future, pin::Pin, task::{ Context, Poll }, marker::PhantomData } ,
 	};
 
 
@@ -98,6 +98,14 @@ mod import
 	pub(crate) use
 	{
 		futures :: { future::LocalFutureObj } ,
+	};
+
+
+	#[ cfg(any( feature = "tokio_ct", feature = "tokio_tp" )) ]
+	//
+	pub(crate) use
+	{
+		std :: { convert::TryFrom } ,
 	};
 }
 

@@ -87,12 +87,12 @@ badges:
 
 dependencies:
 
-  futures             : { version: ^0.3.0, features: [ thread-pool ] }
+  futures             : { version: ^0.3, features: [ thread-pool ] }
   # juliex_crate        : { version: ^0.3.0-alpha, optional: true, package: juliex          }
   juliex_crate        : { version: ^0.3.0-alpha, optional: true, package: juliex          }
   async_std_crate     : { version: ^1          , optional: true, package: async-std       }
   # tokio-executor      : { version: ^0.2.0-alpha, optional: true, default-features: false  }
-  tokio               : { version: ^0.2, optional: true, default-features: false, features: [ full ] }
+  tokio               : { version: ^0.2, optional: true }
 
   # necessary for the crate to compile for `cargo doc`
   #
