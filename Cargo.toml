@@ -12,14 +12,16 @@ optional = true
 package = "async-std"
 version = "^1"
 
-[dependencies.futures]
-features = ["thread-pool"]
+[dependencies.futures-channel]
+optional = true
 version = "^0.3"
 
-[dependencies.juliex_crate]
+[dependencies.futures-task]
+version = "^0.3"
+
+[dependencies.futures-util]
 optional = true
-package = "juliex"
-version = "^0.3.0-alpha"
+version = "^0.3"
 
 [dependencies.tokio]
 optional = true
@@ -33,20 +35,39 @@ version = "^0.4"
 criterion = "^0.3"
 pretty_assertions = "^0.6"
 
+[dev-dependencies.futures]
+features = ["thread-pool"]
+version = "^0.3"
+
+[[example]]
+name = "async_std"
+path = "examples/async_std.rs"
+required-features = ["notwasm", "async_std"]
+
+[[example]]
+name = "tokio_ct"
+path = "examples/tokio_ct.rs"
+required-features = ["notwasm", "tokio_ct"]
+
+[[example]]
+name = "tokio_tp"
+path = "examples/tokio_tp.rs"
+required-features = ["notwasm", "tokio_tp"]
+
 [features]
 async_std = ["async_std_crate"]
 bindgen = ["wasm-bindgen-futures"]
 default = ["notwasm"]
 external_doc = []
-juliex = ["juliex_crate"]
 notwasm = []
+spawn_handle = ["futures-util"]
 tokio_ct = ["tokio/rt-core"]
 tokio_tp = ["tokio/rt-threaded"]
 
 [package]
 authors = ["Naja Melan <najamelan@autistici.org>"]
 categories = ["asynchronous", "concurrency"]
-description = "Abstract over different executors."
+description = "Implements Spawn and SpawnLocal for commonly used executors."
 documentation = "https://docs.rs/async_executors"
 edition = "2018"
 keywords = ["async", "executor", "futures"]
@@ -54,17 +75,12 @@ license = "Unlicense"
 name = "async_executors"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_executors"
-version = "0.0.0"
+version = "0.1.0"
 
 [package.metadata]
 [package.metadata.docs]
 [package.metadata.docs.rs]
-features = ["external_doc"]
-
-[patch]
-[patch.crates-io]
-[patch.crates-io.juliex]
-git = "https://github.com/najamelan/juliex"
+all-features = true
 
 [target]
 [target."cfg(target_arch = \"wasm32\")"]

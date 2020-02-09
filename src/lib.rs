@@ -23,21 +23,29 @@
 	variant_size_differences      ,
 )]
 
+#[ cfg(any( feature = "tokio_ct", feature = "tokio_tp" )) ] mod tokio_handle;
+#[ cfg(any( feature = "tokio_ct", feature = "tokio_tp" )) ] pub use tokio_handle::*;
 
-#[ cfg( feature = "juliex"     ) ] mod juliex;
-#[ cfg( feature = "juliex"     ) ] pub use juliex::*;
+#[ cfg( feature = "tokio_ct" ) ] mod tokio_ct;
+#[ cfg( feature = "tokio_ct" ) ] mod tokio_local_handle;
+#[ cfg( feature = "tokio_ct" ) ] pub use tokio_ct::*;
+#[ cfg( feature = "tokio_ct" ) ] pub use tokio_local_handle::*;
 
-#[ cfg( feature = "tokio_ct"   ) ] mod tokio_ct;
-#[ cfg( feature = "tokio_ct"   ) ] pub use tokio_ct::*;
+#[ cfg( feature = "tokio_tp" ) ] mod tokio_tp;
+#[ cfg( feature = "tokio_tp" ) ] pub use tokio_tp::*;
 
-#[ cfg( feature = "tokio_tp"   ) ] mod tokio_tp;
-#[ cfg( feature = "tokio_tp"   ) ] pub use tokio_tp::*;
+#[ cfg( feature = "async_std") ] mod async_std;
+#[ cfg( feature = "async_std") ] pub use async_std::*;
 
-#[ cfg( feature = "async_std"  ) ] mod async_std;
-#[ cfg( feature = "async_std"  ) ] pub use async_std::*;
+#[ cfg( feature = "bindgen"  ) ] mod bindgen;
+#[ cfg( feature = "bindgen"  ) ] pub use bindgen::*;
 
-#[ cfg( feature = "bindgen"    ) ] mod bindgen;
-#[ cfg( feature = "bindgen"    ) ] pub use bindgen::*;
+#[ cfg( feature = "spawn_handle" ) ] mod spawn_handle;
+#[ cfg( feature = "spawn_handle" ) ] mod spawn_handle_native;
+#[ cfg( feature = "spawn_handle" ) ] mod join_handle;
+#[ cfg( feature = "spawn_handle" ) ] pub use spawn_handle::*;
+#[ cfg( feature = "spawn_handle" ) ] pub use spawn_handle_native::*;
+#[ cfg( feature = "spawn_handle" ) ] pub use join_handle::*;
 
 
 
@@ -51,11 +59,11 @@ mod import
 	// {
 	// 	pretty_assertions :: { assert_eq } ,
 	// };
-	#[ cfg(any( feature = "bindgen", feature = "juliex", feature = "tokio_ct", feature = "tokio_tp", feature = "async_std" )) ]
+	#[ cfg(any( feature = "bindgen", feature = "tokio_ct", feature = "tokio_tp", feature = "async_std" )) ]
 	//
 	pub(crate) use
 	{
-		futures::task :: { FutureObj, Spawn, SpawnError as FutSpawnErr } ,
+		futures_task :: { FutureObj, Spawn, SpawnError as FutSpawnErr } ,
 	};
 
 
@@ -63,7 +71,7 @@ mod import
 	//
 	pub(crate) use
 	{
-		futures :: { future::LocalFutureObj, task::LocalSpawn } ,
+		futures_task :: { LocalFutureObj, LocalSpawn } ,
 	};
 
 
@@ -71,7 +79,15 @@ mod import
 	//
 	pub(crate) use
 	{
-		std :: { convert::TryFrom } ,
+		std :: { convert::TryFrom, future::Future } ,
+	};
+
+
+	#[ cfg( feature = "spawn_handle" ) ]
+	//
+	pub(crate) use
+	{
+		std :: { task::{ Poll, Context }, pin::Pin } ,
 	};
 }
 

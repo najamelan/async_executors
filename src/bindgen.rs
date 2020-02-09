@@ -5,13 +5,12 @@ use
 };
 
 
-/// We currently only support a global Bindgen threadpool. In principle this is the only supported
-/// executor that allows full control. We could expose an interface that allows users to control
-/// the lifetime and scope of a Bindgen threadpool.
+/// A type that implements `Spawn` and `LocalSpawn` and spawns on the wasm-bingen-futures executor.
+/// Can spawn `!Send` futures.
 //
-#[ derive( Clone, Default ) ]
+#[ derive( Copy, Clone, Default ) ]
 //
-pub struct Bindgen {}
+pub struct Bindgen;
 
 
 impl Spawn for Bindgen

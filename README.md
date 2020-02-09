@@ -64,8 +64,7 @@ Please check out the [changelog](https://github.com/najamelan/async_executors/bl
 
 This crate has few dependencies. Cargo will automatically handle it's dependencies for you.
 
-There are no optional features.
-
+The only dependency is `futures-task`, the rest are the optional dependencies to turn on support for each executor.
 
 ### Security
 

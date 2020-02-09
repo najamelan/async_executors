@@ -10,10 +10,10 @@ package:
   # - merge dev branch into master
   # - create git tag
   #
-  version       : 0.0.0
+  version       : 0.1.0
   name          : async_executors
   authors       : [ Naja Melan <najamelan@autistici.org> ]
-  description   : Abstract over different executors.
+  description   : Implements Spawn and SpawnLocal for commonly used executors.
   documentation : https://docs.rs/async_executors
   repository    : https://github.com/najamelan/async_executors
   readme        : README.md
@@ -25,7 +25,7 @@ package:
   metadata:
     docs:
       rs:
-        features: [ external_doc ]
+        all-features: true
 
 
 # Please see the readme for details.
@@ -36,10 +36,6 @@ features:
   # wasm.
   #
   default   : [ notwasm ]
-
-  # Enables the juliex threadpool executor. Not available on WASM.
-  #
-  juliex    : [ juliex_crate ]
 
   # Enables the async-std task executor. Not available on WASM.
   #
@@ -60,6 +56,9 @@ features:
   #
   bindgen   : [ wasm-bindgen-futures ]
 
+
+  spawn_handle: [ futures-util ]
+
   # only used internally, don't use
   #
   notwasm: []
@@ -75,10 +74,11 @@ badges:
 
 dependencies:
 
-  futures             : { version: ^0.3, features: [ thread-pool ] }
-  juliex_crate        : { version: ^0.3.0-alpha, optional: true, package: juliex          }
-  async_std_crate     : { version: ^1          , optional: true, package: async-std       }
-  tokio               : { version: ^0.2, optional: true }
+  futures-task        : { version: ^0.3                                     }
+  futures-channel     : { version: ^0.3, optional: true                     }
+  futures-util        : { version: ^0.3, optional: true                     }
+  async_std_crate     : { version: ^1  , optional: true, package: async-std }
+  tokio               : { version: ^0.2, optional: true                     }
 
   # necessary for the crate to compile for `cargo doc`
   #
@@ -89,7 +89,7 @@ dev-dependencies:
 
   pretty_assertions : ^0.6
   criterion         : ^0.3
-
+  futures           : { version: ^0.3, features: [ thread-pool ] }
   # log               : ^0.4
   # flexi_logger      : ^0.11
 
@@ -103,8 +103,16 @@ target:
       wasm-bindgen-test: ^0.3
 
 
-patch:
+example:
 
-  crates-io:
+  - name             : async_std
+    path             : examples/async_std.rs
+    required-features: [ notwasm, async_std ]
 
-    juliex: { git: "https://github.com/najamelan/juliex" }
+  - name             : tokio_ct
+    path             : examples/tokio_ct.rs
+    required-features: [ notwasm, tokio_ct ]
+
+  - name             : tokio_tp
+    path             : examples/tokio_tp.rs
+    required-features: [ notwasm, tokio_tp ]
