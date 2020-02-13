@@ -51,11 +51,19 @@ features:
 
   # Enables the wasm-bindgen-futures executor. Only available on WASM. If no other executors are enabled
   # this will be enabled by default. Currently the only executor available on WASM, so it makes no sense
-  # for it not to be enabled, and it's providing dependency wasm-bindgen-futures will always be compiled
-  # in.
+  # for it not to be enabled, and it's providing dependency wasm-bindgen-futures will always be compiled in.
   #
   bindgen   : [ wasm-bindgen-futures ]
 
+  # Add support for the futures LocalPool to SpawnHandle and LocalSpawnHandle
+  # only makes sense in conjunction with spawn_handle.
+  #
+  localpool: [ futures-executor ]
+
+  # Add support for the futures ThreadPool to SpawnHandle and LocalSpawnHandle
+  # only makes sense in conjunction with spawn_handle.
+  #
+  threadpool: [ futures-executor/thread-pool ]
 
   spawn_handle: [ futures-util ]
 
@@ -77,6 +85,7 @@ dependencies:
   futures-task        : { version: ^0.3                                     }
   futures-channel     : { version: ^0.3, optional: true                     }
   futures-util        : { version: ^0.3, optional: true                     }
+  futures-executor    : { version: ^0.3, optional: true                     }
   async_std_crate     : { version: ^1  , optional: true, package: async-std }
   tokio               : { version: ^0.2, optional: true                     }
 
@@ -92,6 +101,13 @@ dev-dependencies:
   futures           : { version: ^0.3, features: [ thread-pool ] }
   # log               : ^0.4
   # flexi_logger      : ^0.11
+
+patch:
+  crates-io:
+    futures-util: { version: ^0.3, path: ../RUST/futures-rs/futures-util }
+    futures-task: { version: ^0.3, path: ../RUST/futures-rs/futures-task }
+    futures-channel: { version: ^0.3, path: ../RUST/futures-rs/futures-channel }
+    futures-executor: { version: ^0.3, path: ../RUST/futures-rs/futures-executor }
 
 
 target:

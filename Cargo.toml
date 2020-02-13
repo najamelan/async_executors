@@ -16,6 +16,10 @@ version = "^1"
 optional = true
 version = "^0.3"
 
+[dependencies.futures-executor]
+optional = true
+version = "^0.3"
+
 [dependencies.futures-task]
 version = "^0.3"
 
@@ -59,8 +63,10 @@ async_std = ["async_std_crate"]
 bindgen = ["wasm-bindgen-futures"]
 default = ["notwasm"]
 external_doc = []
+localpool = ["futures-executor"]
 notwasm = []
 spawn_handle = ["futures-util"]
+threadpool = ["futures-executor/thread-pool"]
 tokio_ct = ["tokio/rt-core"]
 tokio_tp = ["tokio/rt-threaded"]
 
@@ -81,6 +87,24 @@ version = "0.1.0"
 [package.metadata.docs]
 [package.metadata.docs.rs]
 all-features = true
+
+[patch]
+[patch.crates-io]
+[patch.crates-io.futures-channel]
+path = "../RUST/futures-rs/futures-channel"
+version = "^0.3"
+
+[patch.crates-io.futures-executor]
+path = "../RUST/futures-rs/futures-executor"
+version = "^0.3"
+
+[patch.crates-io.futures-task]
+path = "../RUST/futures-rs/futures-task"
+version = "^0.3"
+
+[patch.crates-io.futures-util]
+path = "../RUST/futures-rs/futures-util"
+version = "^0.3"
 
 [target]
 [target."cfg(target_arch = \"wasm32\")"]

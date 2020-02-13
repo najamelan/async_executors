@@ -6,7 +6,7 @@ use
 };
 
 
-/// A handle to this localpool that can easily be cloned and that implements
+/// A handle to this tokio Runtime with basic scheduler that can easily be cloned and that implements
 /// Spawn and LocalSpawn traits.
 ///
 /// Note that you have to call spawn on this from within a call to [TokioCt::block_on]
@@ -37,7 +37,7 @@ use
 //
 pub struct TokioLocalHandle
 {
-	spawner : TokioRtHandle,
+	pub(crate) spawner : TokioRtHandle,
 
 	// This handle must not be Send. We want to be able to impl LocalSpawn for it, but tokio does not
 	// provide us with the API to do so as their handle is Send and requires Send on the futures.

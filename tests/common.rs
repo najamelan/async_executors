@@ -113,14 +113,3 @@ pub async fn increment_spawn_handle_local( a: u8, exec: impl LocalSpawnHandle, t
 {
 	exec.spawn_handle_local( sum( a, 1, tx ) ).expect( "spawn handle" ).await;
 }
-
-
-// A function that takes a generic executor and spawns a task.
-//
-#[ cfg( feature = "spawn_handle" ) ]
-//
-pub async fn increment_spawn_handle_native( a: u8, exec: impl SpawnHandleNative, tx: Sender<u8> )
-{
-	exec.spawn_handle_native( sum( a, 1, tx ) ).expect( "spawn handle" ).await;
-}
-

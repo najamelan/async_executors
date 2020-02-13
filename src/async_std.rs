@@ -1,6 +1,7 @@
 use
 {
 	crate :: { import::* } ,
+	std   :: { future::Future } ,
 };
 
 
@@ -11,6 +12,19 @@ use
 #[ derive( Copy, Clone, Default ) ]
 //
 pub struct AsyncStd;
+
+impl AsyncStd
+{
+	/// Wrapper around [::async_std::task::block_on].
+	//
+	pub fn block_on<F, T>(future: F) -> T
+
+		where F: Future<Output = T>,
+
+	{
+		async_std_crate::task::block_on( future )
+	}
+}
 
 
 

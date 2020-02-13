@@ -9,7 +9,6 @@
 // ✔ pass a Arc<AsyncStd> to a function that takes exec: `impl Spawn`
 // ✔ pass a     AsyncStd  to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a Arc<AsyncStd> to a function that takes exec: `impl SpawnHandle`
-// ✔ pass a     AsyncStd  to a function that takes exec: `impl SpawnHandleNative`
 //
 mod common;
 
@@ -145,30 +144,6 @@ fn test_spawn_handle_arc()
 	let result = block_on( async move
 	{
 		increment_spawn_handle( 4, Arc::new(exec), tx ).await;
-
-		rx.next().await
-	});
-
-
-	assert_eq!( 5u8, result.expect( "Some" ) );
-}
-
-
-// pass a AsyncStd to a function that takes exec: `impl SpawnHandleNative`
-//
-#[ cfg( feature = "spawn_handle" ) ]
-//
-#[ test ]
-//
-fn test_spawn_handle_native()
-{
-	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = AsyncStd::default();
-
-
-	let result = block_on( async move
-	{
-		increment_spawn_handle_native( 4, exec, tx ).await;
 
 		rx.next().await
 	});

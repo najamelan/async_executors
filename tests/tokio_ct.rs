@@ -9,7 +9,6 @@
 // ✔ pass a Arc<TokioCt> to a function that takes exec: `impl Spawn`
 // ✔ pass a     TokioCt  to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a Arc<TokioCt> to a function that takes exec: `impl SpawnHandle`
-// ✔ pass a     TokioCt  to a function that takes exec: `impl SpawnHandleNative`
 //
 // ✔ pass a     TokioCt  to a function that takes exec: `impl LocalSpawn`
 // ✔ pass a    &TokioCt  to a function that takes exec: `&impl LocalSpawn`
@@ -174,29 +173,6 @@ fn test_spawn_handle_arc()
 	let res = exec.block_on( async move
 	{
 		increment_spawn_handle( 4, Arc::new(spawner), tx ).await;
-
-		rx.next().await.expect( "Some" )
-	});
-
-	assert_eq!( 5u8, res );
-}
-
-
-// pass a TokioCt to a function that takes exec: `impl SpawnHandleNative`
-//
-#[ cfg( feature = "spawn_handle" ) ]
-//
-#[ test ]
-//
-fn test_spawn_handle_native()
-{
-	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut exec     = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio current thread" );
-	let     spawner  = exec.handle();
-
-	let res = exec.block_on( async move
-	{
-		increment_spawn_handle_native( 4, spawner, tx ).await;
 
 		rx.next().await.expect( "Some" )
 	});

@@ -1,7 +1,8 @@
 use
 {
-	crate:: { import::* } ,
-	std  :: { future::Future, convert::From } ,
+	crate       :: { import::*                                              } ,
+	std         :: { future::Future, sync::atomic::{ AtomicBool, Ordering } } ,
+	futures_util:: { future::{ AbortHandle, Aborted }                       } ,
 };
 
 
@@ -15,9 +16,12 @@ use tokio::{ task::JoinHandle as TokioJoinHandle };
 
 
 
-/// A framework agnostic JoinHandle type.
+/// A framework agnostic JoinHandle type. Cancels the future on dropping the handle.
+/// You can call [`JoinHandle::detach`] to leave the future running when dropping the handle.
 //
 #[ derive( Debug ) ]
+//
+#[ must_use = "JoinHandle will cancel your future when dropped." ]
 //
 pub enum JoinHandle<T>
 {
@@ -25,21 +29,65 @@ pub enum JoinHandle<T>
 	//
 	#[ cfg( feature = "tokio_tp" ) ]
 	//
-	Tokio( tokio::task::JoinHandle<T> ),
+	Tokio
+	{
+		#[doc(hidden)] handle  : TokioJoinHandle<Result<T, Aborted>> ,
+		#[doc(hidden)] a_handle: AbortHandle                         ,
+		#[doc(hidden)] detached: AtomicBool                          ,
+	},
 
 	/// Wrapper around AsyncStd JoinHandle.
 	//
 	#[ cfg( feature = "async_std" ) ]
 	//
-	AsyncStd( AsJoinHandle<T> ),
+	AsyncStd
+	{
+		#[doc(hidden)] handle  : AsJoinHandle<Result<T, Aborted>> ,
+		#[doc(hidden)] a_handle: AbortHandle                      ,
+		#[doc(hidden)] detached: AtomicBool                       ,
+	},
 
 	/// Wrapper around futures RemoteHandle.
 	//
-	ThreadPool( futures_util::future::RemoteHandle<T> ),
+	RemoteHandle( Option<futures_util::future::RemoteHandle<T>> ),
 }
 
 
-impl<T: 'static + Send> Future for JoinHandle<T>
+impl<T> JoinHandle<T>
+{
+	/// Drops this handle without canceling the underlying future.
+	///
+	/// This method can be used if you want to drop the handle, but let the execution continue.
+	//
+	pub fn detach( mut self )
+	{
+		match &mut self
+		{
+			#[ cfg( feature = "tokio_tp"  ) ] JoinHandle::Tokio{ ref detached, .. } =>
+			{
+				detached.store( true, Ordering::Relaxed );
+			}
+
+			#[ cfg( feature = "async_std" ) ] JoinHandle::AsyncStd{ ref detached, .. } =>
+			{
+				detached.store( true, Ordering::Relaxed );
+			}
+
+			JoinHandle::RemoteHandle( handle ) =>
+			{
+				if let Some(rh) = handle.take() { rh.forget() };
+			}
+		}
+	}
+}
+
+
+// Even if T is not Unpin, JoinHandle still is.
+//
+impl<T> Unpin for JoinHandle<T> {}
+
+
+impl<T> Future for JoinHandle<T>
 {
 	type Output = T;
 
@@ -47,43 +95,50 @@ impl<T: 'static + Send> Future for JoinHandle<T>
 	{
 		match self.get_mut()
 		{
-			#[ cfg( feature = "tokio_tp"  ) ] JoinHandle::Tokio( handle ) =>
-			{
-				use futures_util::ready;
 
-				match ready!( Pin::new( handle ).poll( cx ) )
+			#[ cfg( feature = "tokio_tp" ) ] JoinHandle::Tokio{ handle, .. } =>
+			{
+				match futures_util::ready!( Pin::new( handle ).poll( cx ) )
 				{
-					Ok (t) => Poll::Ready( t ),
-					Err(e) => panic!( "{}", e ),
+					Ok (t) => Poll::Ready( t.expect( "future panicked" ) ),
+					Err(_) => unreachable!( "future shouldn't be aborted" ),
 				}
 			}
 
-			#[ cfg( feature = "async_std" ) ] JoinHandle::AsyncStd  ( handle ) => Pin::new( handle ).poll( cx ),
-			                                  JoinHandle::ThreadPool( handle ) => Pin::new( handle ).poll( cx ),
+
+			#[ cfg( feature = "async_std" ) ] JoinHandle::AsyncStd{ handle, .. } =>
+			{
+				match futures_util::ready!( Pin::new( handle ).poll( cx ) )
+				{
+					Ok (t) => Poll::Ready( t ),
+					Err(_) => unreachable!(),
+				}
+			}
+
+
+			JoinHandle::RemoteHandle( ref mut handle ) => Pin::new( handle ).as_pin_mut().expect( "no polling after detach" ).poll( cx ),
 		}
 	}
 }
 
 
-#[ cfg( feature = "async_std" ) ]
-//
-impl<T> From<AsJoinHandle<T>> for JoinHandle<T>
+impl<T> Drop for JoinHandle<T>
 {
-	fn from( handle: AsJoinHandle<T> ) -> Self
+	fn drop( &mut self )
 	{
-		JoinHandle::AsyncStd( handle )
+		match self
+		{
+			#[ cfg( feature = "tokio_tp"  ) ] JoinHandle::Tokio{ a_handle, detached, .. } =>
+
+				if detached.load( Ordering::Relaxed ) { a_handle.abort() },
+
+
+			#[ cfg( feature = "async_std" ) ] JoinHandle::AsyncStd { a_handle, detached, .. } =>
+
+				if detached.load( Ordering::Relaxed ) { a_handle.abort() },
+
+
+			JoinHandle::RemoteHandle( _ ) => {},
+		};
 	}
 }
-
-
-#[ cfg( feature = "tokio_tp" ) ]
-//
-impl<T> From<TokioJoinHandle<T>> for JoinHandle<T>
-{
-	fn from( handle: TokioJoinHandle<T> ) -> Self
-	{
-		JoinHandle::Tokio( handle )
-	}
-}
-
-
