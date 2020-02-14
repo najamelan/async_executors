@@ -1,3 +1,5 @@
+#[ allow(unused_imports) ]
+//
 use
 {
 	futures_util :: { task::{ SpawnExt, SpawnError }, future::{ FutureExt, abortable } } ,
@@ -87,12 +89,12 @@ impl SpawnHandle for crate::async_std::AsyncStd
 	{
 		let (fut, a_handle) = abortable( future );
 
-		Ok( crate::JoinHandle::AsyncStd
+		Ok( crate::JoinHandle{ inner: crate::join_handle::InnerJh::AsyncStd
 		{
 			handle  : async_std_crate::task::spawn(fut) ,
 			detached: AtomicBool::new(false)            ,
 			a_handle                                    ,
-		})
+		}})
 	}
 }
 
@@ -110,12 +112,12 @@ impl SpawnHandle for crate::TokioHandle
 	{
 		let (fut, a_handle) = abortable( future );
 
-		Ok( crate::JoinHandle::Tokio
+		Ok( crate::JoinHandle{ inner: crate::join_handle::InnerJh::Tokio
 		{
 			handle  : self.spawner.spawn(fut) ,
 			detached: AtomicBool::new(false)  ,
 			a_handle                          ,
-		})
+		}})
 	}
 }
 
@@ -133,12 +135,12 @@ impl SpawnHandle for crate::TokioLocalHandle
 	{
 		let (fut, a_handle) = abortable( future );
 
-		Ok( crate::JoinHandle::Tokio
+		Ok( crate::JoinHandle{ inner: crate::join_handle::InnerJh::Tokio
 		{
 			handle  : self.spawner.spawn(fut) ,
 			detached: AtomicBool::new(false)  ,
 			a_handle                          ,
-		})
+		}})
 	}
 }
 
@@ -157,7 +159,7 @@ impl SpawnHandle for crate::Bindgen
 		let (fut, handle) = future.remote_handle();
 		wasm_bindgen_futures::spawn_local(fut);
 
-		Ok( crate::JoinHandle::RemoteHandle( Some(handle) ) )
+		Ok( crate::JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
 	}
 }
 
@@ -175,7 +177,7 @@ impl SpawnHandle for futures_executor::LocalSpawner
 	{
 		let handle = self.spawn_with_handle( future )?;
 
-		Ok( crate::JoinHandle::RemoteHandle( Some(handle) ) )
+		Ok( crate::JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
 	}
 }
 
@@ -193,7 +195,7 @@ impl SpawnHandle for futures_executor::ThreadPool
 	{
 		let handle = self.spawn_with_handle( future )?;
 
-		Ok( crate::JoinHandle::RemoteHandle( Some(handle) ) )
+		Ok( crate::JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
 	}
 }
 

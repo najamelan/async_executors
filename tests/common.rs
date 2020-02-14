@@ -97,6 +97,8 @@ pub fn increment_clone_local( a: u8, exec: impl LocalSpawn + Clone, tx: Sender<u
 //
 #[ cfg( feature = "spawn_handle" ) ]
 //
+#[ allow(dead_code) ]
+//
 pub async fn increment_spawn_handle( a: u8, exec: impl SpawnHandle, tx: Sender<u8> )
 {
 	exec.spawn_handle( sum( a, 1, tx ) ).expect( "spawn handle" ).await;

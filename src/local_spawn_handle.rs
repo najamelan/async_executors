@@ -1,3 +1,5 @@
+#[ allow(unused_imports) ]
+//
 use
 {
 	futures_util :: { task::{ LocalSpawnExt, SpawnError }, future::FutureExt } ,
@@ -90,7 +92,7 @@ impl LocalSpawnHandle for crate::TokioLocalHandle
 		let (fut, handle) = future.remote_handle();
 		self.spawn_local(fut)?;
 
-		Ok( crate::JoinHandle::RemoteHandle( Some(handle) ) )
+		Ok( crate::JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
 	}
 }
 
@@ -109,7 +111,7 @@ impl LocalSpawnHandle for crate::Bindgen
 		let (fut, handle) = future.remote_handle();
 		wasm_bindgen_futures::spawn_local(fut);
 
-		Ok( crate::JoinHandle::RemoteHandle( Some(handle) ) )
+		Ok( crate::JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
 	}
 }
 
@@ -127,6 +129,6 @@ impl LocalSpawnHandle for futures_executor::LocalSpawner
 	{
 		let handle = self.spawn_local_with_handle( future )?;
 
-		Ok( crate::JoinHandle::RemoteHandle( Some(handle) ) )
+		Ok( crate::JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
 	}
 }

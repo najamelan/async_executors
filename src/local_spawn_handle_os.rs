@@ -1,3 +1,5 @@
+#[ allow(unused_imports) ]
+//
 use
 {
 	futures_util :: { task::{ LocalSpawnExt, SpawnError }         } ,

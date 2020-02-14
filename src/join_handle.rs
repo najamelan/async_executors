@@ -1,3 +1,5 @@
+#[ allow(unused_imports) ]
+//
 use
 {
 	crate       :: { import::*                                              } ,
@@ -8,12 +10,11 @@ use
 
 #[ cfg( feature = "async_std" ) ]
 //
-use async_std_crate::{ task::JoinHandle as AsJoinHandle };
+use async_std_crate::{ task::JoinHandle as AsyncStdJoinHandle };
 
-#[ cfg( feature = "tokio_tp" ) ]
+#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
 //
 use tokio::{ task::JoinHandle as TokioJoinHandle };
-
 
 
 /// A framework agnostic JoinHandle type. Cancels the future on dropping the handle.
@@ -23,17 +24,22 @@ use tokio::{ task::JoinHandle as TokioJoinHandle };
 //
 #[ must_use = "JoinHandle will cancel your future when dropped." ]
 //
-pub enum JoinHandle<T>
+pub struct JoinHandle<T> { pub(crate) inner: InnerJh<T> }
+
+
+#[ derive(Debug) ] #[ allow(dead_code) ]
+//
+pub(crate) enum InnerJh<T>
 {
 	/// Wrapper around tokio JoinHandle.
 	//
-	#[ cfg( feature = "tokio_tp" ) ]
+	#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
 	//
 	Tokio
 	{
-		#[doc(hidden)] handle  : TokioJoinHandle<Result<T, Aborted>> ,
-		#[doc(hidden)] a_handle: AbortHandle                         ,
-		#[doc(hidden)] detached: AtomicBool                          ,
+		handle  : TokioJoinHandle<Result<T, Aborted>> ,
+		a_handle: AbortHandle                         ,
+		detached: AtomicBool                          ,
 	},
 
 	/// Wrapper around AsyncStd JoinHandle.
@@ -42,9 +48,9 @@ pub enum JoinHandle<T>
 	//
 	AsyncStd
 	{
-		#[doc(hidden)] handle  : AsJoinHandle<Result<T, Aborted>> ,
-		#[doc(hidden)] a_handle: AbortHandle                      ,
-		#[doc(hidden)] detached: AtomicBool                       ,
+		handle  : AsyncStdJoinHandle<Result<T, Aborted>> ,
+		a_handle: AbortHandle                            ,
+		detached: AtomicBool                             ,
 	},
 
 	/// Wrapper around futures RemoteHandle.
@@ -61,19 +67,21 @@ impl<T> JoinHandle<T>
 	//
 	pub fn detach( mut self )
 	{
-		match &mut self
+		match &mut self.inner
 		{
-			#[ cfg( feature = "tokio_tp"  ) ] JoinHandle::Tokio{ ref detached, .. } =>
+			#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
+			//
+			InnerJh::Tokio{ ref detached, .. } =>
 			{
 				detached.store( true, Ordering::Relaxed );
 			}
 
-			#[ cfg( feature = "async_std" ) ] JoinHandle::AsyncStd{ ref detached, .. } =>
+			#[ cfg( feature = "async_std" ) ] InnerJh::AsyncStd{ ref detached, .. } =>
 			{
 				detached.store( true, Ordering::Relaxed );
 			}
 
-			JoinHandle::RemoteHandle( handle ) =>
+			InnerJh::RemoteHandle( handle ) =>
 			{
 				if let Some(rh) = handle.take() { rh.forget() };
 			}
@@ -87,16 +95,17 @@ impl<T> JoinHandle<T>
 impl<T> Unpin for JoinHandle<T> {}
 
 
-impl<T> Future for JoinHandle<T>
+impl<T: 'static> Future for JoinHandle<T>
 {
 	type Output = T;
 
 	fn poll( self: Pin<&mut Self>, cx: &mut Context<'_> ) -> Poll<Self::Output>
 	{
-		match self.get_mut()
+		match &mut self.get_mut().inner
 		{
-
-			#[ cfg( feature = "tokio_tp" ) ] JoinHandle::Tokio{ handle, .. } =>
+			#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
+			//
+			InnerJh::Tokio{ handle, .. } =>
 			{
 				match futures_util::ready!( Pin::new( handle ).poll( cx ) )
 				{
@@ -106,7 +115,7 @@ impl<T> Future for JoinHandle<T>
 			}
 
 
-			#[ cfg( feature = "async_std" ) ] JoinHandle::AsyncStd{ handle, .. } =>
+			#[ cfg( feature = "async_std" ) ] InnerJh::AsyncStd{ handle, .. } =>
 			{
 				match futures_util::ready!( Pin::new( handle ).poll( cx ) )
 				{
@@ -116,7 +125,7 @@ impl<T> Future for JoinHandle<T>
 			}
 
 
-			JoinHandle::RemoteHandle( ref mut handle ) => Pin::new( handle ).as_pin_mut().expect( "no polling after detach" ).poll( cx ),
+			InnerJh::RemoteHandle( ref mut handle ) => Pin::new( handle ).as_pin_mut().expect( "no polling after detach" ).poll( cx ),
 		}
 	}
 }
@@ -126,19 +135,21 @@ impl<T> Drop for JoinHandle<T>
 {
 	fn drop( &mut self )
 	{
-		match self
+		match &mut self.inner
 		{
-			#[ cfg( feature = "tokio_tp"  ) ] JoinHandle::Tokio{ a_handle, detached, .. } =>
+			#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
+			//
+			InnerJh::Tokio{ a_handle, detached, .. } =>
 
 				if detached.load( Ordering::Relaxed ) { a_handle.abort() },
 
 
-			#[ cfg( feature = "async_std" ) ] JoinHandle::AsyncStd { a_handle, detached, .. } =>
+			#[ cfg( feature = "async_std" ) ] InnerJh::AsyncStd { a_handle, detached, .. } =>
 
 				if detached.load( Ordering::Relaxed ) { a_handle.abort() },
 
 
-			JoinHandle::RemoteHandle( _ ) => {},
+			InnerJh::RemoteHandle( _ ) => {},
 		};
 	}
 }
