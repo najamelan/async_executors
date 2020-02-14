@@ -9,6 +9,7 @@
 // ✔ pass a Arc<TokioHandle> to a function that takes exec: `impl Spawn`
 // ✔ pass a     TokioHandle  to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a Arc<TokioHandle> to a function that takes exec: `impl SpawnHandle`
+// ✔ pass a    &TokioHandle  to a function that takes exec: `&dyn SpawnHandleOs`
 // ✔ pass a builder with some config set.
 //
 mod common;
@@ -160,6 +161,28 @@ fn test_spawn_handle_arc()
 
 
 	assert_eq!( 5u8, result.expect( "Some" ) );
+}
+
+
+// pass a AsyncStd to a function that takes exec: `&dyn SpawnHandleOs`
+//
+#[ cfg( feature = "spawn_handle" ) ]
+//
+#[ test ]
+//
+fn test_spawn_handle_os()
+{
+	let mut wrap = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let     exec = wrap.handle();
+
+
+	let result = wrap.block_on( async move
+	{
+		increment_spawn_handle_os( 4, &exec ).await
+	});
+
+
+	assert_eq!( 5u8, result );
 }
 
 

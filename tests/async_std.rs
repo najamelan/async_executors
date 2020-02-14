@@ -9,6 +9,7 @@
 // ✔ pass a Arc<AsyncStd> to a function that takes exec: `impl Spawn`
 // ✔ pass a     AsyncStd  to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a Arc<AsyncStd> to a function that takes exec: `impl SpawnHandle`
+// ✔ pass a    &AsyncStd  to a function that takes exec: `&dyn SpawnHandleOs`
 //
 mod common;
 
@@ -150,4 +151,25 @@ fn test_spawn_handle_arc()
 
 
 	assert_eq!( 5u8, result.expect( "Some" ) );
+}
+
+
+// pass a AsyncStd to a function that takes exec: `&dyn SpawnHandleOs`
+//
+#[ cfg( feature = "spawn_handle" ) ]
+//
+#[ test ]
+//
+fn test_spawn_handle_os()
+{
+	let exec = AsyncStd::default();
+
+
+	let result = block_on( async move
+	{
+		increment_spawn_handle_os( 4, &exec ).await
+	});
+
+
+	assert_eq!( 5u8, result );
 }

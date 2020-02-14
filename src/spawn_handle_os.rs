@@ -1,6 +1,8 @@
+#[ allow(unused_imports) ]
+//
 use
 {
-	futures_util :: { task::{ SpawnExt, SpawnError }              } ,
+	futures_util :: { task::{ Spawn, SpawnError }                 } ,
 	crate        :: { SpawnHandle                                 } ,
 	std          :: { pin::Pin, future::Future, sync::Arc, rc::Rc } ,
 };
@@ -12,7 +14,7 @@ use
 ///
 /// It also implies you have to choose an Out type.
 //
-pub trait SpawnHandleOs<Out: 'static + Send> : SpawnExt
+pub trait SpawnHandleOs<Out: 'static + Send> : Spawn
 {
 	/// Spawn a future and return a RemoteHandle that can be awaited for the output of the future.
 	//
