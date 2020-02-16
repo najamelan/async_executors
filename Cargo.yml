@@ -108,12 +108,14 @@ dev-dependencies:
   # log               : ^0.4
   # flexi_logger      : ^0.11
 
+
 patch:
   crates-io:
     futures-util: { version: ^0.3, path: ../RUST/futures-rs/futures-util }
     futures-task: { version: ^0.3, path: ../RUST/futures-rs/futures-task }
     futures-channel: { version: ^0.3, path: ../RUST/futures-rs/futures-channel }
     futures-executor: { version: ^0.3, path: ../RUST/futures-rs/futures-executor }
+    tracing-futures: { version: ^0.2, path: ../RUST/tracing/tracing-futures }
 
 
 target:

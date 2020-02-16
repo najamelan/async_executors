@@ -93,6 +93,23 @@ impl<T: SpawnHandle> SpawnHandle for Instrumented<T>
 }
 
 
+#[ cfg( feature = "tracing" ) ]
+//
+impl<T: SpawnHandle> SpawnHandle for WithDispatch<T>
+{
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
+
+		where Fut: Future<Output = Out> + 'static + Send,
+		      Out: 'static + Send
+
+	{
+		let fut = self.with_dispatch( future );
+
+		self.inner().spawn_handle( fut )
+	}
+}
+
+
 
 
 #[ cfg( feature = "async_std" ) ]

@@ -11,9 +11,10 @@
 
 - tracing test/example
 - wasm example
+- blanket impls on ?Sized?
+- Spawn::status
 - documentation
 - write blogpost
-
 
 ## Consistent behavior:
 

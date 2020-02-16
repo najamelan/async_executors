@@ -72,6 +72,19 @@ impl<T, Out> LocalSpawnHandleOs<Out> for Instrumented<T> where T: LocalSpawnHand
 }
 
 
+#[ cfg( feature = "tracing" ) ]
+//
+impl<T, Out> LocalSpawnHandleOs<Out> for WithDispatch<T> where T: LocalSpawnHandleOs<Out>, Out: 'static
+{
+	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	{
+		let fut = self.with_dispatch(future);
+
+		self.inner().spawn_handle_local_os( fut.boxed_local() )
+	}
+}
+
+
 
 #[ cfg(any( feature = "tokio_ct" )) ]
 //

@@ -71,6 +71,19 @@ impl<T, Out> SpawnHandleOs<Out> for Instrumented<T> where T: SpawnHandleOs<Out>,
 }
 
 
+#[ cfg( feature = "tracing" ) ]
+//
+impl<T, Out> SpawnHandleOs<Out> for WithDispatch<T> where T: SpawnHandleOs<Out>, Out: 'static + Send
+{
+	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>
+	{
+		let fut = self.with_dispatch( future );
+
+		self.inner().spawn_handle_os( fut.boxed() )
+	}
+}
+
+
 
 #[ cfg( feature = "async_std" ) ]
 //
