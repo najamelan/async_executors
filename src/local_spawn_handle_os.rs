@@ -23,7 +23,7 @@ pub trait LocalSpawnHandleOs<Out: 'static>
 
 
 
-impl<T, Out> LocalSpawnHandleOs<Out> for Arc<T> where T: LocalSpawnHandleOs<Out>, Out: 'static
+impl<T: ?Sized, Out> LocalSpawnHandleOs<Out> for Box<T> where T: LocalSpawnHandleOs<Out>, Out: 'static
 {
 	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
 	{
@@ -32,7 +32,17 @@ impl<T, Out> LocalSpawnHandleOs<Out> for Arc<T> where T: LocalSpawnHandleOs<Out>
 }
 
 
-impl<T, Out> LocalSpawnHandleOs<Out> for Rc<T> where T: LocalSpawnHandleOs<Out>, Out: 'static
+
+impl<T: ?Sized, Out> LocalSpawnHandleOs<Out> for Arc<T> where T: LocalSpawnHandleOs<Out>, Out: 'static
+{
+	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	{
+		(**self).spawn_handle_local_os( future )
+	}
+}
+
+
+impl<T: ?Sized, Out> LocalSpawnHandleOs<Out> for Rc<T> where T: LocalSpawnHandleOs<Out>, Out: 'static
 {
 	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
 	{

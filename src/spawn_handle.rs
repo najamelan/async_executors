@@ -24,6 +24,19 @@ pub trait SpawnHandle
 }
 
 
+impl<T: SpawnHandle> SpawnHandle for Box<T>
+{
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
+
+		where Fut: Future<Output = Out> + 'static + Send,
+		      Out: 'static + Send
+
+	{
+		(**self).spawn_handle( future )
+	}
+}
+
+
 impl<T: SpawnHandle> SpawnHandle for Arc<T>
 {
 	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>

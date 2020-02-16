@@ -9,10 +9,9 @@
 
 # Wrap up
 
+- Spawn::status
 - tracing test/example
 - wasm example
-- blanket impls on ?Sized?
-- Spawn::status
 - documentation
 - write blogpost
 

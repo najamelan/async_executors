@@ -22,7 +22,7 @@ pub trait SpawnHandleOs<Out: 'static + Send>
 }
 
 
-impl<T, Out> SpawnHandleOs<Out> for Arc<T> where T: SpawnHandleOs<Out>, Out: 'static + Send
+impl<T: ?Sized, Out> SpawnHandleOs<Out> for Box<T> where T: SpawnHandleOs<Out>, Out: 'static + Send
 {
 	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
@@ -31,7 +31,16 @@ impl<T, Out> SpawnHandleOs<Out> for Arc<T> where T: SpawnHandleOs<Out>, Out: 'st
 }
 
 
-impl<T, Out> SpawnHandleOs<Out> for Rc<T> where T: SpawnHandleOs<Out>, Out: 'static + Send
+impl<T: ?Sized, Out> SpawnHandleOs<Out> for Arc<T> where T: SpawnHandleOs<Out>, Out: 'static + Send
+{
+	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>
+	{
+		(**self).spawn_handle_os( future )
+	}
+}
+
+
+impl<T: ?Sized, Out> SpawnHandleOs<Out> for Rc<T> where T: SpawnHandleOs<Out>, Out: 'static + Send
 {
 	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
