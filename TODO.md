@@ -1,25 +1,15 @@
 # TODO:
 
-
-
-## Spawning part
-
-- test panicking behavior thoroughly.
-
 ## JoinHandle part
 
-- try to make native work for all
-- benchmark differences with remote_handle for all\
-- make sure it works for the futures executors
 - check consistency: see below
 
-- test SpawnHandle (object safety of all traits, pass Box<dyn SpawnHandle>, Arc<dyn SpawnHandle>, Arc<dyn Spawn>)
 - spawn_blocking?
 
 
 # Wrap up
 
-- tracing example
+- tracing test/example
 - wasm example
 - documentation
 - write blogpost
@@ -43,13 +33,13 @@ The anwser to each point here needs to be the same for all supported executors a
 
     - bindgen: doesn't seem to call catch_unwind.
 
-  - is spawning fallible or infallible?
+  ✔ is spawning fallible or infallible?
     We turn everything to fallible in line with the futures executors.
 
 ### JoinHandle
 
-  - provide both detach and drop.
-  - what happens if the joinhandle get's dropped.
+  ✔ provide both detach and drop.
+  ✔ what happens if the joinhandle get's dropped.
   - what happens if the future panics.
 
 

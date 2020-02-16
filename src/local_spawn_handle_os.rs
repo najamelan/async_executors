@@ -2,9 +2,9 @@
 //
 use
 {
-	futures_util :: { task::{ LocalSpawn, SpawnError }            } ,
-	crate        :: { LocalSpawnHandle                            } ,
-	std          :: { pin::Pin, future::Future, sync::Arc, rc::Rc } ,
+	futures_util :: { task::{ LocalSpawn, SpawnError }, future::FutureExt } ,
+	crate        :: { LocalSpawnHandle, import::*                         } ,
+	std          :: { pin::Pin, future::Future, sync::Arc, rc::Rc         } ,
 };
 
 
@@ -14,7 +14,7 @@ use
 ///
 /// It also implies you have to choose an Out type.
 //
-pub trait LocalSpawnHandleOs<Out: 'static> : LocalSpawn
+pub trait LocalSpawnHandleOs<Out: 'static>
 {
 	/// Spawn a future and return a RemoteHandle that can be awaited for the output of the future.
 	//
@@ -55,6 +55,19 @@ impl<T, Out> LocalSpawnHandleOs<Out> for &mut T where T: LocalSpawnHandleOs<Out>
 	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
 	{
 		(**self).spawn_handle_local_os( future )
+	}
+}
+
+
+#[ cfg( feature = "tracing" ) ]
+//
+impl<T, Out> LocalSpawnHandleOs<Out> for Instrumented<T> where T: LocalSpawnHandleOs<Out>, Out: 'static
+{
+	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	{
+		let fut = future.instrument( self.span().clone() );
+
+		self.inner().spawn_handle_local_os( fut.boxed_local() )
 	}
 }
 

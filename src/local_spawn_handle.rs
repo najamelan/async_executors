@@ -4,6 +4,7 @@ use
 {
 	futures_util :: { task::{ LocalSpawnExt, SpawnError }, future::FutureExt } ,
 	std          :: { future::Future, sync::Arc, rc::Rc                      } ,
+	crate        :: { import::*                                              } ,
 };
 
 
@@ -75,8 +76,25 @@ impl<T> LocalSpawnHandle for &mut T where T: LocalSpawnHandle
 }
 
 
+#[ cfg( feature = "tracing" ) ]
+//
+impl<T> LocalSpawnHandle for Instrumented<T> where T: LocalSpawnHandle
+{
+	fn spawn_handle_local<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
 
-#[ cfg(any( feature = "tokio_ct" )) ]
+		where Fut: Future<Output = Out> + 'static,
+		      Out: 'static
+
+	{
+		let fut = future.instrument( self.span().clone() );
+
+		self.inner().spawn_handle_local( fut )
+	}
+}
+
+
+
+#[ cfg( feature = "tokio_ct" ) ]
 //
 impl LocalSpawnHandle for crate::TokioLocalHandle
 {

@@ -2,6 +2,7 @@
 //
 use
 {
+	crate        :: { import::*                                                        } ,
 	futures_util :: { task::{ SpawnExt, SpawnError }, future::{ FutureExt, abortable } } ,
 	std          :: { future::Future, sync::{ Arc, atomic::AtomicBool }, rc::Rc        } ,
 };
@@ -23,7 +24,7 @@ pub trait SpawnHandle
 }
 
 
-impl<T> SpawnHandle for Arc<T> where T: SpawnHandle
+impl<T: SpawnHandle> SpawnHandle for Arc<T>
 {
 	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
 
@@ -36,7 +37,7 @@ impl<T> SpawnHandle for Arc<T> where T: SpawnHandle
 }
 
 
-impl<T> SpawnHandle for Rc<T> where T: SpawnHandle
+impl<T: SpawnHandle> SpawnHandle for Rc<T>
 {
 	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
 
@@ -49,7 +50,7 @@ impl<T> SpawnHandle for Rc<T> where T: SpawnHandle
 }
 
 
-impl<T> SpawnHandle for &T where T: SpawnHandle
+impl<T: SpawnHandle> SpawnHandle for &T
 {
 	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
 
@@ -62,7 +63,7 @@ impl<T> SpawnHandle for &T where T: SpawnHandle
 }
 
 
-impl<T> SpawnHandle for &mut T where T: SpawnHandle
+impl<T: SpawnHandle> SpawnHandle for &mut T
 {
 	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
 
@@ -71,6 +72,23 @@ impl<T> SpawnHandle for &mut T where T: SpawnHandle
 
 	{
 		(**self).spawn_handle( future )
+	}
+}
+
+
+#[ cfg( feature = "tracing" ) ]
+//
+impl<T: SpawnHandle> SpawnHandle for Instrumented<T>
+{
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
+
+		where Fut: Future<Output = Out> + 'static + Send,
+		      Out: 'static + Send
+
+	{
+		let fut = future.instrument( self.span().clone() );
+
+		self.inner().spawn_handle( fut )
 	}
 }
 
@@ -97,7 +115,6 @@ impl SpawnHandle for crate::async_std::AsyncStd
 		}})
 	}
 }
-
 
 
 #[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]

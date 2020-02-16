@@ -2,9 +2,9 @@
 //
 use
 {
-	futures_util :: { task::{ Spawn, SpawnError }                 } ,
-	crate        :: { SpawnHandle                                 } ,
-	std          :: { pin::Pin, future::Future, sync::Arc, rc::Rc } ,
+	futures_util :: { task::{ Spawn, SpawnError }, future::FutureExt } ,
+	crate        :: { import::*, SpawnHandle, JoinHandle             } ,
+	std          :: { pin::Pin, future::Future, sync::Arc, rc::Rc    } ,
 };
 
 
@@ -14,17 +14,17 @@ use
 ///
 /// It also implies you have to choose an Out type.
 //
-pub trait SpawnHandleOs<Out: 'static + Send> : Spawn
+pub trait SpawnHandleOs<Out: 'static + Send>
 {
 	/// Spawn a future and return a RemoteHandle that can be awaited for the output of the future.
 	//
-	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<crate::JoinHandle<Out>, SpawnError>;
+	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>;
 }
 
 
 impl<T, Out> SpawnHandleOs<Out> for Arc<T> where T: SpawnHandleOs<Out>, Out: 'static + Send
 {
-	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		(**self).spawn_handle_os( future )
 	}
@@ -33,7 +33,7 @@ impl<T, Out> SpawnHandleOs<Out> for Arc<T> where T: SpawnHandleOs<Out>, Out: 'st
 
 impl<T, Out> SpawnHandleOs<Out> for Rc<T> where T: SpawnHandleOs<Out>, Out: 'static + Send
 {
-	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		(**self).spawn_handle_os( future )
 	}
@@ -42,7 +42,7 @@ impl<T, Out> SpawnHandleOs<Out> for Rc<T> where T: SpawnHandleOs<Out>, Out: 'sta
 
 impl<T, Out> SpawnHandleOs<Out> for &T where T: SpawnHandleOs<Out>, Out: 'static + Send
 {
-	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		(**self).spawn_handle_os( future )
 	}
@@ -51,9 +51,22 @@ impl<T, Out> SpawnHandleOs<Out> for &T where T: SpawnHandleOs<Out>, Out: 'static
 
 impl<T, Out> SpawnHandleOs<Out> for &mut T where T: SpawnHandleOs<Out>, Out: 'static + Send
 {
-	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		(**self).spawn_handle_os( future )
+	}
+}
+
+
+#[ cfg( feature = "tracing" ) ]
+//
+impl<T, Out> SpawnHandleOs<Out> for Instrumented<T> where T: SpawnHandleOs<Out>, Out: 'static + Send
+{
+	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>
+	{
+		let fut = future.instrument( self.span().clone() );
+
+		self.inner().spawn_handle_os( fut.boxed() )
 	}
 }
 
@@ -63,7 +76,7 @@ impl<T, Out> SpawnHandleOs<Out> for &mut T where T: SpawnHandleOs<Out>, Out: 'st
 //
 impl<Out: 'static + Send> SpawnHandleOs<Out> for crate::async_std::AsyncStd
 {
-	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		self.spawn_handle( future )
 	}
@@ -75,7 +88,7 @@ impl<Out: 'static + Send> SpawnHandleOs<Out> for crate::async_std::AsyncStd
 //
 impl<Out: 'static + Send> SpawnHandleOs<Out> for crate::TokioHandle
 {
-	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		self.spawn_handle( future )
 	}
@@ -87,7 +100,7 @@ impl<Out: 'static + Send> SpawnHandleOs<Out> for crate::TokioHandle
 //
 impl<Out: 'static + Send> SpawnHandleOs<Out> for crate::TokioLocalHandle
 {
-	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		self.spawn_handle( future )
 	}
@@ -99,7 +112,7 @@ impl<Out: 'static + Send> SpawnHandleOs<Out> for crate::TokioLocalHandle
 //
 impl<Out: 'static + Send> SpawnHandleOs<Out> for crate::Bindgen
 {
-	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		self.spawn_handle( future )
 	}
@@ -111,7 +124,7 @@ impl<Out: 'static + Send> SpawnHandleOs<Out> for crate::Bindgen
 //
 impl<Out: 'static + Send> SpawnHandleOs<Out> for futures_executor::LocalSpawner
 {
-	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		self.spawn_handle( future )
 	}
@@ -123,7 +136,7 @@ impl<Out: 'static + Send> SpawnHandleOs<Out> for futures_executor::LocalSpawner
 //
 impl<Out: 'static + Send> SpawnHandleOs<Out> for futures_executor::ThreadPool
 {
-	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		self.spawn_handle( future )
 	}

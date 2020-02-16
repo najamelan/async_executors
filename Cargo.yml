@@ -65,6 +65,11 @@ features:
   #
   threadpool: [ futures-executor/thread-pool ]
 
+  # Enable integration with tracing-futures. This implements the SpawnHandle family of traits
+  # on wrapped executors Instrumented<T> and WithDispatch<T>.
+  #
+  tracing: [ tracing-futures ]
+
   spawn_handle: [ futures-util ]
 
   # only used internally, don't use
@@ -82,12 +87,13 @@ badges:
 
 dependencies:
 
-  futures-task        : { version: ^0.3                                     }
-  futures-channel     : { version: ^0.3, optional: true                     }
-  futures-util        : { version: ^0.3, optional: true                     }
-  futures-executor    : { version: ^0.3, optional: true                     }
-  async_std_crate     : { version: ^1  , optional: true, package: async-std }
-  tokio               : { version: ^0.2, optional: true                     }
+  futures-task        : { version: ^0.3                                          }
+  futures-channel     : { version: ^0.3, optional: true                          }
+  futures-util        : { version: ^0.3, optional: true                          }
+  futures-executor    : { version: ^0.3, optional: true                          }
+  async_std_crate     : { version: ^1  , optional: true, package: async-std      }
+  tokio               : { version: ^0.2, optional: true                          }
+  tracing-futures     : { version: ^0.2, optional: true, features: [ futures-03] }
 
   # necessary for the crate to compile for `cargo doc`
   #

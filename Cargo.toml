@@ -31,6 +31,11 @@ version = "^0.3"
 optional = true
 version = "^0.2"
 
+[dependencies.tracing-futures]
+features = ["futures-03"]
+optional = true
+version = "^0.2"
+
 [dependencies.wasm-bindgen-futures]
 optional = true
 version = "^0.4"
@@ -69,6 +74,7 @@ spawn_handle = ["futures-util"]
 threadpool = ["futures-executor/thread-pool"]
 tokio_ct = ["tokio/rt-core"]
 tokio_tp = ["tokio/rt-threaded"]
+tracing = ["tracing-futures"]
 
 [package]
 authors = ["Naja Melan <najamelan@autistici.org>"]

@@ -94,6 +94,14 @@ mod import
 	{
 		std :: { task::{ Poll, Context }, pin::Pin } ,
 	};
+
+
+	#[ cfg( feature = "tracing" ) ]
+	//
+	pub(crate) use
+	{
+		tracing_futures :: { Instrument, WithDispatch, Instrumented } ,
+	};
 }
 
 
