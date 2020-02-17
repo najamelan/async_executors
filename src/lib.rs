@@ -23,13 +23,9 @@
 	variant_size_differences      ,
 )]
 
-#[ cfg(any( feature = "tokio_ct", feature = "tokio_tp" )) ] mod tokio_handle;
-#[ cfg(any( feature = "tokio_ct", feature = "tokio_tp" )) ] pub use tokio_handle::*;
 
 #[ cfg( feature = "tokio_ct" ) ] mod tokio_ct;
-#[ cfg( feature = "tokio_ct" ) ] mod tokio_local_handle;
 #[ cfg( feature = "tokio_ct" ) ] pub use tokio_ct::*;
-#[ cfg( feature = "tokio_ct" ) ] pub use tokio_local_handle::*;
 
 #[ cfg( feature = "tokio_tp" ) ] mod tokio_tp;
 #[ cfg( feature = "tokio_tp" ) ] pub use tokio_tp::*;
@@ -85,6 +81,8 @@ mod import
 	pub(crate) use
 	{
 		std :: { convert::TryFrom, future::Future } ,
+		tokio::{ runtime::{ Builder, Runtime, Handle as TokioRtHandle } },
+
 	};
 
 

@@ -147,9 +147,9 @@ impl SpawnHandle for crate::async_std::AsyncStd
 }
 
 
-#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
+#[ cfg( feature = "tokio_tp" ) ]
 //
-impl SpawnHandle for crate::TokioHandle
+impl SpawnHandle for crate::TokioTp
 {
 	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
 
@@ -161,7 +161,7 @@ impl SpawnHandle for crate::TokioHandle
 
 		Ok( crate::JoinHandle{ inner: crate::join_handle::InnerJh::Tokio
 		{
-			handle  : self.spawner.spawn(fut) ,
+			handle  : self.handle.spawn(fut) ,
 			detached: AtomicBool::new(false)  ,
 			a_handle                          ,
 		}})
@@ -172,7 +172,7 @@ impl SpawnHandle for crate::TokioHandle
 
 #[ cfg(any( feature = "tokio_ct" )) ]
 //
-impl SpawnHandle for crate::TokioLocalHandle
+impl SpawnHandle for crate::TokioCt
 {
 	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
 
@@ -184,7 +184,7 @@ impl SpawnHandle for crate::TokioLocalHandle
 
 		Ok( crate::JoinHandle{ inner: crate::join_handle::InnerJh::Tokio
 		{
-			handle  : self.spawner.spawn(fut) ,
+			handle  : self.handle.spawn(fut) ,
 			detached: AtomicBool::new(false)  ,
 			a_handle                          ,
 		}})

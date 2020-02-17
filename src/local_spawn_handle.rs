@@ -126,7 +126,7 @@ impl<T> LocalSpawnHandle for WithDispatch<T> where T: LocalSpawnHandle
 
 #[ cfg( feature = "tokio_ct" ) ]
 //
-impl LocalSpawnHandle for crate::TokioLocalHandle
+impl LocalSpawnHandle for crate::TokioCt
 {
 	fn spawn_handle_local<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
 

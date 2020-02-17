@@ -47,7 +47,7 @@ features:
 
   # Enables the tokio thread_pool executor. Not available on WASM.
   #
-  tokio_tp  : [ tokio/rt-threaded ]
+  tokio_tp  : [ tokio/rt-threaded, parking_lot ]
 
   # Enables the wasm-bindgen-futures executor. Only available on WASM. If no other executors are enabled
   # this will be enabled by default. Currently the only executor available on WASM, so it makes no sense
@@ -89,13 +89,19 @@ badges:
 
 dependencies:
 
+  # Public deps
+  #
   futures-task        : { version: ^0.3                                          }
-  futures-channel     : { version: ^0.3, optional: true                          }
+  # futures-channel     : { version: ^0.3, optional: true                          }
   futures-util        : { version: ^0.3, optional: true                          }
-  futures-executor    : { version: ^0.3, optional: true                          }
-  async_std_crate     : { version: ^1  , optional: true, package: async-std      }
-  tokio               : { version: ^0.2, optional: true                          }
   tracing-futures     : { version: ^0.2, optional: true, features: [ futures-03] }
+
+  # Private deps
+  #
+  futures-executor    : { version: ^0.3 , optional: true                          }
+  async_std_crate     : { version: ^1   , optional: true, package: async-std      }
+  tokio               : { version: ^0.2 , optional: true                          }
+  parking_lot         : { version: ^0.10, optional: true                          }
 
   # necessary for the crate to compile for `cargo doc`
   #

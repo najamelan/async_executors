@@ -106,9 +106,9 @@ impl<Out: 'static + Send> SpawnHandleOs<Out> for crate::async_std::AsyncStd
 
 
 
-#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
+#[ cfg( feature = "tokio_ct" ) ]
 //
-impl<Out: 'static + Send> SpawnHandleOs<Out> for crate::TokioHandle
+impl<Out: 'static + Send> SpawnHandleOs<Out> for crate::TokioTp
 {
 	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
@@ -118,9 +118,9 @@ impl<Out: 'static + Send> SpawnHandleOs<Out> for crate::TokioHandle
 
 
 
-#[ cfg(any( feature = "tokio_ct" )) ]
+#[ cfg( feature = "tokio_ct" ) ]
 //
-impl<Out: 'static + Send> SpawnHandleOs<Out> for crate::TokioLocalHandle
+impl<Out: 'static + Send> SpawnHandleOs<Out> for crate::TokioCt
 {
 	fn spawn_handle_os( &self, future: Pin<Box< dyn Future<Output = Out> + Send >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{

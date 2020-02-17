@@ -24,13 +24,13 @@ fn main()
 	// Of course you can set other configuration on the builder before.
 	//
 	let mut exec = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let handle   = exec.handle();
+	let ex2   = exec.clone();
 
 	let program = async
 	{
 		let (tx, rx) = oneshot::channel();
 
-		lib_function( &handle, tx );
+		lib_function( &ex2, tx );
 		println!( "{}", rx.await.expect( "receive on channel" ) );
 	};
 

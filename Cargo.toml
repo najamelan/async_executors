@@ -12,10 +12,6 @@ optional = true
 package = "async-std"
 version = "^1"
 
-[dependencies.futures-channel]
-optional = true
-version = "^0.3"
-
 [dependencies.futures-executor]
 optional = true
 version = "^0.3"
@@ -26,6 +22,10 @@ version = "^0.3"
 [dependencies.futures-util]
 optional = true
 version = "^0.3"
+
+[dependencies.parking_lot]
+optional = true
+version = "^0.10"
 
 [dependencies.tokio]
 optional = true
@@ -74,7 +74,7 @@ notwasm = []
 spawn_handle = ["futures-util"]
 threadpool = ["futures-executor/thread-pool"]
 tokio_ct = ["tokio/rt-core"]
-tokio_tp = ["tokio/rt-threaded"]
+tokio_tp = ["tokio/rt-threaded", "parking_lot"]
 tracing = ["tracing-futures"]
 
 [package]

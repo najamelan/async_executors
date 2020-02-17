@@ -1,7 +1,5 @@
 # TODO:
 
-- lifetime of tokio executor when passing handles to API's.
-
 - spawn_blocking? This is provided by tokio and async_std, but does not take a future, rather a closure, so we would
   have to wrap it in a future to make it abortable.
 

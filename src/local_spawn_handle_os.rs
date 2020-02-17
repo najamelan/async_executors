@@ -98,7 +98,7 @@ impl<T, Out> LocalSpawnHandleOs<Out> for WithDispatch<T> where T: LocalSpawnHand
 
 #[ cfg(any( feature = "tokio_ct" )) ]
 //
-impl<Out: 'static> LocalSpawnHandleOs<Out> for crate::TokioLocalHandle
+impl<Out: 'static> LocalSpawnHandleOs<Out> for crate::TokioCt
 {
 	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
 	{

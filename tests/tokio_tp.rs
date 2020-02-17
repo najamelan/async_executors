@@ -2,14 +2,14 @@
 
 // Tested:
 //
-// ✔ pass a     TokioHandle  to a function that takes exec: `impl Spawn`
-// ✔ pass a    &TokioHandle  to a function that takes exec: `&impl Spawn`
-// ✔ pass a    &TokioHandle  to a function that takes exec: `impl Spawn`
-// ✔ pass a    &TokioHandle  to a function that takes exec: `impl Spawn + Clone`
-// ✔ pass a Arc<TokioHandle> to a function that takes exec: `impl Spawn`
-// ✔ pass a     TokioHandle  to a function that takes exec: `impl SpawnHandle`
-// ✔ pass a Arc<TokioHandle> to a function that takes exec: `impl SpawnHandle`
-// ✔ pass a    &TokioHandle  to a function that takes exec: `&dyn SpawnHandleOs`
+// ✔ pass a     TokioTp  to a function that takes exec: `impl Spawn`
+// ✔ pass a    &TokioTp  to a function that takes exec: `&impl Spawn`
+// ✔ pass a    &TokioTp  to a function that takes exec: `impl Spawn`
+// ✔ pass a    &TokioTp  to a function that takes exec: `impl Spawn + Clone`
+// ✔ pass a Arc<TokioTp> to a function that takes exec: `impl Spawn`
+// ✔ pass a     TokioTp  to a function that takes exec: `impl SpawnHandle`
+// ✔ pass a Arc<TokioTp> to a function that takes exec: `impl SpawnHandle`
+// ✔ pass a    &TokioTp  to a function that takes exec: `&dyn SpawnHandleOs`
 // ✔ pass a builder with some config set.
 //
 mod common;
@@ -23,79 +23,76 @@ use
 };
 
 
-// pass a TokioHandle to a function that takes exec: `impl Spawn`
+// pass a TokioTp to a function that takes exec: `impl Spawn`
 //
 #[ test ]
 //
 fn test_spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut wrap     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec     = wrap.handle();
+	let mut exec     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let     ex2      = exec.clone();
 
-	increment( 4, exec, tx );
+	increment( 4, ex2, tx );
 
-	let result = wrap.block_on( rx.next() ).expect( "Some" );
+	let result = exec.block_on( rx.next() ).expect( "Some" );
 
 		assert_eq!( 5u8, result );
 }
 
 
-// pass a &TokioHandle to a function that takes exec: `&impl Spawn`
+// pass a &TokioTp to a function that takes exec: `&impl Spawn`
 //
 #[ test ]
 //
 fn test_spawn_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut wrap     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec     = wrap.handle();
+	let mut exec     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
 
 	increment_ref( 4, &exec, tx );
 
-	let result = wrap.block_on( rx.next() ).expect( "Some" );
+	let result = exec.block_on( rx.next() ).expect( "Some" );
 
 		assert_eq!( 5u8, result );
 }
 
 
-// pass a &TokioHandle to a function that takes exec: `impl Spawn`
+// pass a &TokioTp to a function that takes exec: `impl Spawn`
 //
 #[ test ]
 //
 fn test_spawn_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut wrap     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec     = wrap.handle();
+	let mut exec     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
 
 	increment( 4, &exec, tx );
 
-	let result = wrap.block_on( rx.next() ).expect( "Some" );
+	let result = exec.block_on( rx.next() ).expect( "Some" );
 
 		assert_eq!( 5u8, result );
 }
 
 
-// pass a &TokioHandle to a function that takes exec: `impl Spawn + Clone`
+// pass a &TokioTp to a function that takes exec: `impl Spawn + Clone`
 //
 #[ test ]
 //
 fn test_spawn_clone_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut wrap     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec     = wrap.handle();
+	let mut exec     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
 
 	increment_clone( 4, &exec, tx );
 
-	let result = wrap.block_on( rx.next() ).expect( "Some" );
+	let result = exec.block_on( rx.next() ).expect( "Some" );
 
 		assert_eq!( 5u8, result );
 }
 
 
-// pass a Arc<TokioHandle> to a function that takes exec: `impl Spawn`.
+// pass a Arc<TokioTp> to a function that takes exec: `impl Spawn`.
 // Possible since futures 0.3.2.
 //
 #[ test ]
@@ -103,18 +100,18 @@ fn test_spawn_clone_with_ref()
 fn test_spawn_clone_with_arc()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut wrap     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec     = wrap.handle();
+	let mut exec     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let     ex2      = exec.clone();
 
-	increment( 4, Arc::new(exec), tx );
+	increment( 4, Arc::new(ex2), tx );
 
-	let result = wrap.block_on( rx.next() ).expect( "Some" );
+	let result = exec.block_on( rx.next() ).expect( "Some" );
 
 		assert_eq!( 5u8, result );
 }
 
 
-// pass a TokioHandle to a function that takes exec: `impl SpawnHandle`
+// pass a TokioTp to a function that takes exec: `impl SpawnHandle`
 //
 #[ cfg( feature = "spawn_handle" ) ]
 //
@@ -123,13 +120,13 @@ fn test_spawn_clone_with_arc()
 fn test_spawn_handle()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut wrap     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec     = wrap.handle();
+	let mut exec     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let     ex2      = exec.clone();
 
 
-	let result = wrap.block_on( async move
+	let result = exec.block_on( async move
 	{
-		increment_spawn_handle( 4, exec, tx ).await;
+		increment_spawn_handle( 4, ex2, tx ).await;
 
 		rx.next().await
 	});
@@ -139,7 +136,7 @@ fn test_spawn_handle()
 }
 
 
-// pass an Arc<TokioHandle> to a function that takes exec: `impl SpawnHandle`
+// pass an Arc<TokioTp> to a function that takes exec: `impl SpawnHandle`
 //
 #[ cfg( feature = "spawn_handle" ) ]
 //
@@ -148,13 +145,13 @@ fn test_spawn_handle()
 fn test_spawn_handle_arc()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut wrap     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec     = wrap.handle();
+	let mut exec     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let     ex2      = exec.clone();
 
 
-	let result = wrap.block_on( async move
+	let result = exec.block_on( async move
 	{
-		increment_spawn_handle( 4, Arc::new(exec), tx ).await;
+		increment_spawn_handle( 4, Arc::new(ex2), tx ).await;
 
 		rx.next().await
 	});
@@ -172,13 +169,13 @@ fn test_spawn_handle_arc()
 //
 fn test_spawn_handle_os()
 {
-	let mut wrap = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec = wrap.handle();
+	let mut exec = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let     ex2  = exec.clone();
 
 
-	let result = wrap.block_on( async move
+	let result = exec.block_on( async move
 	{
-		increment_spawn_handle_os( 4, &exec ).await
+		increment_spawn_handle_os( 4, &ex2 ).await
 	});
 
 
@@ -194,8 +191,7 @@ fn test_build_name_thread()
 {
 	let (tx, rx) = oneshot::channel();
 
-	let mut wrap = TokioTp::try_from( Builder::new().thread_name( "test_thread" ) ).expect( "create tokio threadpool" );
-	let     exec = wrap.handle();
+	let mut exec = TokioTp::try_from( Builder::new().thread_name( "test_thread" ) ).expect( "create tokio threadpool" );
 
 	let task = async move
 	{
@@ -205,7 +201,7 @@ fn test_build_name_thread()
 
 	exec.spawn( task ).expect( "spawn" );
 
-	wrap.block_on( async
+	exec.block_on( async
 	{
 		assert_eq!( rx.await.expect( "read channel" ), "test_thread" );
 
