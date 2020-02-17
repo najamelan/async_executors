@@ -1,18 +1,17 @@
 # TODO:
 
-## JoinHandle part
+- lifetime of tokio executor when passing handles to API's.
 
-- check consistency: see below
-
-- spawn_blocking?
-
+- spawn_blocking? This is provided by tokio and async_std, but does not take a future, rather a closure, so we would
+  have to wrap it in a future to make it abortable.
 
 # Wrap up
 
-- Spawn::status
-- tracing test/example
-- wasm example
 - documentation
+  - tracing test/example
+  - wasm example
+
+- CI
 - write blogpost
 
 ## Consistent behavior:
@@ -21,38 +20,23 @@ The anwser to each point here needs to be the same for all supported executors a
 
 ### Spawning
 
-  - what happens if the spawned future panics?
-    - tokio uses catch_unwind, so it can only be observed in the output of the Joinhandle
-    - async_std: doesn't catch_unwind, from the docs:
-      //! Fatal logic errors in Rust cause *thread panic*, during which a thread will unwind the stack,
-      //! running destructors and freeing owned resources. If a panic occurs inside a task, there is no
-      //! meaningful way of recovering, so the panic will propagate through any thread boundaries all the
-      //! way to the root task. This is also known as a "panic = abort" model.
+  ✔ what happens if the spawned future panics?
 
-    - futures: doesn't seem to call catch_unwind except in RemoteHandle.
-
-    - bindgen: doesn't seem to call catch_unwind.
+    ✔ on all executors except tokio, the executor thread will unwind. Tokio uses catch_unwind and
+      the fact that the future panicked can only be observed by awaiting the joinhandle, but
+      the Spawn and LocalSpawn traits do not return a JoinHandle, so there is no way to tell.
 
   ✔ is spawning fallible or infallible?
-    We turn everything to fallible in line with the futures executors.
+     We turn everything to fallible in line with the futures executors.
 
 ### JoinHandle
 
   ✔ provide both detach and drop.
   ✔ what happens if the joinhandle get's dropped.
-  - what happens if the future panics.
+  ✔ what happens if the future panics.
 
+    ✔ remote handle unwinds the thread that is awaiting the handle
+    ✔ async_std unwinds both
+    ✔ tokio unwinds none.
 
-
-assert unwindsafe:
-- what does UnwindSafe trait do when encountered in an unwind?
-- do tools only deal with unwind safety if they deal with threading? See LocalPool, async-task single thread example?
-- Send + 'static != UnwindSafe, why does tokio not use the trait from stdlib?
-- list of ressources:
- - nomicon: https://doc.rust-lang.org/nomicon/unwinding.html#unwinding
- - std docs for:
-   - UnwindSafe: https://doc.rust-lang.org/std/panic/trait.UnwindSafe.html
-   - AssertUnwindSafe
-   - std::panic
- - RFC: https://github.com/rust-lang/rfcs/blob/master/text/1236-stabilize-catch-panic.md
- - Issue:
+    I brought tokio in line with remote_handle, but async_std will unwind the executor thread. This inconsistency remains.

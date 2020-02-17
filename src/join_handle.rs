@@ -109,8 +109,8 @@ impl<T: 'static> Future for JoinHandle<T>
 			{
 				match futures_util::ready!( Pin::new( handle ).poll( cx ) )
 				{
-					Ok (t) => Poll::Ready( t.expect( "future panicked" ) ),
-					Err(_) => unreachable!( "future shouldn't be aborted" ),
+					Ok (t) => Poll::Ready( t.expect( "task panicked" ) ),
+					Err(_) => unreachable!( "task shouldn't be aborted" ),
 				}
 			}
 

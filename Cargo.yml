@@ -70,6 +70,8 @@ features:
   #
   tracing: [ tracing-futures ]
 
+  # Provide an executor agnostic JoinHandle and the SpawnHandle family of traits.
+  #
   spawn_handle: [ futures-util ]
 
   # only used internally, don't use
@@ -103,6 +105,7 @@ dependencies:
 dev-dependencies:
 
   pretty_assertions : ^0.6
+  static_assertions : ^1
   criterion         : ^0.3
   futures           : { version: ^0.3, features: [ thread-pool ] }
   # log               : ^0.4

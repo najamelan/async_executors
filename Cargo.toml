@@ -43,6 +43,7 @@ version = "^0.4"
 [dev-dependencies]
 criterion = "^0.3"
 pretty_assertions = "^0.6"
+static_assertions = "^1"
 
 [dev-dependencies.futures]
 features = ["thread-pool"]

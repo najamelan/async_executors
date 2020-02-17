@@ -9,7 +9,7 @@ use
 
 
 
-/// An executor that uses [tokio_executor::current_thread::CurrentThread]
+/// An executor that uses a [tokio::runtime::Runtime] with the [basic scheduler](tokio::runtime::Builder::basic_scheduler).
 //
 #[ derive( Debug ) ]
 //
@@ -78,4 +78,14 @@ impl TryFrom<&mut Builder> for TokioCt
 			_no_send : PhantomData ,
 		})
 	}
+}
+
+
+#[ cfg(test) ]
+//
+mod tests
+{
+	use super::*;
+
+	static_assertions::assert_not_impl_any!( TokioCt: Send, Sync );
 }

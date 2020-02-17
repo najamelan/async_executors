@@ -74,7 +74,10 @@ impl LocalSpawn for TokioLocalHandle
 		//
 		let fut = unsafe { future.into_future_obj() };
 
-		self.spawner.spawn( fut );
+		// We drop the JoinHandle, so the task becomes detached.
+		//
+		let _ = self.spawner.spawn( fut );
+
 		Ok(())
 	}
 }
@@ -84,8 +87,21 @@ impl Spawn for TokioLocalHandle
 {
 	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
-		self.spawner.spawn( future );
+		// We drop the JoinHandle, so the task becomes detached.
+		//
+		let _ = self.spawner.spawn( future );
+
 		Ok(())
 	}
+}
+
+
+#[ cfg(test) ]
+//
+mod tests
+{
+	use super::*;
+
+	static_assertions::assert_not_impl_any!( TokioLocalHandle: Send, Sync );
 }
 

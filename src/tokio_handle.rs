@@ -43,7 +43,10 @@ impl Spawn for TokioHandle
 {
 	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
-		self.spawner.spawn( future );
+		// We drop the JoinHandle, so the task becomes detached.
+		//
+		let _ = self.spawner.spawn( future );
+
 		Ok(())
 	}
 }
