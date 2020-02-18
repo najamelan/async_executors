@@ -5,7 +5,8 @@
 
 # Wrap up
 
-- CI
+- CI - fix windows wasm-bindgen-cli
+- clean up benchmark repo
 - write blogpost
 
 ## Consistent behavior:

@@ -18,11 +18,11 @@ The traits provided by this crate are also implemented for the [`Instrumented`](
 
 The currently supported executors are (let me know if you want to see others supported):
 
-- [async-std](async_std_crate)
-- [tokio] CurrentThread - [`tokio::runtime::Runtime`] with basic scheduler. (supports spawning `!Send` futures)
-- [tokio] ThreadPool - [`tokio::runtime::Runtime`] with threadpool scheduler.
-- [wasm_bindgen_futures] (only available on WASM, the others are not available on WASM)
-- the [futures_executor] executors - They already implemented `Spawn` and `SpawnLocal`, but we provide the `SpawnHandle` family of traits for them as well.
+- [async-std](https://docs.rs/async-std)
+- [tokio](https://docs.rs/tokio) CurrentThread - [`tokio::runtime::Runtime`] with basic scheduler. (supports spawning `!Send` futures)
+- [tokio](https://docs.rs/tokio) ThreadPool - [`tokio::runtime::Runtime`] with threadpool scheduler.
+- [wasm-bindgen-futures](https://docs.rs/wasm-bindgen-futures) (only available on WASM, the others are not available on WASM)
+- the [futures-executor](https://docs.rs/futures-executor) executors - They already implemented `Spawn` and `SpawnLocal`, but we implement the `SpawnHandle` family of traits for them as well.
 
 All executors are behind feature flags: `async_std`, `tokio_ct`, `tokio_tp`, `bindgen`, `localpool`, `threadpool`.
 
@@ -117,6 +117,7 @@ use
   async_executors::*,
   std::sync::Arc,
   futures::future::FutureExt,
+  futures::executor::{ ThreadPool, block_on },
 };
 
 
@@ -136,12 +137,22 @@ impl SomeObj
       SomeObj{ exec }
    }
 
-   fn run( &self )
+   fn run( &self ) -> JoinHandle<u8>
    {
-      let handle = self.exec.spawn_handle_os( async{ 5 }.boxed() ).expect( "spawn" );
+      let task   = async{ 5 }.boxed();
 
-      let x: u8 = futures::executor::block_on( handle );
+      self.exec.spawn_handle_os( task ).expect( "spawn" )
    }
+}
+
+fn main()
+{
+  let exec = ThreadPool::new().expect( "build threadpool" );
+  let obj  = SomeObj::new( Arc::new(exec) );
+
+  let x = block_on( obj.run() );
+
+  assert_eq!( x, 5 );
 }
 ```
 
