@@ -100,7 +100,7 @@ license = "Unlicense"
 name = "async_executors"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_executors"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 
 [package.metadata]
 [package.metadata.docs]
