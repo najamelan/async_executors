@@ -15,9 +15,8 @@ cargo test --features async_std
 cargo test --features tokio_tp
 cargo test --features tokio_ct
 cargo test --features spawn_handle
-cargo test --features "spawn_handle async_std tokio_tp tokio_ct localpool threadpool docs"
+cargo test --features "spawn_handle async_std tokio_tp tokio_ct localpool threadpool"
 
-cargo +nightly doc --no-deps --all-features
 
 
 # we would like to get doc tests for the examples in the readme, but rustdoc does not

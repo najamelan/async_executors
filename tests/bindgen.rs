@@ -1,4 +1,4 @@
-#![ cfg( feature = "bindgen" ) ]
+#![ cfg(all( feature = "bindgen", wasm32 )) ]
 
 // Tested:
 //

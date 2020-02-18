@@ -1,5 +1,4 @@
 language: rust
-rust    : [ stable, nightly ]
 
 # Need to cache the whole `.cargo` directory to keep .crates.toml for
 # cargo-update to work
@@ -22,40 +21,19 @@ branches:
     - master
     - dev
 
-matrix:
+install:
+  - cargo install --force wasm-bindgen-cli
+  - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+  - rustup target add wasm32-unknown-unknown
+
+
+jobs:
 
   include:
 
-    # This won't work because we use a nightly feature in dev-dependencies and the feature leaks:
-    #
-    # - rust  : stable
-    #   script: cargo check
-
-    - os: linux
-
-      # for wasm tests
-      #
-      install:
-        - cargo install --force wasm-bindgen-cli
-        - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-        - rustup target add wasm32-unknown-unknown
-
-      addons:
-        firefox: latest
-
-
-      script:
-        - bash ci.bash
-
-
-    - os: osx
-
-      # for wasm tests
-      #
-      install:
-        - cargo install --force wasm-bindgen-cli
-        - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-        - rustup target add wasm32-unknown-unknown
+    - name: linux stable rust
+      os  : linux
+      rust: stable
 
       addons:
         firefox: latest
@@ -65,20 +43,74 @@ matrix:
 
 
 
-    - os: windows
-
-      # for wasm tests
-      #
-      install:
-        - cargo install --force wasm-bindgen-cli
-        - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-        - rustup target add wasm32-unknown-unknown
+    - name: linux nightly rust
+      os  : linux
+      rust: nightly
 
       addons:
         firefox: latest
 
       script:
         - bash ci.bash
+        - cargo doc  --no-deps --all-features
+
+          # for doc tests
+          #
+        - cargo test --all-features
+
+
+    - name: osx stable rust
+      os  : osx
+      rust: stable
+
+      # for wasm tests
+      #
+      addons:
+        firefox: latest
+
+      script:
+        - bash ci.bash
+
+
+    - name: osx nightly rust
+      os  : osx
+      rust: nightly
+
+      # for wasm tests
+      #
+      addons:
+        firefox: latest
+
+      script:
+        - bash ci.bash
+
+
+    - name: windows stable rust
+      os  : windows
+      rust: stable
+
+      # for wasm tests
+      #
+      addons:
+        firefox: latest
+
+      script:
+        - bash ci.bash
+
+
+    - name: windows nightly rust
+      os  : windows
+      rust: nightly
+
+      # for wasm tests
+      #
+      addons:
+        firefox: latest
+
+      script:
+        - bash ci.bash
+
+
 
 
 
