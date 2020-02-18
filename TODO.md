@@ -5,10 +5,6 @@
 
 # Wrap up
 
-- documentation
-  - tracing test/example
-  - wasm example
-
 - CI
 - write blogpost
 
