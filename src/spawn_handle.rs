@@ -2,7 +2,7 @@
 //
 use
 {
-	crate        :: { import::*, JoinHandle                                            } ,
+	crate        :: { import::*, JoinHandle, remote_handle::remote_handle              } ,
 	futures_util :: { task::{ SpawnExt, SpawnError }, future::{ FutureExt, abortable } } ,
 	std          :: { future::Future, sync::{ Arc, atomic::AtomicBool }, rc::Rc        } ,
 };
@@ -210,7 +210,7 @@ impl SpawnHandle for crate::Bindgen
 		      Out: 'static + Send
 
 	{
-		let (fut, handle) = future.remote_handle();
+		let (fut, handle) = remote_handle( future );
 		wasm_bindgen_futures::spawn_local(fut);
 
 		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
@@ -229,7 +229,9 @@ impl SpawnHandle for futures_executor::LocalSpawner
 		      Out: 'static + Send
 
 	{
-		let handle = self.spawn_with_handle( future )?;
+		let (fut, handle) = remote_handle( future );
+
+		self.spawn( fut )?;
 
 		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
 	}
@@ -247,7 +249,9 @@ impl SpawnHandle for futures_executor::ThreadPool
 		      Out: 'static + Send
 
 	{
-		let handle = self.spawn_with_handle( future )?;
+		let (fut, handle) = remote_handle( future );
+
+		self.spawn( fut )?;
 
 		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
 	}

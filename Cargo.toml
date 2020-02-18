@@ -12,6 +12,14 @@ optional = true
 package = "async-std"
 version = "^1"
 
+[dependencies.futures-channel]
+optional = true
+version = "^0.3"
+
+[dependencies.futures-core]
+optional = true
+version = "^0.3"
+
 [dependencies.futures-executor]
 optional = true
 version = "^0.3"
@@ -26,6 +34,10 @@ version = "^0.3"
 [dependencies.parking_lot]
 optional = true
 version = "^0.10"
+
+[dependencies.pin-utils]
+optional = true
+version = "0.1.0-alpha"
 
 [dependencies.tokio]
 optional = true
@@ -71,7 +83,7 @@ default = ["notwasm"]
 docs = []
 localpool = ["futures-executor"]
 notwasm = []
-spawn_handle = ["futures-util"]
+spawn_handle = ["futures-util", "futures-channel", "futures-core", "pin-utils"]
 threadpool = ["futures-executor/thread-pool"]
 tokio_ct = ["tokio/rt-core"]
 tokio_tp = ["tokio/rt-threaded", "parking_lot"]
@@ -97,22 +109,6 @@ all-features = true
 
 [patch]
 [patch.crates-io]
-[patch.crates-io.futures-channel]
-path = "../RUST/futures-rs/futures-channel"
-version = "^0.3"
-
-[patch.crates-io.futures-executor]
-path = "../RUST/futures-rs/futures-executor"
-version = "^0.3"
-
-[patch.crates-io.futures-task]
-path = "../RUST/futures-rs/futures-task"
-version = "^0.3"
-
-[patch.crates-io.futures-util]
-path = "../RUST/futures-rs/futures-util"
-version = "^0.3"
-
 [patch.crates-io.tracing-futures]
 git = "https://github.com/tokio-rs/tracing"
 version = "^0.2"

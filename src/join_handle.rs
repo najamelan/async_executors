@@ -2,7 +2,7 @@
 //
 use
 {
-	crate       :: { import::*                                              } ,
+	crate       :: { import::*, remote_handle::RemoteHandle                 } ,
 	std         :: { future::Future, sync::atomic::{ AtomicBool, Ordering } } ,
 	futures_util:: { future::{ AbortHandle, Aborted }                       } ,
 };
@@ -68,7 +68,7 @@ pub(crate) enum InnerJh<T>
 
 	/// Wrapper around futures RemoteHandle.
 	//
-	RemoteHandle( Option<futures_util::future::RemoteHandle<T>> ),
+	RemoteHandle( Option<RemoteHandle<T>> ),
 }
 
 
