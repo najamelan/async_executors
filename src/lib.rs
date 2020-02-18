@@ -1,27 +1,32 @@
+// These are only available on nightly
+//
+#![cfg_attr( feature = "docs", feature( doc_cfg, external_doc )) ]
+
 // See: https://github.com/rust-lang/rust/issues/44732#issuecomment-488766871
 //
-#![cfg_attr( feature = "external_doc", feature(external_doc) )]
-#![cfg_attr( feature = "external_doc", doc(include = "../README.md"))]
+#![cfg_attr( feature = "docs", doc(include = "../README.md") )]
 //!
 
-
-#![ doc    ( html_root_url = "https://docs.rs/async_executors" ) ]
-#![ deny   ( missing_docs                                      ) ]
-#![ allow  ( clippy::suspicious_else_formatting                ) ]
+#![ doc  ( html_root_url = "https://docs.rs/async_executors" ) ]
+#![ deny ( missing_docs                                      ) ]
+#![ allow( clippy::suspicious_else_formatting                ) ]
 
 #![ warn
 (
+	anonymous_parameters          ,
+	missing_copy_implementations  ,
 	missing_debug_implementations ,
 	nonstandard_style             ,
 	rust_2018_idioms              ,
+	single_use_lifetimes          ,
 	trivial_casts                 ,
 	trivial_numeric_casts         ,
+	unreachable_pub               ,
 	unused_extern_crates          ,
 	unused_qualifications         ,
-	single_use_lifetimes          ,
-	unreachable_pub               ,
 	variant_size_differences      ,
 )]
+
 
 
 #[ cfg( feature = "tokio_ct" ) ] mod tokio_ct;

@@ -8,21 +8,21 @@
 
 > Abstract over different executors.
 
-The aim of _async_executors_ is to provide a uniform interface to the main async executors available in Rust. We provide wrapper types that always implement the [`Spawn`](futures_util::task::Spawn) and/or [`LocalSpawn`](futures_util::task::LocalSpawn) traits from the _futures_ library, making it easy to pass any supported executor to an API which requires `exec: impl Spawn` or `exec: impl LocalSpawn`.
+The aim of _async_executors_ is to provide a uniform interface to the main async executors available in Rust. We provide wrapper types that always implement the [`Spawn`](futures_util::task::Spawn) and/or [`LocalSpawn`](futures_util::task::LocalSpawn) traits from _futures_, making it easy to pass any supported executor to an API which requires `exec: impl Spawn` or `exec: impl LocalSpawn`.
 
-A problem with these traits is that they do not provide an API for getting a JoinHandle to await completion of the task. I think the current trend in async is to favor joining tasks and thus certain executors now return JoinHandles from their spawn function. It's also a fundamental building block for [structured concurrency](https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/). _async_executors_ provides an executor agnostic `JoinHandle` that wraps the framework native JoinHandle types.
+A problem with these traits is that they do not provide an API for getting a JoinHandle to await completion of the task. The current trend in async is to favor joining tasks and thus certain executors now return JoinHandles from their spawn function. It's also a fundamental building block for [structured concurrency](https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/). _async_executors_ provides an executor agnostic [`JoinHandle`] that wraps the framework native JoinHandle types.
 
-SpawnHandle traits are also provided so API's can express you need to pass them an executor which allows spawning with a handle. Note that this was already provided by the _futures_ library in `SpawnExt::spawn_with_handle`, but this uses `RemoteHandle` which incurs a performance overhead. By wrapping the native JoinHandle types, we can avoid some of that overhead while still being executor agnostic. These traits are feature gated behind the `spawn_handle` feature.
+SpawnHandle traits are also provided so API's can express you need to pass them an executor which allows spawning with a handle. Note that this was already provided by the _futures_ in [`SpawnExt::spawn_with_handle`](futures_util::task::SpawnExt::spawn_with_handle), but this uses [`RemoteHandle`](futures_util::future::RemoteHandle) which incurs a performance overhead. By wrapping the native JoinHandle types, we can avoid some of that overhead while still being executor agnostic. These traits are feature gated behind the `spawn_handle` feature.
 
-The traits provided by this crate are also implemented for the `Instrumented` and `WithDispatch` wrappers from _tracing-futures_ when the `tracing` feature is enabled. So you can pass an instrumented executor to an API requiring `exec: impl SpawnHandle`.
+The traits provided by this crate are also implemented for the [`Instrumented`](tracing_futures::Instrumented) and [`WithDispatch`](tracing_futures::WithDispatch) wrappers from _tracing-futures_ when the `tracing` feature is enabled. So you can pass an instrumented executor to an API requiring `exec: impl SpawnHandle`.
 
 The currently supported executors are (let me know if you want to see others supported):
 
-- async-std
-- tokio CurrentThread - [`tokio::runtime::Runtime`] with basic scheduler. (supports spawning `!Send` futures)
-- tokio ThreadPool - [`tokio::runtime::Runtime`] with threadpool scheduler.
-- wasm-bindgen (only available on WASM, the others are not available on WASM)
-- the futures executors - They already implemented `Spawn` and `SpawnLocal`, but we provide the `SpawnHandle` family of traits for them as well.
+- [async-std](async_std_crate)
+- [tokio] CurrentThread - [`tokio::runtime::Runtime`] with basic scheduler. (supports spawning `!Send` futures)
+- [tokio] ThreadPool - [`tokio::runtime::Runtime`] with threadpool scheduler.
+- [wasm_bindgen_futures] (only available on WASM, the others are not available on WASM)
+- the [futures_executor] executors - They already implemented `Spawn` and `SpawnLocal`, but we provide the `SpawnHandle` family of traits for them as well.
 
 All executors are behind feature flags: `async_std`, `tokio_ct`, `tokio_tp`, `bindgen`, `localpool`, `threadpool`.
 
@@ -77,6 +77,7 @@ The only dependency is `futures-task`, the rest are the optional dependencies to
 There is one use of unsafe to make it possible to spawn `!Send` futures on the tokio Runtime with the `basic_scheduler`.
 Review is welcome.
 
+There is one line of unsafe and our dependencies use unsafe.
 
 ## Performance
 
@@ -108,32 +109,39 @@ All wrappers also implement `Clone`, `Debug` and the zero sized ones also `Copy`
 You can use the `SpawnHandle` and `LocalSpawnHandle` traits as bounds for obtaining join handles. They can't be stored however as they aren't object
 safe. So either you make the data structure that needs to store them generic, or you need to revert to the object safe versions (`SpawnHandleOs` and `LocalSpawnHandleOs`) which imply you have to specify the output type and futures will have to be boxed an extra time.
 
+##### Example
 
 ```rust
-use async_executors::*;
+use
+{
+  async_executors::*,
+  std::sync::Arc,
+  futures::future::FutureExt,
+};
+
 
 fn needs_exec( exec: impl SpawnHandle )
 {
-	let handle = exec.spawn_handle( async {} );
+   let handle = exec.spawn_handle( async {} );
 }
 
 
-struct SomeObj{ exec: Arc< SpawnHandleOs<u8> > }
+struct SomeObj{ exec: Arc< dyn SpawnHandleOs<u8> > }
 
 
 impl SomeObj
 {
-	pub fn new( exec: Arc< SpawnHandleOs<u8> > ) -> SomeObj
-	{
-		SomeObj{ exec }
-	}
+   pub fn new( exec: Arc< dyn SpawnHandleOs<u8> > ) -> SomeObj
+   {
+      SomeObj{ exec }
+   }
 
-	fn use()
-	{
-		let handle = self.exec.spawn_handle( async{} );
+   fn run( &self )
+   {
+      let handle = self.exec.spawn_handle_os( async{ 5 }.boxed() ).expect( "spawn" );
 
-		let x: u8 = futures::executor::block_on( handle ).expect( "task panicked" );
-	}
+      let x: u8 = futures::executor::block_on( handle );
+   }
 }
 ```
 
@@ -153,17 +161,22 @@ All wrappers also implement `Clone`, `Debug` and the zero sized ones also `Copy`
 
 Some executors are a bit special, so make sure to check the API docs for the one you intend to use. Some also provide extra methods like `block_on` which will call a framework specific `block_on` rather than the one from _futures_.
 
+#### Example
+
 ```rust
-use async_executors::*;
+use
+{
+  async_executors::*,
+  std::convert::TryFrom,
+};
 
 fn needs_exec( exec: impl SpawnHandle ){};
 
 needs_exec( AsyncStd::default() );
 
-let tp       = TokioTp::from( tokio::runtime::Builder );
-let e_handle = tp.handle();
+let tp = TokioTp::try_from( &mut tokio::runtime::Builder::new() ).expect( "build threadpool" );
 
-needs_exec( e_handle );
+needs_exec( tp );
 ```
 
 ## API
@@ -175,16 +188,17 @@ API documentation can be found on [docs.rs](https://docs.rs/async_executors).
 
 This repository accepts contributions. Ideas, questions, feature requests and bug reports can be filed through Github issues.
 
-Pull Requests are welcome on Github. By committing pull requests, you accept that your code might be modified and reformatted to fit the project coding style or to improve the implementation. Please discuss what you want to see modified before filing a pull request if you don't want to be doing work that might be rejected.
+Pull Requests are welcome on Github. By committing pull requests, you accept that your code might be modified and reformatted to fit the project coding style or to improve the implementation. Contributed code is considered licensed under the Unlicence unless explicitly agreed otherwise.
 
-Please file PR's against the `dev` branch, don't forget to update the changelog and the documentation.
+Please discuss what you want to see modified before filing a pull request if you don't want to be doing work that might be rejected. Please file PR's against the `dev` branch, don't forget to update the changelog and the documentation.
 
 ### Testing
 
+Run `./ci.bash` to run all tests.
 
 ### Code of conduct
 
-Any of the behaviors described in [point 4 "Unacceptable Behavior" of the Citizens Code of Conduct](http://citizencodeofconduct.org/#unacceptable-behavior) are not welcome here and might get you banned. If anyone including maintainers and moderators of the project fail to respect these/your limits, you are entitled to call them out.
+Any of the behaviors described in [point 4 "Unacceptable Behavior" of the Citizens Code of Conduct](https://github.com/stumpsyn/policies/blob/master/citizen_code_of_conduct.md#4-unacceptable-behavior) are not welcome here and might get you banned. If anyone including maintainers and moderators of the project fail to respect these/your limits, you are entitled to call them out.
 
 ## License
 

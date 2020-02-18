@@ -8,11 +8,13 @@ use
 };
 
 
-/// Object safe version of [crate::SpawnHandle]. This allows you to take it as a param
+/// Object safe version of [SpawnHandle]. This allows you to take it as a param
 /// and store it. It incurs some overhead, since the future needs to be boxed and executors
 /// will box it again to queue it.
 ///
 /// It also implies you have to choose an Out type.
+//
+#[ cfg_attr( feature = "docs", doc(cfg( feature = "spawn_handle" )) ) ]
 //
 pub trait SpawnHandleOs<Out: 'static + Send>
 {

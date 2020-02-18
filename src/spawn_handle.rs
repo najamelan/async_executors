@@ -2,7 +2,7 @@
 //
 use
 {
-	crate        :: { import::*                                                        } ,
+	crate        :: { import::*, JoinHandle                                            } ,
 	futures_util :: { task::{ SpawnExt, SpawnError }, future::{ FutureExt, abortable } } ,
 	std          :: { future::Future, sync::{ Arc, atomic::AtomicBool }, rc::Rc        } ,
 };
@@ -10,13 +10,20 @@ use
 
 /// Let's you spawn and get a [JoinHandle] to await the output of a future.
 ///
-/// This trait is not object safe, see [SpawnHandleOs] for a best effort object safe one.
+/// This trait is not object safe, see [SpawnHandleOs](crate::SpawnHandleOs) for a best effort object safe one.
+///
+/// ## Performance
+///
+/// For [tokio] and [async-std](async_std_crate) this is generally faster than [SpawnExt::spawn], since
+/// it's better aligned with the underlying API and doesn't require extra boxing.
+//
+#[ cfg_attr( feature = "docs", doc(cfg( feature = "spawn_handle" )) ) ]
 //
 pub trait SpawnHandle
 {
 	/// Spawn a future and return a [JoinHandle] that can be awaited for the output of the future.
 	//
-	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
 
 		where Fut: Future<Output = Out> + 'static + Send,
 		      Out: 'static + Send
@@ -26,7 +33,7 @@ pub trait SpawnHandle
 
 impl<T: SpawnHandle> SpawnHandle for Box<T>
 {
-	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
 
 		where Fut: Future<Output = Out> + 'static + Send,
 		      Out: 'static + Send
@@ -39,7 +46,7 @@ impl<T: SpawnHandle> SpawnHandle for Box<T>
 
 impl<T: SpawnHandle> SpawnHandle for Arc<T>
 {
-	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
 
 		where Fut: Future<Output = Out> + 'static + Send,
 		      Out: 'static + Send
@@ -52,7 +59,7 @@ impl<T: SpawnHandle> SpawnHandle for Arc<T>
 
 impl<T: SpawnHandle> SpawnHandle for Rc<T>
 {
-	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
 
 		where Fut: Future<Output = Out> + 'static + Send,
 		      Out: 'static + Send
@@ -65,7 +72,7 @@ impl<T: SpawnHandle> SpawnHandle for Rc<T>
 
 impl<T: SpawnHandle> SpawnHandle for &T
 {
-	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
 
 		where Fut: Future<Output = Out> + 'static + Send,
 		      Out: 'static + Send
@@ -78,7 +85,7 @@ impl<T: SpawnHandle> SpawnHandle for &T
 
 impl<T: SpawnHandle> SpawnHandle for &mut T
 {
-	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
 
 		where Fut: Future<Output = Out> + 'static + Send,
 		      Out: 'static + Send
@@ -93,7 +100,7 @@ impl<T: SpawnHandle> SpawnHandle for &mut T
 //
 impl<T: SpawnHandle> SpawnHandle for Instrumented<T>
 {
-	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
 
 		where Fut: Future<Output = Out> + 'static + Send,
 		      Out: 'static + Send
@@ -110,7 +117,7 @@ impl<T: SpawnHandle> SpawnHandle for Instrumented<T>
 //
 impl<T: SpawnHandle> SpawnHandle for WithDispatch<T>
 {
-	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
 
 		where Fut: Future<Output = Out> + 'static + Send,
 		      Out: 'static + Send
@@ -129,7 +136,7 @@ impl<T: SpawnHandle> SpawnHandle for WithDispatch<T>
 //
 impl SpawnHandle for crate::async_std::AsyncStd
 {
-	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
 
 		where Fut: Future<Output = Out> + 'static + Send,
 		      Out: 'static + Send
@@ -137,7 +144,7 @@ impl SpawnHandle for crate::async_std::AsyncStd
 	{
 		let (fut, a_handle) = abortable( future );
 
-		Ok( crate::JoinHandle{ inner: crate::join_handle::InnerJh::AsyncStd
+		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::AsyncStd
 		{
 			handle  : async_std_crate::task::spawn(fut) ,
 			detached: AtomicBool::new(false)            ,
@@ -151,7 +158,7 @@ impl SpawnHandle for crate::async_std::AsyncStd
 //
 impl SpawnHandle for crate::TokioTp
 {
-	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
 
 		where Fut: Future<Output = Out> + 'static + Send,
 		      Out: 'static + Send
@@ -159,7 +166,7 @@ impl SpawnHandle for crate::TokioTp
 	{
 		let (fut, a_handle) = abortable( future );
 
-		Ok( crate::JoinHandle{ inner: crate::join_handle::InnerJh::Tokio
+		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::Tokio
 		{
 			handle  : self.handle.spawn(fut) ,
 			detached: AtomicBool::new(false)  ,
@@ -174,7 +181,7 @@ impl SpawnHandle for crate::TokioTp
 //
 impl SpawnHandle for crate::TokioCt
 {
-	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
 
 		where Fut: Future<Output = Out> + 'static + Send,
 		      Out: 'static + Send
@@ -182,7 +189,7 @@ impl SpawnHandle for crate::TokioCt
 	{
 		let (fut, a_handle) = abortable( future );
 
-		Ok( crate::JoinHandle{ inner: crate::join_handle::InnerJh::Tokio
+		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::Tokio
 		{
 			handle  : self.handle.spawn(fut) ,
 			detached: AtomicBool::new(false)  ,
@@ -197,7 +204,7 @@ impl SpawnHandle for crate::TokioCt
 //
 impl SpawnHandle for crate::Bindgen
 {
-	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
 
 		where Fut: Future<Output = Out> + 'static + Send,
 		      Out: 'static + Send
@@ -206,7 +213,7 @@ impl SpawnHandle for crate::Bindgen
 		let (fut, handle) = future.remote_handle();
 		wasm_bindgen_futures::spawn_local(fut);
 
-		Ok( crate::JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
+		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
 	}
 }
 
@@ -216,7 +223,7 @@ impl SpawnHandle for crate::Bindgen
 //
 impl SpawnHandle for futures_executor::LocalSpawner
 {
-	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
 
 		where Fut: Future<Output = Out> + 'static + Send,
 		      Out: 'static + Send
@@ -224,7 +231,7 @@ impl SpawnHandle for futures_executor::LocalSpawner
 	{
 		let handle = self.spawn_with_handle( future )?;
 
-		Ok( crate::JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
+		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
 	}
 }
 
@@ -234,7 +241,7 @@ impl SpawnHandle for futures_executor::LocalSpawner
 //
 impl SpawnHandle for futures_executor::ThreadPool
 {
-	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
 
 		where Fut: Future<Output = Out> + 'static + Send,
 		      Out: 'static + Send
@@ -242,7 +249,7 @@ impl SpawnHandle for futures_executor::ThreadPool
 	{
 		let handle = self.spawn_with_handle( future )?;
 
-		Ok( crate::JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
+		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
 	}
 }
 

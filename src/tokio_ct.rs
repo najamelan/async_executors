@@ -1,5 +1,3 @@
-//! Provides TokioCt executor specific functionality.
-//
 use
 {
 	crate          :: { import::*             } ,
@@ -9,6 +7,12 @@ use
 
 
 /// An executor that uses a [tokio::runtime::Runtime] with the [basic scheduler](tokio::runtime::Builder::basic_scheduler).
+/// Can spawn `!Send` futures.
+///
+/// You must make sure that calls to "spawn" and "spawn_local" happen withing a future running on [TokioCt::block_on].
+///
+/// One feature from tokio is not implemented here, namely the possibility to get a handle that can be sent to another
+/// thread to spawn tasks on this executor.
 ///
 /// ## Unwind Safety.
 ///
@@ -19,7 +23,7 @@ use
 /// as I can tell this is wrong. Unwind safety can be circumvented in several ways even with
 /// `Send + 'static` (eg. parking_lot::Mutex is Send + 'static but !UnwindSafe).
 ///
-/// __As added footgun in the `LocalSpawn` impl for TokioCt we artificially add a Send
+/// __As added foot gun in the `LocalSpawn` impl for TokioCt we artificially add a Send
 /// impl to your future so it can be spawned by tokio, which requires `Send` even for the
 /// basic scheduler. This opens more ways to observe broken invariants, like `RefCell`, `TLS`, etc.__
 ///
@@ -31,6 +35,8 @@ use
 //
 #[ derive( Debug, Clone ) ]
 //
+#[ cfg_attr( feature = "docs", doc(cfg( feature = "tokio_ct" )) ) ]
+//
 pub struct TokioCt
 {
 	pub(crate) exec  : Rc<RefCell< Runtime >> ,
@@ -41,14 +47,13 @@ pub struct TokioCt
 
 impl TokioCt
 {
-	/// This is the entry point for this executor. You must call spawn on the handle from within a future that is run with block_on.
+	/// This is the entry point for this executor. You must call spawn from within a future that is running through `block_on`.
 	//
 	pub fn block_on< F: Future >( &mut self, f: F ) -> F::Output
 	{
 		self.exec.borrow_mut().block_on( f )
 	}
 }
-
 
 
 
@@ -67,6 +72,7 @@ impl TryFrom<&mut Builder> for TokioCt
 		})
 	}
 }
+
 
 
 impl Spawn for TokioCt
@@ -112,5 +118,7 @@ mod tests
 {
 	use super::*;
 
+	// It's important that this is not Send, as we allow spawning !Send futures on it.
+	//
 	static_assertions::assert_not_impl_any!( TokioCt: Send, Sync );
 }

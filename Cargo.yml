@@ -78,7 +78,7 @@ features:
   #
   notwasm: []
 
-  external_doc: []
+  docs: []
 
 
 badges:
@@ -124,7 +124,7 @@ patch:
     futures-task: { version: ^0.3, path: ../RUST/futures-rs/futures-task }
     futures-channel: { version: ^0.3, path: ../RUST/futures-rs/futures-channel }
     futures-executor: { version: ^0.3, path: ../RUST/futures-rs/futures-executor }
-    tracing-futures: { version: ^0.2, path: ../RUST/tracing/tracing-futures }
+    tracing-futures: { version: ^0.2, git: "https://github.com/tokio-rs/tracing" }
 
 
 target:

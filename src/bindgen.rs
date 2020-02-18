@@ -5,12 +5,26 @@ use
 };
 
 
-/// A type that implements `Spawn` and `LocalSpawn` and spawns on the wasm-bingen-futures executor.
-/// Can spawn `!Send` futures.
+/// A type that implements [`Spawn`] and [`LocalSpawn`] and spawns on the _wasm-bingen-futures_ executor.
+/// The executor is global, eg. not self contained.
 //
 #[ derive( Copy, Clone, Default ) ]
 //
+#[ cfg_attr( feature = "docs", doc(cfg( feature = "bindgen" )) ) ]
+//
 pub struct Bindgen;
+
+
+impl Bindgen
+{
+	/// Create a new Bindgen wrapper, forwards to `Default::default`.
+	///
+	pub fn new() -> Self
+	{
+		Self::default()
+	}
+}
+
 
 
 impl Spawn for Bindgen
@@ -34,6 +48,7 @@ impl LocalSpawn for Bindgen
 		Ok(())
 	}
 }
+
 
 
 impl std::fmt::Debug for Bindgen

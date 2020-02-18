@@ -3,29 +3,31 @@
 use
 {
 	futures_util :: { task::{ LocalSpawn, SpawnError }, future::FutureExt } ,
-	crate        :: { LocalSpawnHandle, import::*                         } ,
+	crate        :: { import::*, JoinHandle, LocalSpawnHandle             } ,
 	std          :: { pin::Pin, future::Future, sync::Arc, rc::Rc         } ,
 };
 
 
-/// Object safe version of [crate::SpawnHandle]. This allows you to take it as a param
+/// Object safe version of [LocalSpawnHandle]. This allows you to take it as a param
 /// and store it. It incurs some overhead, since the future needs to be boxed and executors
 /// will box it again to queue it.
 ///
 /// It also implies you have to choose an Out type.
 //
+#[ cfg_attr( feature = "docs", doc(cfg( feature = "spawn_handle" )) ) ]
+//
 pub trait LocalSpawnHandleOs<Out: 'static>
 {
 	/// Spawn a future and return a RemoteHandle that can be awaited for the output of the future.
 	//
-	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>;
+	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<JoinHandle<Out>, SpawnError>;
 }
 
 
 
 impl<T: ?Sized, Out> LocalSpawnHandleOs<Out> for Box<T> where T: LocalSpawnHandleOs<Out>, Out: 'static
 {
-	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		(**self).spawn_handle_local_os( future )
 	}
@@ -35,45 +37,49 @@ impl<T: ?Sized, Out> LocalSpawnHandleOs<Out> for Box<T> where T: LocalSpawnHandl
 
 impl<T: ?Sized, Out> LocalSpawnHandleOs<Out> for Arc<T> where T: LocalSpawnHandleOs<Out>, Out: 'static
 {
-	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		(**self).spawn_handle_local_os( future )
 	}
 }
+
 
 
 impl<T: ?Sized, Out> LocalSpawnHandleOs<Out> for Rc<T> where T: LocalSpawnHandleOs<Out>, Out: 'static
 {
-	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		(**self).spawn_handle_local_os( future )
 	}
 }
+
 
 
 impl<T, Out> LocalSpawnHandleOs<Out> for &T where T: LocalSpawnHandleOs<Out>, Out: 'static
 {
-	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		(**self).spawn_handle_local_os( future )
 	}
 }
+
 
 
 impl<T, Out> LocalSpawnHandleOs<Out> for &mut T where T: LocalSpawnHandleOs<Out>, Out: 'static
 {
-	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		(**self).spawn_handle_local_os( future )
 	}
 }
+
 
 
 #[ cfg( feature = "tracing" ) ]
 //
 impl<T, Out> LocalSpawnHandleOs<Out> for Instrumented<T> where T: LocalSpawnHandleOs<Out>, Out: 'static
 {
-	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		let fut = future.instrument( self.span().clone() );
 
@@ -82,11 +88,12 @@ impl<T, Out> LocalSpawnHandleOs<Out> for Instrumented<T> where T: LocalSpawnHand
 }
 
 
+
 #[ cfg( feature = "tracing" ) ]
 //
 impl<T, Out> LocalSpawnHandleOs<Out> for WithDispatch<T> where T: LocalSpawnHandleOs<Out>, Out: 'static
 {
-	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		let fut = self.with_dispatch(future);
 
@@ -100,7 +107,7 @@ impl<T, Out> LocalSpawnHandleOs<Out> for WithDispatch<T> where T: LocalSpawnHand
 //
 impl<Out: 'static> LocalSpawnHandleOs<Out> for crate::TokioCt
 {
-	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		self.spawn_handle_local( future )
 	}
@@ -112,7 +119,7 @@ impl<Out: 'static> LocalSpawnHandleOs<Out> for crate::TokioCt
 //
 impl<Out: 'static> LocalSpawnHandleOs<Out> for crate::Bindgen
 {
-	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		self.spawn_handle_local( future )
 	}
@@ -124,7 +131,7 @@ impl<Out: 'static> LocalSpawnHandleOs<Out> for crate::Bindgen
 //
 impl<Out: 'static> LocalSpawnHandleOs<Out> for futures_executor::LocalSpawner
 {
-	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<crate::JoinHandle<Out>, SpawnError>
+	fn spawn_handle_local_os( &self, future: Pin<Box< dyn Future<Output = Out> >> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		self.spawn_handle_local( future )
 	}

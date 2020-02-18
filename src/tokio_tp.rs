@@ -8,7 +8,7 @@ use
 };
 
 
-/// An executor that uses [tokio_executor::thread_pool::ThreadPool]
+/// An executor that uses [tokio::runtime::Runtime].
 ///
 /// ## Unwind Safety.
 ///
@@ -27,6 +27,8 @@ use
 //
 #[ derive( Debug, Clone ) ]
 //
+#[ cfg_attr( feature = "docs", doc(cfg( feature = "tokio_tp" )) ) ]
+//
 pub struct TokioTp
 {
 	pub(crate) exec  : Arc< Mutex<Runtime> >,
@@ -37,7 +39,7 @@ pub struct TokioTp
 
 impl TokioTp
 {
-	/// This is the entry point for this executor. You must call spawn on the handle from within a future that is run with block_on.
+	/// Wrapper around [Runtime::block_on].
 	//
 	pub fn block_on< F: Future >( &mut self, f: F ) -> F::Output
 	{

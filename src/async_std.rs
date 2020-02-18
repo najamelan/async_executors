@@ -6,16 +6,25 @@ use
 
 
 /// An executor that spawns tasks on async-std. In contrast to the other executors, this one
-/// is not self contained, because async-std does not provide an API that allows that.
-/// So the threadpool is global.
+/// is not self contained, because async-std does not provide an API that allows that,
+/// so the threadpool is global.
 //
 #[ derive( Copy, Clone, Default ) ]
+//
+#[ cfg_attr( feature = "docs", doc(cfg( feature = "async_std" )) ) ]
 //
 pub struct AsyncStd;
 
 impl AsyncStd
 {
-	/// Wrapper around [::async_std::task::block_on].
+	/// Create a new AsyncStd wrapper, forwards to `Default::default`.
+	///
+	pub fn new() -> Self
+	{
+		Self::default()
+	}
+
+	/// Wrapper around [async_std::task::spawn](::async_std_crate::task::block_on()).
 	//
 	pub fn block_on<F: Future>(future: F) -> F::Output
 	{
