@@ -9,7 +9,7 @@ use
 /// An executor that uses a [tokio::runtime::Runtime] with the [basic scheduler](tokio::runtime::Builder::basic_scheduler).
 /// Can spawn `!Send` futures.
 ///
-/// You must make sure that calls to "spawn" and "spawn_local" happen withing a future running on [TokioCt::block_on].
+/// You must make sure that calls to `spawn` and `spawn_local` happen withing a future running on [TokioCt::block_on].
 ///
 /// One feature from tokio is not implemented here, namely the possibility to get a handle that can be sent to another
 /// thread to spawn tasks on this executor.
@@ -93,10 +93,13 @@ impl LocalSpawn for TokioCt
 {
 	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
-		// We transform the LocalFutureObj into a FutureObj. Just magic!
+		// We transform the LocalFutureObj into a FutureObj, making it Send. Just magic!
 		//
-		// This is safe because TokioHandle and TokioCt are not Send, so it can never venture to another thread than the
-		// current_thread executor it's created from.
+		// As long as the tokio basic scheduler is effectively keeping it's promise to run tasks on
+		// the current thread, this should be fine. We made TokioCt !Send, to make sure it can't
+		// be used from several threads and do not hand out tokio::runtime::Handle instances.
+		//
+		// As far as unwind safety goes, a warning has been added to TokioCt.
 		//
 		// This is necessary because tokio does not provide a handle that can spawn !Send futures.
 		//
