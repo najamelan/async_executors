@@ -9,6 +9,7 @@ This is an alpha release because:
   - remote_handle currently vendored until: https://github.com/rust-lang/futures-rs/pull/2081 lands
   - tracing-futures currently patched until 0.2.3 to get the needed PR's
   - no cross framework support for spawn_blocking yet.
+  - wasm-bindgen-cli does not compile on windows, breaking CI: https://github.com/rustwasm/wasm-bindgen/issues/2006
 
 
 

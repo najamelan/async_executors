@@ -108,7 +108,7 @@ impl<Out: 'static + Send> SpawnHandleOs<Out> for crate::async_std::AsyncStd
 
 
 
-#[ cfg( feature = "tokio_ct" ) ]
+#[ cfg( feature = "tokio_tp" ) ]
 //
 impl<Out: 'static + Send> SpawnHandleOs<Out> for crate::TokioTp
 {
