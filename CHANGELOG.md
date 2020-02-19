@@ -1,5 +1,10 @@
 # async_executors - CHANGELOG
 
+## 0.1.0.alpha.2 - 2020-02-19
+
+  - fix error in feature name.
+  - clean up readme.
+
 ## 0.1.0.alpha.1 - 2020-02-19
 
 This is an alpha release because:
