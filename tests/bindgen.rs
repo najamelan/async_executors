@@ -1,4 +1,4 @@
-#![ cfg(all( feature = "bindgen", wasm32 )) ]
+#![ cfg(all( feature = "bindgen", target_arch = "wasm32" )) ]
 
 // Tested:
 //
@@ -149,15 +149,13 @@ fn test_spawn_clone_with_arc()
 //
 fn test_spawn_handle()
 {
-	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = Bindgen::default();
-
+	let exec = Bindgen::default();
 
 	let fut = async move
 	{
-		increment_spawn_handle( 4, exec, tx ).await;
+		let result = increment_spawn_handle( 4, exec ).await;
 
-		assert_eq!( 5u8, rx.next().await.expect( "Some" ) );
+		assert_eq!( 5u8, result );
 	};
 
 	exec.spawn( fut ).expect( "spawn future" );
@@ -172,15 +170,13 @@ fn test_spawn_handle()
 //
 fn test_spawn_handle_arc()
 {
-	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = Bindgen::default();
-
+	let exec = Bindgen::default();
 
 	let fut = async move
 	{
-		increment_spawn_handle( 4, Arc::new(exec), tx ).await;
+		let result = increment_spawn_handle( 4, Arc::new(exec) ).await;
 
-		assert_eq!( 5u8, rx.next().await.expect( "Some" ) );
+		assert_eq!( 5u8, result );
 	};
 
 	exec.spawn( fut ).expect( "spawn future" );

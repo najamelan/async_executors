@@ -8,9 +8,8 @@ mod common;
 
 use
 {
-	common           :: { *                        } ,
-	futures          :: { channel::mpsc, StreamExt } ,
-	futures_executor :: { ThreadPool               } ,
+	common           :: { *          } ,
+	futures_executor :: { ThreadPool } ,
 };
 
 // pass a ThreadPool to a function that takes exec: `impl SpawnHandle`
@@ -19,19 +18,10 @@ use
 //
 fn test_spawn_handle()
 {
-	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = ThreadPool::new().expect( "create threadpool" );
+	let exec   = ThreadPool::new().expect( "create threadpool" );
+	let result = block_on( increment_spawn_handle( 4, exec ) );
 
-
-	let result = block_on( async move
-	{
-		increment_spawn_handle( 4, exec, tx ).await;
-
-		rx.next().await
-	});
-
-
-	assert_eq!( 5u8, result.expect( "Some" ) );
+	assert_eq!( 5u8, result );
 }
 
 
@@ -41,19 +31,10 @@ fn test_spawn_handle()
 //
 fn test_spawn_handle_arc()
 {
-	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = ThreadPool::new().expect( "create threadpool" );
+	let exec   = ThreadPool::new().expect( "create threadpool" );
+	let result = block_on( increment_spawn_handle( 4, Arc::new(exec) ) );
 
-
-	let result = block_on( async move
-	{
-		increment_spawn_handle( 4, Arc::new(exec), tx ).await;
-
-		rx.next().await
-	});
-
-
-	assert_eq!( 5u8, result.expect( "Some" ) );
+	assert_eq!( 5u8, result );
 }
 
 
@@ -63,14 +44,8 @@ fn test_spawn_handle_arc()
 //
 fn test_spawn_handle_os()
 {
-	let exec = ThreadPool::new().expect( "create threadpool" );
-
-
-	let result = block_on( async move
-	{
-		increment_spawn_handle_os( 4, &exec ).await
-	});
-
+	let exec   = ThreadPool::new().expect( "create threadpool" );
+	let result = block_on( increment_spawn_handle_os( 4, &exec ) );
 
 	assert_eq!( 5u8, result );
 }

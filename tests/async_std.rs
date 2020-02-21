@@ -31,9 +31,9 @@ fn test_spawn()
 
 	increment( 4, exec, tx );
 
-	let result = block_on( rx.next() ).expect( "Some" );
+	let result = AsyncStd::block_on( rx.next() ).expect( "Some" );
 
-		assert_eq!( 5u8, result );
+	assert_eq!( 5u8, result );
 }
 
 
@@ -48,9 +48,9 @@ fn test_spawn_ref()
 
 	increment_ref( 4, &exec, tx );
 
-	let result = block_on( rx.next() ).expect( "Some" );
+	let result = AsyncStd::block_on( rx.next() ).expect( "Some" );
 
-		assert_eq!( 5u8, result );
+	assert_eq!( 5u8, result );
 }
 
 
@@ -65,9 +65,9 @@ fn test_spawn_with_ref()
 
 	increment( 4, &exec, tx );
 
-	let result = block_on( rx.next() ).expect( "Some" );
+	let result = AsyncStd::block_on( rx.next() ).expect( "Some" );
 
-		assert_eq!( 5u8, result );
+	assert_eq!( 5u8, result );
 }
 
 
@@ -82,9 +82,9 @@ fn test_spawn_clone_with_ref()
 
 	increment_clone( 4, &exec, tx );
 
-	let result = block_on( rx.next() ).expect( "Some" );
+	let result = AsyncStd::block_on( rx.next() ).expect( "Some" );
 
-		assert_eq!( 5u8, result );
+	assert_eq!( 5u8, result );
 }
 
 
@@ -100,9 +100,9 @@ fn test_spawn_clone_with_arc()
 
 	increment( 4, Arc::new(exec), tx );
 
-	let result = block_on( rx.next() ).expect( "Some" );
+	let result = AsyncStd::block_on( rx.next() ).expect( "Some" );
 
-		assert_eq!( 5u8, result );
+	assert_eq!( 5u8, result );
 }
 
 
@@ -114,19 +114,10 @@ fn test_spawn_clone_with_arc()
 //
 fn test_spawn_handle()
 {
-	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = AsyncStd::default();
+	let exec   = AsyncStd::default();
+	let result = AsyncStd::block_on( increment_spawn_handle( 4, exec ) );
 
-
-	let result = block_on( async move
-	{
-		increment_spawn_handle( 4, exec, tx ).await;
-
-		rx.next().await
-	});
-
-
-	assert_eq!( 5u8, result.expect( "Some" ) );
+	assert_eq!( 5u8, result );
 }
 
 
@@ -138,19 +129,10 @@ fn test_spawn_handle()
 //
 fn test_spawn_handle_arc()
 {
-	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = AsyncStd::default();
+	let exec   = AsyncStd::default();
+	let result = AsyncStd::block_on( increment_spawn_handle( 4, Arc::new(exec) ) );
 
-
-	let result = block_on( async move
-	{
-		increment_spawn_handle( 4, Arc::new(exec), tx ).await;
-
-		rx.next().await
-	});
-
-
-	assert_eq!( 5u8, result.expect( "Some" ) );
+	assert_eq!( 5u8, result );
 }
 
 
@@ -162,14 +144,8 @@ fn test_spawn_handle_arc()
 //
 fn test_spawn_handle_os()
 {
-	let exec = AsyncStd::default();
-
-
-	let result = block_on( async move
-	{
-		increment_spawn_handle_os( 4, &exec ).await
-	});
-
+	let exec   = AsyncStd::default();
+	let result = AsyncStd::block_on( increment_spawn_handle_os( 4, &exec ) );
 
 	assert_eq!( 5u8, result );
 }
