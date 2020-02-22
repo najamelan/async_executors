@@ -146,9 +146,31 @@ impl SpawnHandle for crate::async_std::AsyncStd
 
 		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::AsyncStd
 		{
-			handle  : async_std_crate::task::spawn(fut) ,
-			detached: AtomicBool::new(false)            ,
-			a_handle                                    ,
+			handle  : async_std_crate::task::spawn( fut ) ,
+			detached: AtomicBool::new( false )            ,
+			a_handle                                      ,
+		}})
+	}
+}
+
+
+#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
+//
+impl SpawnHandle for crate::TokioHandle
+{
+	fn spawn_handle<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
+
+		where Fut: Future<Output = Out> + 'static + Send,
+		      Out: 'static + Send
+
+	{
+		let (fut, a_handle) = abortable( future );
+
+		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::Tokio
+		{
+			handle  : self.spawner.spawn( fut ) ,
+			detached: AtomicBool::new( false )  ,
+			a_handle                            ,
 		}})
 	}
 }
@@ -168,9 +190,9 @@ impl SpawnHandle for crate::TokioTp
 
 		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::Tokio
 		{
-			handle  : self.handle.spawn(fut) ,
-			detached: AtomicBool::new(false)  ,
-			a_handle                          ,
+			handle  : self.handle.spawn( fut ) ,
+			detached: AtomicBool::new( false ) ,
+			a_handle                           ,
 		}})
 	}
 }
@@ -191,9 +213,9 @@ impl SpawnHandle for crate::TokioCt
 
 		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::Tokio
 		{
-			handle  : self.handle.spawn(fut) ,
-			detached: AtomicBool::new(false)  ,
-			a_handle                          ,
+			handle  : self.handle.spawn( fut ) ,
+			detached: AtomicBool::new( false ) ,
+			a_handle                           ,
 		}})
 	}
 }

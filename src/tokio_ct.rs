@@ -1,7 +1,7 @@
 use
 {
-	crate          :: { import::*             } ,
-	std            :: { rc::Rc, cell::RefCell } ,
+	crate          :: { import::*, TokioHandle } ,
+	std            :: { rc::Rc, cell::RefCell  } ,
 };
 
 
@@ -11,8 +11,8 @@ use
 ///
 /// You must make sure that calls to `spawn` and `spawn_local` happen withing a future running on [TokioCt::block_on].
 ///
-/// One feature from tokio is not implemented here, namely the possibility to get a handle that can be sent to another
-/// thread to spawn tasks on this executor.
+/// You can obtain a wrapper to `tokio::runtime::handle` through [TokioCt::handle]. That can be used to send a future
+/// from another thread to run on the `TokioCt` executor.
 ///
 /// ## Unwind Safety.
 ///
@@ -21,7 +21,7 @@ use
 ///
 /// They reason that this is fine because they require `Send + 'static` on the future. As far
 /// as I can tell this is wrong. Unwind safety can be circumvented in several ways even with
-/// `Send + 'static` (eg. parking_lot::Mutex is Send + 'static but !UnwindSafe).
+/// `Send + 'static` (eg. `parking_lot::Mutex` is `Send + 'static` but `!UnwindSafe`).
 ///
 /// __As added foot gun in the `LocalSpawn` impl for TokioCt we artificially add a Send
 /// impl to your future so it can be spawned by tokio, which requires `Send` even for the
@@ -52,6 +52,17 @@ impl TokioCt
 	pub fn block_on< F: Future >( &mut self, f: F ) -> F::Output
 	{
 		self.exec.borrow_mut().block_on( f )
+	}
+
+	/// Obtain a handle to this executor that can easily be cloned and that implements the
+	/// Spawn trait.
+	///
+	/// Note that this handle is `Send` and can be sent to another thread to spawn tasks on the
+	/// current executor, but as such, tasks are required to be `Send`.
+	//
+	pub fn handle( &self ) -> TokioHandle
+	{
+		TokioHandle::new( self.handle.clone() )
 	}
 }
 
