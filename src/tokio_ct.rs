@@ -39,6 +39,9 @@ use
 //
 pub struct TokioCt
 {
+	// It's paramount that this is !Send, currently thanks to this Rc, so don't remove that.
+	// See the impl of LocalSpawn as for why.
+	//
 	pub(crate) exec  : Rc<RefCell< Runtime >> ,
 	pub(crate) handle: TokioRtHandle          ,
 }
@@ -108,9 +111,9 @@ impl LocalSpawn for TokioCt
 		//
 		// As long as the tokio basic scheduler is effectively keeping it's promise to run tasks on
 		// the current thread, this should be fine. We made TokioCt !Send, to make sure it can't
-		// be used from several threads and do not hand out tokio::runtime::Handle instances.
+		// be used from several threads.
 		//
-		// As far as unwind safety goes, a warning has been added to TokioCt.
+		// As far as unwind safety goes, a warning has been added to TokioCt documentation.
 		//
 		// This is necessary because tokio does not provide a handle that can spawn !Send futures.
 		//
