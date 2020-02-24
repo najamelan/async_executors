@@ -10,10 +10,10 @@ package:
   # - merge dev branch into master
   # - create git tag
   #
-  version       : 0.1.0-alpha.2
+  version       : 0.1.0
   name          : async_executors
   authors       : [ Naja Melan <najamelan@autistici.org> ]
-  description   : Implements Spawn and SpawnLocal for commonly used executors.
+  description   : Implements Spawn, SpawnLocal and SpawnHandle for commonly used executors.
   documentation : https://docs.rs/async_executors
   repository    : https://github.com/najamelan/async_executors
   readme        : README.md

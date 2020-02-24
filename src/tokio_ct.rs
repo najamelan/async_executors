@@ -5,7 +5,6 @@ use
 };
 
 
-
 /// An executor that uses a [tokio::runtime::Runtime] with the [basic scheduler](tokio::runtime::Builder::basic_scheduler).
 /// Can spawn `!Send` futures.
 ///
@@ -81,8 +80,8 @@ impl TryFrom<&mut Builder> for TokioCt
 
 		Ok( Self
 		{
-			 handle  : exec.handle().clone()         ,
-			 exec    : Rc::new( RefCell::new(exec) ) ,
+			 handle: exec.handle().clone()         ,
+			 exec  : Rc::new( RefCell::new(exec) ) ,
 		})
 	}
 }

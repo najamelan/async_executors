@@ -92,7 +92,7 @@ tracing = ["tracing-futures"]
 [package]
 authors = ["Naja Melan <najamelan@autistici.org>"]
 categories = ["asynchronous", "concurrency"]
-description = "Implements Spawn and SpawnLocal for commonly used executors."
+description = "Implements Spawn, SpawnLocal and SpawnHandle for commonly used executors."
 documentation = "https://docs.rs/async_executors"
 edition = "2018"
 keywords = ["async", "executor", "futures"]
@@ -100,7 +100,7 @@ license = "Unlicense"
 name = "async_executors"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_executors"
-version = "0.1.0-alpha.2"
+version = "0.1.0"
 
 [package.metadata]
 [package.metadata.docs]

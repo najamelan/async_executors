@@ -1,5 +1,9 @@
 # async_executors - CHANGELOG
 
+## 0.1.0 - 2020-02-24
+
+  - Re-add TokioHandle to work around the fact that tokio::Runtime can't be dropped in async context.
+
 ## 0.1.0.alpha.2 - 2020-02-19
 
   - fix error in feature name.
