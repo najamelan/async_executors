@@ -107,12 +107,6 @@ version = "0.1.0"
 [package.metadata.docs.rs]
 all-features = true
 
-[patch]
-[patch.crates-io]
-[patch.crates-io.tracing-futures]
-git = "https://github.com/tokio-rs/tracing"
-version = "^0.2"
-
 [target]
 [target."cfg(target_arch = \"wasm32\")"]
 [target."cfg(target_arch = \"wasm32\")".dev-dependencies]

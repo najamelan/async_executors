@@ -93,16 +93,16 @@ dependencies:
 
   # Public deps
   #
-  futures-task        : { version: ^0.3                                          }
-  futures-util        : { version: ^0.3, optional: true                          }
-  tracing-futures     : { version: ^0.2, optional: true, features: [ futures-03] }
+  futures-task        : { version: ^0.3                                         }
+  futures-util        : { version: ^0.3, optional: true                         }
+  tracing-futures     : { version: ^0.2, optional: true, features: [futures-03] }
 
   # Private deps
   #
-  futures-executor    : { version: ^0.3 , optional: true                          }
-  async_std_crate     : { version: ^1   , optional: true, package: async-std      }
-  tokio               : { version: ^0.2 , optional: true                          }
-  parking_lot         : { version: ^0.10, optional: true                          }
+  futures-executor    : { version: ^0.3 , optional: true                     }
+  async_std_crate     : { version: ^1   , optional: true, package: async-std }
+  tokio               : { version: ^0.2 , optional: true                     }
+  parking_lot         : { version: ^0.10, optional: true                     }
 
   # only while vendoring remote_handle from futures_util
   #
@@ -123,13 +123,6 @@ dev-dependencies:
   futures           : { version: ^0.3, features: [ thread-pool ] }
   # log               : ^0.4
   # flexi_logger      : ^0.11
-
-
-patch:
-
-  crates-io:
-
-    tracing-futures: { version: ^0.2, git: "https://github.com/tokio-rs/tracing" }
 
 
 target:
