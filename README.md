@@ -19,7 +19,7 @@ The traits provided by this crate are also implemented for the [`Instrumented`](
 The currently supported executors are (let me know if you want to see others supported):
 
 - [async-std](https://docs.rs/async-std)
-- [tokio](https://docs.rs/tokio) CurrentThread - [`tokio::runtime::Runtime`] with basic scheduler. (supports spawning `!Send` futures)
+- [tokio](https://docs.rs/tokio) CurrentThread - [`tokio::runtime::Runtime`] with basic scheduler and a LocalSet. (supports spawning `!Send` futures)
 - [tokio](https://docs.rs/tokio) ThreadPool - [`tokio::runtime::Runtime`] with threadpool scheduler.
 - [wasm-bindgen-futures](https://docs.rs/wasm-bindgen-futures) (only available on WASM, the others are not available on WASM)
 - the [futures-executor](https://docs.rs/futures-executor) executors - They already implemented `Spawn` and `SpawnLocal`, but we implement the `SpawnHandle` family of traits for them as well.
@@ -58,7 +58,7 @@ With Cargo.toml
 ```toml
 [dependencies]
 
-    async_executors = "^0.1"
+    async_executors = "0.1"
 ```
 
 ### Upgrade
@@ -72,12 +72,11 @@ This crate has few dependencies. Cargo will automatically handle it's dependenci
 
 The only dependency is `futures-task`, the rest are the optional dependencies to turn on support for each executor.
 
-### Security
+## Security
 
-There is one use of unsafe to make it possible to spawn `!Send` futures on the tokio Runtime with the `basic_scheduler`.
-Review is welcome.
+The crate itself uses `#[ forbid(unsafe_code) ]`
 
-There is one line of unsafe and our dependencies use unsafe.
+Our dependencies use unsafe.
 
 ## Performance
 
@@ -139,7 +138,7 @@ impl SomeObj
 
    fn run( &self ) -> JoinHandle<u8>
    {
-      let task   = async{ 5 }.boxed();
+      let task = async{ 5 }.boxed();
 
       self.exec.spawn_handle_os( task ).expect( "spawn" )
    }

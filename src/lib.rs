@@ -7,9 +7,10 @@
 #![cfg_attr( feature = "docs", doc(include = "../README.md") )]
 //!
 
-#![ doc  ( html_root_url = "https://docs.rs/async_executors" ) ]
-#![ deny ( missing_docs                                      ) ]
-#![ allow( clippy::suspicious_else_formatting                ) ]
+#![ doc   ( html_root_url = "https://docs.rs/async_executors" ) ]
+#![ deny  ( missing_docs                                      ) ]
+#![ forbid( unsafe_code                                       ) ]
+#![ allow ( clippy::suspicious_else_formatting                ) ]
 
 #![ warn
 (

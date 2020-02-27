@@ -43,7 +43,7 @@ features:
 
   # Enables the tokio current_thread executor. Not available on WASM.
   #
-  tokio_ct  : [ tokio/rt-core ]
+  tokio_ct  : [ tokio/rt-core, tokio/rt-util ]
 
   # Enables the tokio thread_pool executor. Not available on WASM.
   #

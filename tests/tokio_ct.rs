@@ -20,6 +20,8 @@
 // ✔ pass a Rc<TokioCt> to a function that takes exec: `impl LocalSpawnHandle`
 // ✔ pass a   &TokioCt  to a function that takes exec: `&dyn LocalSpawnHandleOs`
 //
+// ✔ make sure handle() works from within spawned task.
+//
 mod common;
 
 use
@@ -346,6 +348,41 @@ fn test_spawn_handle_local_os()
 	let     ex2  = exec.clone();
 
 	let result = exec.block_on( increment_spawn_handle_os( 4, &ex2 ) );
+
+	assert_eq!( 5u8, result );
+}
+
+
+
+// make sure handle() works from within spawned task
+//
+#[ test ]
+//
+fn test_handle()
+{
+	let (mut tx, mut rx) = mpsc::channel( 1 );
+
+	let mut exec = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let     ex2  = exec.clone();
+
+	let task = async move
+	{
+		let handle = ex2.handle();
+
+		let inner = async move
+		{
+			std::thread::spawn( move ||
+			{
+				handle.spawn( async move { tx.send( 5u8 ).await.expect( "send on tx" ); } ).expect( "spawn on handle" );
+			});
+		};
+
+		ex2.spawn( inner ).expect( "spawn inner" );
+
+		rx.next().await.expect( "wait on rx" )
+	};
+
+	let result = exec.block_on( task );
 
 	assert_eq!( 5u8, result );
 }

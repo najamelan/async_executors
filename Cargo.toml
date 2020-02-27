@@ -85,7 +85,7 @@ localpool = ["futures-executor"]
 notwasm = []
 spawn_handle = ["futures-util", "futures-channel", "futures-core", "pin-utils"]
 threadpool = ["futures-executor/thread-pool"]
-tokio_ct = ["tokio/rt-core"]
+tokio_ct = ["tokio/rt-core", "tokio/rt-util"]
 tokio_tp = ["tokio/rt-threaded", "parking_lot"]
 tracing = ["tracing-futures"]
 

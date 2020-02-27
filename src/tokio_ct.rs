@@ -2,35 +2,36 @@ use
 {
 	crate          :: { import::*, TokioHandle } ,
 	std            :: { rc::Rc, cell::RefCell  } ,
+	tokio          :: { task::LocalSet         } ,
 };
 
 
 /// An executor that uses a [tokio::runtime::Runtime] with the [basic scheduler](tokio::runtime::Builder::basic_scheduler).
 /// Can spawn `!Send` futures.
 ///
-/// You must make sure that calls to `spawn` and `spawn_local` happen withing a future running on [TokioCt::block_on].
+/// You must make sure that calls to `spawn` and `spawn_local` happen withing a task running on [TokioCt::block_on].
 ///
 /// You can obtain a wrapper to `tokio::runtime::handle` through [TokioCt::handle]. That can be used to send a future
 /// from another thread to run on the `TokioCt` executor.
 ///
 /// ## Unwind Safety.
 ///
-/// You must only spawn futures to this API that are unwind safe. Tokio will wrap it in
+/// When a future spawned on this wrapper panics, the thread will unwind until the block_on, not above.
+///
+/// You must only spawn futures to this API that are unwind safe. Tokio will wrap the task running from block_on in
 /// [std::panic::AssertUnwindSafe] and wrap the poll invocation with [std::panic::catch_unwind].
 ///
-/// They reason that this is fine because they require `Send + 'static` on the future. As far
+/// They reason that this is fine because they require `Send + 'static` on the task. As far
 /// as I can tell this is wrong. Unwind safety can be circumvented in several ways even with
 /// `Send + 'static` (eg. `parking_lot::Mutex` is `Send + 'static` but `!UnwindSafe`).
 ///
-/// __As added foot gun in the `LocalSpawn` impl for TokioCt we artificially add a Send
-/// impl to your future so it can be spawned by tokio, which requires `Send` even for the
-/// basic scheduler. This opens more ways to observe broken invariants, like `RefCell`, `TLS`, etc.__
-///
-/// You should make sure that if your future panics, no code that lives on after the spawned task has
+/// You should make sure that if your future panics, no code that lives on after the top level task has
 /// unwound, nor any destructors called during the unwind can observe data in an inconsistent state.
 ///
-/// See the relevant [catch_unwind RFC](https://github.com/rust-lang/rfcs/blob/master/text/1236-stabilize-catch-panic.md)
-/// and it's discussion threads for more info as well as the documentation in stdlib.
+/// Note that these are logic errors, not related to the class of problems that cannot happen
+/// in safe rust (memory safety, undefined behavior, unsoundness, data races, ...). See the relevant
+/// [catch_unwind RFC](https://github.com/rust-lang/rfcs/blob/master/text/1236-stabilize-catch-panic.md)
+/// and it's discussion threads for more info as well as the documentation in [std::panic::UnwindSafe].
 //
 #[ derive( Debug, Clone ) ]
 //
@@ -38,11 +39,9 @@ use
 //
 pub struct TokioCt
 {
-	// It's paramount that this is !Send, currently thanks to this Rc, so don't remove that.
-	// See the impl of LocalSpawn as for why.
-	//
-	pub(crate) exec  : Rc<RefCell< Runtime >> ,
-	pub(crate) handle: TokioRtHandle          ,
+	pub(crate) exec  : Rc<RefCell< Runtime  >> ,
+	pub(crate) local : Rc<         LocalSet  > ,
+	pub(crate) handle: TokioRtHandle           ,
 }
 
 
@@ -50,10 +49,15 @@ pub struct TokioCt
 impl TokioCt
 {
 	/// This is the entry point for this executor. You must call spawn from within a future that is running through `block_on`.
+	/// Once this call returns, no remaining tasks shall be polled anymore. However the tasks stay in the executor,
+	/// so if you make a second call to `block_on` with a new task, the older tasks will start making progress again.
+	///
+	/// For simplicity, it's advised to just create top level task that you run through `block_on` and make sure your
+	/// program is done when it returns.
 	//
 	pub fn block_on< F: Future >( &mut self, f: F ) -> F::Output
 	{
-		self.exec.borrow_mut().block_on( f )
+		self.exec.borrow_mut().block_on( self.local.run_until( f ) )
 	}
 
 	/// Obtain a handle to this executor that can easily be cloned and that implements the
@@ -76,12 +80,14 @@ impl TryFrom<&mut Builder> for TokioCt
 
 	fn try_from( builder: &mut Builder ) -> Result<Self, Self::Error>
 	{
-		let exec = builder.basic_scheduler().build()?;
+		let exec  = builder.basic_scheduler().build()?;
+		let local = LocalSet::new();
 
 		Ok( Self
 		{
-			 handle: exec.handle().clone()         ,
-			 exec  : Rc::new( RefCell::new(exec) ) ,
+			 handle   : exec.handle().clone()          ,
+			 exec     : Rc::new( RefCell::new(exec ) ) ,
+			 local    : Rc::new( local               ) ,
 		})
 	}
 }
@@ -94,7 +100,7 @@ impl Spawn for TokioCt
 	{
 		// We drop the JoinHandle, so the task becomes detached.
 		//
-		let _ = self.handle.spawn( future );
+		let _ = self.local.spawn_local( future );
 
 		Ok(())
 	}
@@ -106,21 +112,9 @@ impl LocalSpawn for TokioCt
 {
 	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
-		// We transform the LocalFutureObj into a FutureObj, making it Send. Just magic!
-		//
-		// As long as the tokio basic scheduler is effectively keeping it's promise to run tasks on
-		// the current thread, this should be fine. We made TokioCt !Send, to make sure it can't
-		// be used from several threads.
-		//
-		// As far as unwind safety goes, a warning has been added to TokioCt documentation.
-		//
-		// This is necessary because tokio does not provide a handle that can spawn !Send futures.
-		//
-		let fut = unsafe { future.into_future_obj() };
-
 		// We drop the JoinHandle, so the task becomes detached.
 		//
-		let _ = self.handle.spawn( fut );
+		let _ = self.local.spawn_local( future );
 
 		Ok(())
 	}

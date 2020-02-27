@@ -41,8 +41,10 @@ use
 /// You should make sure that if your future panics, no code that lives on after the spawned task has
 /// unwound, nor any destructors called during the unwind can observe data in an inconsistent state.
 ///
-/// See the relevant [catch_unwind RFC](https://github.com/rust-lang/rfcs/blob/master/text/1236-stabilize-catch-panic.md)
-/// and it's discussion threads for more info as well as the documentation in stdlib.
+/// Note that these are logic errors, not related to the class of problems that cannot happen
+/// in safe rust (memory safety, undefined behavior, unsoundness, data races, ...). See the relevant
+/// [catch_unwind RFC](https://github.com/rust-lang/rfcs/blob/master/text/1236-stabilize-catch-panic.md)
+/// and it's discussion threads for more info as well as the documentation in [std::panic::UnwindSafe].
 //
 #[ derive( Debug, Clone ) ]
 //
