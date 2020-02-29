@@ -15,7 +15,7 @@ cargo test --features async_std
 cargo test --features tokio_tp
 cargo test --features tokio_ct
 cargo test --features spawn_handle
-cargo test --features "spawn_handle async_std tokio_tp tokio_ct localpool threadpool"
+cargo test --features "docs spawn_handle async_std tokio_tp tokio_ct localpool threadpool"
 
 
 
