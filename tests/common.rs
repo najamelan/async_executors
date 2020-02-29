@@ -6,7 +6,6 @@ pub use
 	futures::task   :: { LocalSpawnExt, SpawnExt, LocalSpawn, Spawn                    } ,
 	std             :: { sync::Arc, rc::Rc                                             } ,
 	async_executors :: { *                                                             } ,
-
 };
 
 
@@ -126,7 +125,7 @@ pub fn increment_clone_local( a: u8, exec: impl LocalSpawn + Clone, tx: Sender<u
 //
 #[ allow(dead_code) ]
 //
-pub async fn increment_spawn_handle( a: u8, exec: impl SpawnHandle ) -> u8
+pub async fn increment_spawn_handle( a: u8, exec: impl SpawnHandle<u8> ) -> u8
 {
 	exec.spawn_handle( sum_handle( a, 1 ) ).expect( "spawn handle" ).await
 }
@@ -138,31 +137,31 @@ pub async fn increment_spawn_handle( a: u8, exec: impl SpawnHandle ) -> u8
 //
 #[ allow(dead_code) ] // gives warning when testing all futures at once.
 //
-pub async fn increment_spawn_handle_local( a: u8, exec: impl LocalSpawnHandle ) -> Rc<u8>
+pub async fn increment_spawn_handle_local( a: u8, exec: impl LocalSpawnHandle<Rc<u8>> ) -> Rc<u8>
 {
 	exec.spawn_handle_local( sum_handle_local( a, 1 ) ).expect( "spawn handle" ).await
 }
 
 
-// A function that takes a generic executor and spawns a task.
+// A function that takes a trait object and spawns a task.
 //
 #[ cfg( feature = "spawn_handle" ) ]
 //
 #[ allow(dead_code) ]
 //
-pub async fn increment_spawn_handle_os( a: u8, exec: &dyn SpawnHandleOs<u8> ) -> u8
+pub async fn increment_spawn_handle_os( a: u8, exec: &dyn SpawnHandle<u8> ) -> u8
 {
-	exec.spawn_handle_os( sum_handle( a, 1 ).boxed() ).expect( "spawn handle" ).await
+	exec.spawn_handle( sum_handle( a, 1 ).boxed() ).expect( "spawn handle" ).await
 }
 
 
-// A function that takes a generic executor and spawns a task.
+// A function that takes a trait object and spawns a task.
 //
 #[ cfg(all( feature = "spawn_handle", any( feature = "tokio_ct", feature = "bindgen", feature = "localpool" ))) ]
 //
 #[ allow(dead_code) ] // gives warning when testing all futures at once.
 //
-pub async fn increment_spawn_handle_local_os( a: u8, exec: &dyn LocalSpawnHandleOs<Rc<u8>> )-> Rc<u8>
+pub async fn increment_spawn_handle_local_os( a: u8, exec: &dyn LocalSpawnHandle<Rc<u8>> )-> Rc<u8>
 {
-	exec.spawn_handle_local_os( sum_handle_local( a, 1 ).boxed() ).expect( "spawn handle" ).await
+	exec.spawn_handle_local( sum_handle_local( a, 1 ).boxed() ).expect( "spawn handle" ).await
 }

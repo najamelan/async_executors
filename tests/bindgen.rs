@@ -9,7 +9,7 @@
 // ✔ pass a Arc<Bindgen> to a function that takes exec:  `impl Spawn`
 // ✔ pass a     Bindgen  to a function that takes exec:  `impl SpawnHandle`
 // ✔ pass a Arc<Bindgen> to a function that takes exec:  `impl SpawnHandle`
-// ✔ pass a    &Bindgen  to a function that takes exec:  `&dyn SpawnHandleOs`
+// ✔ pass a    &Bindgen  to a function that takes exec:  `&dyn SpawnHandle`
 //
 // ✔ pass a     Bindgen  to a function that takes exec:  `impl LocalSpawn`
 // ✔ pass a    &Bindgen  to a function that takes exec: `&impl LocalSpawn`
@@ -18,7 +18,7 @@
 // ✔ pass a  Rc<Bindgen> to a function that takes exec:  `impl LocalSpawn`
 // ✔ pass a     Bindgen  to a function that takes exec:  `impl LocalSpawnHandle`
 // ✔ pass a  Rc<Bindgen> to a function that takes exec:  `impl LocalSpawnHandle`
-// ✔ pass a    &Bindgen  to a function that takes exec:  `&dyn LocalSpawnHandleOs`
+// ✔ pass a    &Bindgen  to a function that takes exec:  `&dyn LocalSpawnHandle`
 //
 mod common;
 
@@ -183,7 +183,7 @@ fn test_spawn_handle_arc()
 }
 
 
-// pass a &Bindgen to a function that takes exec: `&dyn SpawnHandleOs`
+// pass a &Bindgen to a function that takes exec: `&dyn SpawnHandle`
 //
 #[ cfg( feature = "spawn_handle" ) ]
 //
@@ -363,7 +363,7 @@ fn test_spawn_handle_arc_local()
 }
 
 
-// pass a &Bindgen to a function that takes exec: `&dyn SpawnHandleOs`
+// pass a &Bindgen to a function that takes exec: `&dyn SpawnHandle`
 //
 #[ cfg( feature = "spawn_handle" ) ]
 //

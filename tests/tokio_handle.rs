@@ -9,7 +9,7 @@
 // ✔ pass a Arc<TokioHandle> to a function that takes exec: `impl Spawn`
 // ✔ pass a     TokioHandle  to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a Arc<TokioHandle> to a function that takes exec: `impl SpawnHandle`
-// ✔ pass a    &TokioHandle  to a function that takes exec: `&dyn SpawnHandleOs`
+// ✔ pass a    &TokioHandle  to a function that takes exec: `&dyn SpawnHandle`
 // ✔ pass a builder with some config set.
 //
 mod common;
@@ -158,7 +158,7 @@ fn test_spawn_handle_arc()
 }
 
 
-// pass a AsyncStd to a function that takes exec: `&dyn SpawnHandleOs`
+// pass a AsyncStd to a function that takes exec: `&dyn SpawnHandle`
 //
 #[ cfg(all( feature = "spawn_handle", feature = "tokio_tp" )) ]
 //

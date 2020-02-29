@@ -10,7 +10,7 @@ use
 //
 #[ derive( Copy, Clone, Default ) ]
 //
-#[ cfg_attr( feature = "docs", doc(cfg( feature = "bindgen" )) ) ]
+#[ cfg_attr( feature = "docs", doc(cfg(all( feature = "bindgen", target_arch = "wasm32" ))) ) ]
 //
 pub struct Bindgen;
 

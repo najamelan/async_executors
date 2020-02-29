@@ -10,7 +10,7 @@ package:
   # - merge dev branch into master
   # - create git tag
   #
-  version       : 0.1.0
+  version       : 0.2.0
   name          : async_executors
   authors       : [ Naja Melan <najamelan@autistici.org> ]
   description   : Implements Spawn, SpawnLocal and SpawnHandle for commonly used executors.
@@ -96,10 +96,10 @@ dependencies:
   futures-task        : { version: ^0.3                                         }
   futures-util        : { version: ^0.3, optional: true                         }
   tracing-futures     : { version: ^0.2, optional: true, features: [futures-03] }
+  futures-executor    : { version: ^0.3, optional: true                         }
 
   # Private deps
   #
-  futures-executor    : { version: ^0.3 , optional: true                     }
   async_std_crate     : { version: ^1   , optional: true, package: async-std }
   tokio               : { version: ^0.2 , optional: true                     }
   parking_lot         : { version: ^0.10, optional: true                     }
@@ -119,7 +119,6 @@ dev-dependencies:
 
   pretty_assertions : ^0.6
   static_assertions : ^1
-  criterion         : ^0.3
   futures           : { version: ^0.3, features: [ thread-pool ] }
   # log               : ^0.4
   # flexi_logger      : ^0.11
@@ -147,3 +146,7 @@ example:
   - name             : tokio_tp
     path             : examples/tokio_tp.rs
     required-features: [ notwasm, tokio_tp ]
+
+  - name             : spawn_handle_multi
+    path             : examples/spawn_handle_multi.rs
+    required-features: [ notwasm, spawn_handle, async_std ]

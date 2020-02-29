@@ -2,7 +2,7 @@
 
 // ✔ pass a     ThreadPool  to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a Arc<ThreadPool> to a function that takes exec: `impl SpawnHandle`
-// ✔ pass a    &ThreadPool  to a function that takes exec: `&dyn SpawnHandleOs`
+// ✔ pass a    &ThreadPool  to a function that takes exec: `&dyn SpawnHandle`
 //
 mod common;
 
@@ -38,7 +38,7 @@ fn test_spawn_handle_arc()
 }
 
 
-// pass a ThreadPool to a function that takes exec: `&dyn SpawnHandleOs`
+// pass a ThreadPool to a function that takes exec: `&dyn SpawnHandle`
 //
 #[ test ]
 //

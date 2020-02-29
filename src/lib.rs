@@ -45,16 +45,12 @@
 #[ cfg( feature = "bindgen"  ) ] pub use bindgen::*;
 
 #[ cfg( feature = "spawn_handle" ) ] mod spawn_handle          ;
-#[ cfg( feature = "spawn_handle" ) ] mod spawn_handle_os       ;
 #[ cfg( feature = "spawn_handle" ) ] mod local_spawn_handle    ;
-#[ cfg( feature = "spawn_handle" ) ] mod local_spawn_handle_os ;
 #[ cfg( feature = "spawn_handle" ) ] mod join_handle           ;
 #[ cfg( feature = "spawn_handle" ) ] mod remote_handle         ;
 
 #[ cfg( feature = "spawn_handle" ) ] pub use spawn_handle          ::*;
-#[ cfg( feature = "spawn_handle" ) ] pub use spawn_handle_os       ::*;
 #[ cfg( feature = "spawn_handle" ) ] pub use local_spawn_handle    ::*;
-#[ cfg( feature = "spawn_handle" ) ] pub use local_spawn_handle_os ::*;
 #[ cfg( feature = "spawn_handle" ) ] pub use join_handle           ::*;
 
 

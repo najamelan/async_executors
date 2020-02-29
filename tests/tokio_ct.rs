@@ -9,7 +9,7 @@
 // ✔ pass a Arc<TokioCt> to a function that takes exec: `impl Spawn`
 // ✔ pass a     TokioCt  to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a Arc<TokioCt> to a function that takes exec: `impl SpawnHandle`
-// ✔ pass a    &TokioCt  to a function that takes exec: `&dyn SpawnHandleOs`
+// ✔ pass a    &TokioCt  to a function that takes exec: `&dyn SpawnHandle`
 //
 // ✔ pass a    TokioCt  to a function that takes exec: `impl LocalSpawn`
 // ✔ pass a   &TokioCt  to a function that takes exec: `&impl LocalSpawn`
@@ -18,7 +18,7 @@
 // ✔ pass a Rc<TokioCt> to a function that takes exec: `impl LocalSpawn`
 // ✔ pass a    TokioCt  to a function that takes exec: `impl LocalSpawnHandle`
 // ✔ pass a Rc<TokioCt> to a function that takes exec: `impl LocalSpawnHandle`
-// ✔ pass a   &TokioCt  to a function that takes exec: `&dyn LocalSpawnHandleOs`
+// ✔ pass a   &TokioCt  to a function that takes exec: `&dyn LocalSpawnHandle`
 //
 // ✔ make sure handle() works from within spawned task.
 //
@@ -174,7 +174,7 @@ fn test_spawn_handle_arc()
 
 
 
-// pass a &TokioCt to a function that takes exec: `&dyn SpawnHandleOs`
+// pass a &TokioCt to a function that takes exec: `&dyn SpawnHandle`
 //
 #[ cfg( feature = "spawn_handle" ) ]
 //
@@ -336,7 +336,7 @@ fn test_spawn_handle_rc_local()
 
 
 
-// pass a &TokioCt to a function that takes exec: `&dyn LocalSpawnHandleOs`
+// pass a &TokioCt to a function that takes exec: `&dyn LocalSpawnHandle`
 //
 #[ cfg( feature = "spawn_handle" ) ]
 //

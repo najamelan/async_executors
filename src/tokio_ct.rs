@@ -9,7 +9,8 @@ use
 /// An executor that uses a [tokio::runtime::Runtime] with the [basic scheduler](tokio::runtime::Builder::basic_scheduler).
 /// Can spawn `!Send` futures.
 ///
-/// You must make sure that calls to `spawn` and `spawn_local` happen withing a task running on [TokioCt::block_on].
+/// You must make sure that calls to `spawn` and `spawn_local` happen in async context, withing a task running
+/// on [TokioCt::block_on].
 ///
 /// You can obtain a wrapper to `tokio::runtime::handle` through [TokioCt::handle]. That can be used to send a future
 /// from another thread to run on the `TokioCt` executor.
@@ -31,7 +32,8 @@ use
 /// Note that these are logic errors, not related to the class of problems that cannot happen
 /// in safe rust (memory safety, undefined behavior, unsoundness, data races, ...). See the relevant
 /// [catch_unwind RFC](https://github.com/rust-lang/rfcs/blob/master/text/1236-stabilize-catch-panic.md)
-/// and it's discussion threads for more info as well as the documentation in [std::panic::UnwindSafe].
+/// and it's discussion threads for more info as well as the documentation in [std::panic::UnwindSafe]
+/// for more information.
 //
 #[ derive( Debug, Clone ) ]
 //
@@ -41,7 +43,12 @@ pub struct TokioCt
 {
 	pub(crate) exec  : Rc<RefCell< Runtime  >> ,
 	pub(crate) local : Rc<         LocalSet  > ,
-	pub(crate) handle: TokioRtHandle           ,
+
+	// We keep one handy, because users might pass this into a task they run with block_on, which
+	// borrows the exec field. So we shouldn't need to borrow when handle is called, otherwise
+	// the refcell will panic.
+	//
+	pub(crate) handle: TokioRtHandle,
 }
 
 

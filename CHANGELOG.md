@@ -1,5 +1,27 @@
 # async_executors - CHANGELOG
 
+## 0.2 - 2020-02-29
+
+  - tracing-futures 0.2.3 is out, so no patching required anymore.
+
+  - RemoteHandle is still vendored until the next release of futures.
+
+  - TokioCt now uses tokio::task::LocalSet, removing the single line of unsafe we had.
+    This also improves performance dramatically. Thanks @Yandros for pointing out
+    LocalSet.
+
+  - BREAKING CHANGE: the API of SpawnHandle has been reworked. 0.1 had double traits, one
+    not object safe. There were two reasons for this:
+    - the os version needed an extra boxing. Benchmarks showed that the overhead from this is neglectable.
+    - the os version needs to have the output type on the trait instead of on the spawn function.
+      this is inconvenient if you need to take in an executor that can spawn for several output types, but
+      since it is merely inconvenient, I feel this is not a good enough argument to have the traits in 2
+      versions. Workaround examples have been added to the documentation of `SpawnHandle` and `LocalSpawnHandle`.
+
+    The `SpawnHandle` trait now takes a `FutureObj` instead of a `Pin<Box<dyn Future>>`. This should be better
+    for `no_std` compatibility. An extension trait has been added much like `SpawnExt` in the futures lib to
+    allow spawning futures without having to manually create a `FutureObj`.
+
 ## 0.1.0 - 2020-02-24
 
   - Re-add TokioHandle to work around the fact that tokio::Runtime can't be dropped in async context.

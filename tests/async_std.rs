@@ -9,7 +9,7 @@
 // ✔ pass a Arc<AsyncStd> to a function that takes exec: `impl Spawn`
 // ✔ pass a     AsyncStd  to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a Arc<AsyncStd> to a function that takes exec: `impl SpawnHandle`
-// ✔ pass a    &AsyncStd  to a function that takes exec: `&dyn SpawnHandleOs`
+// ✔ pass a    &AsyncStd  to a function that takes exec: `&dyn SpawnHandle`
 //
 mod common;
 
@@ -136,7 +136,7 @@ fn test_spawn_handle_arc()
 }
 
 
-// pass a AsyncStd to a function that takes exec: `&dyn SpawnHandleOs`
+// pass a AsyncStd to a function that takes exec: `&dyn SpawnHandle`
 //
 #[ cfg( feature = "spawn_handle" ) ]
 //

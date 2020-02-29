@@ -4,11 +4,11 @@
 //
 // ✔ pass a     LocalSpawner  to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a Arc<LocalSpawner> to a function that takes exec: `impl SpawnHandle`
-// ✔ pass a    &LocalSpawner  to a function that takes exec: `&dyn SpawnHandleOs`
+// ✔ pass a    &LocalSpawner  to a function that takes exec: `&dyn SpawnHandle`
 //
 // ✔ pass a    LocalSpawner  to a function that takes exec: `impl LocalSpawnHandle`
 // ✔ pass a Rc<LocalSpawner> to a function that takes exec: `impl LocalSpawnHandle`
-// ✔ pass a   &LocalSpawner  to a function that takes exec: `&dyn LocalSpawnHandleOs`
+// ✔ pass a   &LocalSpawner  to a function that takes exec: `&dyn LocalSpawnHandle`
 //
 mod common;
 
@@ -51,7 +51,7 @@ fn test_spawn_handle_arc()
 
 
 
-// pass a &LocalSpawner to a function that takes exec: `&dyn SpawnHandleOs`
+// pass a &LocalSpawner to a function that takes exec: `&dyn SpawnHandle`
 //
 #[ test ]
 //
@@ -101,7 +101,7 @@ fn test_spawn_handle_rc_local()
 
 
 
-// pass a &LocalSpawner to a function that takes exec: `&dyn LocalSpawnHandleOs`
+// pass a &LocalSpawner to a function that takes exec: `&dyn LocalSpawnHandle`
 //
 #[ test ]
 //

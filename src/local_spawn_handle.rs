@@ -2,145 +2,133 @@
 //
 use
 {
-	futures_util :: { task::{ LocalSpawnExt, SpawnError }, future::FutureExt } ,
-	std          :: { future::Future, sync::Arc, rc::Rc                      } ,
-	crate        :: { import::*, JoinHandle, remote_handle::remote_handle    } ,
+	futures_util :: { task::{ LocalSpawnExt, SpawnError, LocalFutureObj }, future::FutureExt } ,
+	crate        :: { import::*, JoinHandle, remote_handle::remote_handle              } ,
+	std          :: { pin::Pin, future::Future, sync::Arc, rc::Rc         } ,
 };
 
 
-/// Let's you spawn and get a [JoinHandle] to await the output of a future.
-///
-/// This trait is not object safe, see [LocalSpawnHandleOs](crate::LocalSpawnHandleOs)
-/// for a best effort object safe one.
-///
-/// ## Performance
-///
-/// For [tokio] and [async-std](async_std_crate) this is generally faster than [LocalSpawnExt::spawn_local], since
-/// it's better aligned with the underlying API and doesn't require extra boxing.
+/// This is similar to [`SpawnHandle`](crate::SpawnHandle) except that it allows spawning `!Send` futures. Please see
+/// the docs on [`SpawnHandle`](crate::SpawnHandle).
 //
 #[ cfg_attr( feature = "docs", doc(cfg( feature = "spawn_handle" )) ) ]
 //
-pub trait LocalSpawnHandle
+pub trait LocalSpawnHandle<Out: 'static>
 {
-	/// Spawn a future and return a [JoinHandle] that can be awaited for the output of the future.
+	/// Spawn a future and return a [`JoinHandle`] that can be awaited for the output of the future.
 	//
-	fn spawn_handle_local<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
-
-		where Fut: Future<Output = Out> + 'static,
-		      Out: 'static
-	;
+	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>;
 }
 
 
-impl<T> LocalSpawnHandle for Box<T> where T: LocalSpawnHandle
+/// Let's you spawn a !Send future and get a [JoinHandle] to await the output of a future.
+//
+#[ cfg_attr( feature = "docs", doc(cfg( feature = "spawn_handle" )) ) ]
+//
+pub trait LocalSpawnHandleExt<Out: 'static> : LocalSpawnHandle<Out>
 {
-	fn spawn_handle_local<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
+	/// Convenience trait for passing in a generic future to [`LocalSpawnHandle`]. Much akin to `LocalSpawn` and `LocalSpawnExt` in the
+	/// futures library.
+	//
+	fn spawn_handle_local( &self, future: impl Future<Output = Out> + 'static ) -> Result<JoinHandle<Out>, SpawnError>;
+}
 
-		where Fut: Future<Output = Out> + 'static,
-		      Out: 'static
 
+impl<T, Out> LocalSpawnHandleExt<Out> for T
+
+	where T  : LocalSpawnHandle<Out> + ?Sized ,
+	      Out: 'static                        ,
+{
+	fn spawn_handle_local( &self, future: impl Future<Output = Out> + 'static ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		(**self).spawn_handle_local( future )
+		self.spawn_handle_local_obj( LocalFutureObj::new(future.boxed_local()) )
 	}
 }
 
 
-impl<T> LocalSpawnHandle for Arc<T> where T: LocalSpawnHandle
+impl<T: ?Sized, Out> LocalSpawnHandle<Out> for Box<T> where T: LocalSpawnHandle<Out>, Out: 'static
 {
-	fn spawn_handle_local<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
-
-		where Fut: Future<Output = Out> + 'static,
-		      Out: 'static
-
+	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		(**self).spawn_handle_local( future )
+		(**self).spawn_handle_local_obj( future )
 	}
 }
 
 
-impl<T> LocalSpawnHandle for Rc<T> where T: LocalSpawnHandle
+
+impl<T: ?Sized, Out> LocalSpawnHandle<Out> for Arc<T> where T: LocalSpawnHandle<Out>, Out: 'static
 {
-	fn spawn_handle_local<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
-
-		where Fut: Future<Output = Out> + 'static,
-		      Out: 'static
-
+	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		(**self).spawn_handle_local( future )
+		(**self).spawn_handle_local_obj( future )
 	}
 }
 
 
-impl<T> LocalSpawnHandle for &T where T: LocalSpawnHandle
+
+impl<T: ?Sized, Out> LocalSpawnHandle<Out> for Rc<T> where T: LocalSpawnHandle<Out>, Out: 'static
 {
-	fn spawn_handle_local<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
-
-		where Fut: Future<Output = Out> + 'static,
-		      Out: 'static
-
+	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		(**self).spawn_handle_local( future )
+		(**self).spawn_handle_local_obj( future )
 	}
 }
 
 
-impl<T> LocalSpawnHandle for &mut T where T: LocalSpawnHandle
+
+impl<T, Out> LocalSpawnHandle<Out> for &T where T: LocalSpawnHandle<Out>, Out: 'static
 {
-	fn spawn_handle_local<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
-
-		where Fut: Future<Output = Out> + 'static,
-		      Out: 'static
-
+	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		(**self).spawn_handle_local( future )
+		(**self).spawn_handle_local_obj( future )
 	}
 }
+
+
+
+impl<T, Out> LocalSpawnHandle<Out> for &mut T where T: LocalSpawnHandle<Out>, Out: 'static
+{
+	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
+	{
+		(**self).spawn_handle_local_obj( future )
+	}
+}
+
 
 
 #[ cfg( feature = "tracing" ) ]
 //
-impl<T> LocalSpawnHandle for Instrumented<T> where T: LocalSpawnHandle
+impl<T, Out> LocalSpawnHandle<Out> for Instrumented<T> where T: LocalSpawnHandle<Out>, Out: 'static
 {
-	fn spawn_handle_local<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
-
-		where Fut: Future<Output = Out> + 'static,
-		      Out: 'static
-
+	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		let fut = future.instrument( self.span().clone() );
 
-		self.inner().spawn_handle_local( fut )
+		self.inner().spawn_handle_local_obj( LocalFutureObj::new(fut.boxed_local()) )
 	}
 }
+
 
 
 #[ cfg( feature = "tracing" ) ]
 //
-impl<T> LocalSpawnHandle for WithDispatch<T> where T: LocalSpawnHandle
+impl<T, Out> LocalSpawnHandle<Out> for WithDispatch<T> where T: LocalSpawnHandle<Out>, Out: 'static
 {
-	fn spawn_handle_local<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
-
-		where Fut: Future<Output = Out> + 'static,
-		      Out: 'static
-
+	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		let fut = self.with_dispatch(future);
 
-		self.inner().spawn_handle_local( fut )
+		self.inner().spawn_handle_local_obj( LocalFutureObj::new(fut.boxed_local()) )
 	}
 }
 
 
 
-#[ cfg( feature = "tokio_ct" ) ]
+#[ cfg(any( feature = "tokio_ct" )) ]
 //
-impl LocalSpawnHandle for crate::TokioCt
+impl<Out: 'static> LocalSpawnHandle<Out> for crate::TokioCt
 {
-	fn spawn_handle_local<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
-
-		where Fut: Future<Output = Out> + 'static,
-		      Out: 'static
-
+	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		// tokio's JoinHandle requires Send on the future, so we have to revert to RemoteHandle here.
 		// This has some overhead.
@@ -156,13 +144,9 @@ impl LocalSpawnHandle for crate::TokioCt
 
 #[ cfg( feature = "bindgen" ) ]
 //
-impl LocalSpawnHandle for crate::Bindgen
+impl<Out: 'static> LocalSpawnHandle<Out> for crate::Bindgen
 {
-	fn spawn_handle_local<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
-
-		where Fut: Future<Output = Out> + 'static,
-		      Out: 'static
-
+	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		let (fut, handle) = remote_handle( future );
 		wasm_bindgen_futures::spawn_local(fut);
@@ -175,13 +159,9 @@ impl LocalSpawnHandle for crate::Bindgen
 
 #[ cfg( feature = "localpool" ) ]
 //
-impl LocalSpawnHandle for futures_executor::LocalSpawner
+impl<Out: 'static> LocalSpawnHandle<Out> for futures_executor::LocalSpawner
 {
-	fn spawn_handle_local<Fut, Out>( &self, future: Fut ) -> Result<JoinHandle<Out>, SpawnError>
-
-		where Fut: Future<Output = Out> + 'static,
-		      Out: 'static
-
+	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		let (fut, handle) = remote_handle( future );
 

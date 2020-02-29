@@ -14,9 +14,9 @@ A problem with these traits is that they do not provide an API for getting a Joi
 
 SpawnHandle traits are also provided so API's can express you need to pass them an executor which allows spawning with a handle. Note that this was already provided by the _futures_ in [`SpawnExt::spawn_with_handle`](futures_util::task::SpawnExt::spawn_with_handle), but this uses [`RemoteHandle`](futures_util::future::RemoteHandle) which incurs a performance overhead. By wrapping the native JoinHandle types, we can avoid some of that overhead while still being executor agnostic. These traits are feature gated behind the `spawn_handle` feature.
 
-The traits provided by this crate are also implemented for the [`Instrumented`](tracing_futures::Instrumented) and [`WithDispatch`](tracing_futures::WithDispatch) wrappers from _tracing-futures_ when the `tracing` feature is enabled. So you can pass an instrumented executor to an API requiring `exec: impl SpawnHandle`.
+The traits provided by this crate are also implemented for the [`Instrumented`](tracing_futures::Instrumented) and [`WithDispatch`](tracing_futures::WithDispatch) wrappers from _tracing-futures_ when the `tracing` feature is enabled. So you can pass an instrumented executor to an API requiring `exec: impl SpawnHandle<SomeOutput>`.
 
-The currently supported executors are (let me know if you want to see others supported):
+The currently supported executors are (file an issue on GitHub if you want to see another one supported):
 
 - [async-std](https://docs.rs/async-std)
 - [tokio](https://docs.rs/tokio) CurrentThread - [`tokio::runtime::Runtime`] with basic scheduler and a LocalSet. (supports spawning `!Send` futures)
@@ -51,14 +51,14 @@ With [cargo yaml](https://gitlab.com/storedbox/cargo-yaml):
 ```yaml
 dependencies:
 
-   async_executors: ^0.1
+   async_executors: ^0.2
 ```
 
 With Cargo.toml
 ```toml
 [dependencies]
 
-    async_executors = "0.1"
+    async_executors = "0.2"
 ```
 
 ### Upgrade
@@ -86,8 +86,7 @@ to put them in a queue you probably get 2 heap allocations per spawn.
 JoinHandle uses the native JoinHandle types from _tokio_ and _async-std_ to avoid the overhead from `RemoteHandle`, but wrap the
 future in `Abortable` to create consistent behavior across all executors.
 
-`SpawnHandle` and `LocalSpawnHandle` are thin wrappers, but not object safe. The object safe versions do imply boxing the future twice,
-just like `Spawn` and `LocalSpawn`.
+`SpawnHandle` and `LocalSpawnHandle` require boxing the future twice, just like `Spawn` and `LocalSpawn`.
 
 Existing benchmarks for all executors can be found in [executor_benchmarks](https://github.com/najamelan/executor_benchmarks).
 
@@ -103,10 +102,11 @@ _async_executors_ has wrappers providing impls on various executors, namely _tok
 
 All wrappers also implement `Clone`, `Debug` and the zero sized ones also `Copy`. You can express you will need to clone in your API: `impl Spawn + Clone`.
 
+Note that you should never use `block_on` inside async contexts. Some backends we use like _tokio_ and `RemoteHandle` from _futures_ use `catch_unwind`, so try to keep futures unwind safe.
+
 #### Spawning with handles
 
-You can use the `SpawnHandle` and `LocalSpawnHandle` traits as bounds for obtaining join handles. They can't be stored however as they aren't object
-safe. So either you make the data structure that needs to store them generic, or you need to revert to the object safe versions (`SpawnHandleOs` and `LocalSpawnHandleOs`) which imply you have to specify the output type and futures will have to be boxed an extra time.
+You can use the `SpawnHandle` and `LocalSpawnHandle` traits as bounds for obtaining join handles.
 
 ##### Example
 
@@ -120,18 +120,18 @@ use
 };
 
 
-fn needs_exec( exec: impl SpawnHandle )
+fn needs_exec( exec: impl SpawnHandle<()> )
 {
    let handle = exec.spawn_handle( async {} );
 }
 
 
-struct SomeObj{ exec: Arc< dyn SpawnHandleOs<u8> > }
+struct SomeObj{ exec: Arc< dyn SpawnHandle<u8> > }
 
 
 impl SomeObj
 {
-   pub fn new( exec: Arc< dyn SpawnHandleOs<u8> > ) -> SomeObj
+   pub fn new( exec: Arc< dyn SpawnHandle<u8> > ) -> SomeObj
    {
       SomeObj{ exec }
    }
@@ -140,7 +140,7 @@ impl SomeObj
    {
       let task = async{ 5 }.boxed();
 
-      self.exec.spawn_handle_os( task ).expect( "spawn" )
+      self.exec.spawn_handle( task ).expect( "spawn" )
    }
 }
 
@@ -162,10 +162,8 @@ You can basically pass the wrapper types provided in _async_executors_ to API's 
 
   - `impl Spawn`
   - `impl LocalSpawn`
-  - `impl SpawnHandle`
-  - `impl LocalSpawnHandle`
-  - `impl SpawnHandleOs<T>`
-  - `impl LocalSpawnHandleOs<T>`
+  - `impl SpawnHandle<T>`
+  - `impl LocalSpawnHandle<T>`
 
 All wrappers also implement `Clone`, `Debug` and the zero sized ones also `Copy`.
 
@@ -180,7 +178,7 @@ use
   std::convert::TryFrom,
 };
 
-fn needs_exec( exec: impl SpawnHandle ){};
+fn needs_exec( exec: impl SpawnHandle<()> + SpawnHandle<String> ){};
 
 needs_exec( AsyncStd::default() );
 

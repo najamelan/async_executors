@@ -53,7 +53,6 @@ optional = true
 version = "^0.4"
 
 [dev-dependencies]
-criterion = "^0.3"
 pretty_assertions = "^0.6"
 static_assertions = "^1"
 
@@ -75,6 +74,11 @@ required-features = ["notwasm", "tokio_ct"]
 name = "tokio_tp"
 path = "examples/tokio_tp.rs"
 required-features = ["notwasm", "tokio_tp"]
+
+[[example]]
+name = "spawn_handle_multi"
+path = "examples/spawn_handle_multi.rs"
+required-features = ["notwasm", "spawn_handle", "async_std"]
 
 [features]
 async_std = ["async_std_crate"]
@@ -100,7 +104,7 @@ license = "Unlicense"
 name = "async_executors"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_executors"
-version = "0.1.0"
+version = "0.2.0"
 
 [package.metadata]
 [package.metadata.docs]
