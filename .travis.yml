@@ -14,6 +14,7 @@ before_cache:
   - rm -rf /home/travis/.cargo/git
   - rm -rf /home/travis/.cargo/registry
   - rm -rf /home/travis/.cargo/bin/wasm-pack
+  - rm -rf /home/travis/.cargo/bin/cargo-tarpaulin
 
   # - if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
   #     cargo install cargo-tarpaulin
@@ -29,7 +30,7 @@ install:
   - cargo install --force wasm-bindgen-cli
   - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
   - rustup target add wasm32-unknown-unknown
-  - bash <(curl https://raw.githubusercontent.com/xd009642/tarpaulin/master/travis-install.sh)
+  # - bash <(curl https://raw.githubusercontent.com/xd009642/tarpaulin/master/travis-install.sh)
 
 jobs:
 
@@ -41,20 +42,21 @@ jobs:
 
       addons:
         firefox: latest
+        apt:
+          packages:
+            - libssl-dev
+            - pkg-config
+            - cmake
+            - zlib1g-dev
 
       script:
         - bash ci.bash
 
       after_success: |
-        if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
-          # Uncomment the following line for coveralls.io
-          # cargo tarpaulin --ciserver travis-ci --coveralls $TRAVIS_JOB_ID
-
-          # Uncomment the following two lines create and upload a report for codecov.io
-          cargo tarpaulin --out Xml
-          bash <(curl -s https://codecov.io/bash)
-        fi
-
+        cargo install --force cargo-tarpaulin
+        cargo test --features "spawn_handle async_std tokio_tp tokio_ct localpool threadpool"
+        cargo tarpaulin --out Xml
+        bash <(curl -s https://codecov.io/bash)
 
 
     - name: linux nightly rust

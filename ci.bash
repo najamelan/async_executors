@@ -16,6 +16,8 @@ cargo test --features tokio_tp
 cargo test --features tokio_ct
 cargo test --features spawn_handle
 
+# checking with rustup for when not running on travis.
+#
 if [[ "$TRAVIS_RUST_VERSION" == nightly ]] || [[ $(rustup default) =~ "nightly" ]]
 then
 
@@ -28,7 +30,6 @@ else
 	cargo test --features "spawn_handle async_std tokio_tp tokio_ct localpool threadpool"
 
 fi
-
 
 # we would like to get doc tests for the examples in the readme, but rustdoc does not
 # seem to enable the features, so they don't work
