@@ -15,6 +15,10 @@ before_cache:
   - rm -rf /home/travis/.cargo/registry
   - rm -rf /home/travis/.cargo/bin/wasm-pack
 
+  # - if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
+  #     cargo install cargo-tarpaulin
+  #   fi
+
 
 branches:
   only:
@@ -25,7 +29,7 @@ install:
   - cargo install --force wasm-bindgen-cli
   - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
   - rustup target add wasm32-unknown-unknown
-
+  - bash <(curl https://raw.githubusercontent.com/xd009642/tarpaulin/master/travis-install.sh)
 
 jobs:
 
@@ -40,6 +44,16 @@ jobs:
 
       script:
         - bash ci.bash
+
+      after_success: |
+        if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
+          # Uncomment the following line for coveralls.io
+          # cargo tarpaulin --ciserver travis-ci --coveralls $TRAVIS_JOB_ID
+
+          # Uncomment the following two lines create and upload a report for codecov.io
+          cargo tarpaulin --out Xml
+          bash <(curl -s https://codecov.io/bash)
+        fi
 
 
 

@@ -15,8 +15,19 @@ cargo test --features async_std
 cargo test --features tokio_tp
 cargo test --features tokio_ct
 cargo test --features spawn_handle
-cargo test --features "docs spawn_handle async_std tokio_tp tokio_ct localpool threadpool"
 
+if [[ "$TRAVIS_RUST_VERSION" == nightly ]] || [[ $(rustup default) =~ "nightly" ]]
+then
+
+	# will run doc tests which require nightly.
+	#
+	cargo test --all-features
+
+else
+
+	cargo test --features "spawn_handle async_std tokio_tp tokio_ct localpool threadpool"
+
+fi
 
 
 # we would like to get doc tests for the examples in the readme, but rustdoc does not
