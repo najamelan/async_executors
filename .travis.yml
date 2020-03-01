@@ -101,30 +101,30 @@ jobs:
         - bash ci.bash
 
 
-    - name: windows stable rust
-      os  : windows
-      rust: stable
+    # - name: windows stable rust
+    #   os  : windows
+    #   rust: stable
 
-      # for wasm tests
-      #
-      addons:
-        firefox: latest
+    #   # for wasm tests
+    #   #
+    #   addons:
+    #     firefox: latest
 
-      script:
-        - bash ci.bash
+    #   script:
+    #     - bash ci.bash
 
 
-    - name: windows nightly rust
-      os  : windows
-      rust: nightly
+    # - name: windows nightly rust
+    #   os  : windows
+    #   rust: nightly
 
-      # for wasm tests
-      #
-      addons:
-        firefox: latest
+    #   # for wasm tests
+    #   #
+    #   addons:
+    #     firefox: latest
 
-      script:
-        - bash ci.bash
+    #   script:
+    #     - bash ci.bash
 
 
 
