@@ -4,6 +4,7 @@ package:
   #
   # - Update CHANGELOG.md.
   # - Update version numbers in Cargo.yml, Cargo.toml, install section of readme.
+  # - check whether we can enable windows on ci again.
   # - verify CI result
   # - test dependent crates
   # - cargo publish

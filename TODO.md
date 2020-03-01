@@ -12,8 +12,7 @@ extra tests for async-std:
 # Wrap up
 
 - CI - fix windows wasm-bindgen-cli
-- clean up benchmark repo
-- write blogpost
+
 
 ## Consistent behavior:
 
