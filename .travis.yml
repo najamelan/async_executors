@@ -22,19 +22,21 @@ branches:
     - master
     - dev
 
-install:
-  - cargo install --force wasm-bindgen-cli
-  - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-  - rustup target add wasm32-unknown-unknown
-
 jobs:
 
   include:
 
     - name: linux stable rust
       os  : linux
-      dist: bionic
+      dist: bionic # required for tarpaulin binary distribution to work.
       rust: stable
+
+      install:
+          # wasm-pack doesn't support passing features to cargo test, so we can't use that.
+          #
+        - cargo install --force wasm-bindgen-cli
+        - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+        - rustup target add wasm32-unknown-unknown
 
       addons:
         firefox: latest
@@ -45,6 +47,7 @@ jobs:
 
       script:
         - bash ci.bash
+        - bash ci_wasm.bash
         - bash coverage.bash
 
 
@@ -52,15 +55,45 @@ jobs:
       os  : linux
       rust: nightly
 
+      install:
+        - cargo install --force wasm-bindgen-cli
+        - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+        - rustup target add wasm32-unknown-unknown
+
+      addons:
+        firefox: latest
+        apt:
+          packages:
+            - nodejs
+
+      script:
+        - bash ci.bash
+        - bash ci_wasm.bash
+
+
+    - name: osx stable rust
+      os  : osx
+      rust: stable
+
+      install:
+        - cargo install --force wasm-bindgen-cli
+        - curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+        - rustup target add wasm32-unknown-unknown
+
+      # for wasm tests
+      #
       addons:
         firefox: latest
 
       script:
         - bash ci.bash
+        - bash ci_wasm.bash
 
 
-    - name: osx stable rust
-      os  : osx
+    # currently wasm-bindgen-cli does not compile on windows, so we skip wasm on windows for now.
+    #
+    - name: windows stable rust
+      os  : windows
       rust: stable
 
       # for wasm tests
@@ -70,46 +103,6 @@ jobs:
 
       script:
         - bash ci.bash
-
-
-    - name: osx nightly rust
-      os  : osx
-      rust: nightly
-
-      # for wasm tests
-      #
-      addons:
-        firefox: latest
-
-      script:
-        - bash ci.bash
-
-# currently wasm-bindgen-cli does not compile on windows, so we skip windows for now.
-#
-    # - name: windows stable rust
-    #   os  : windows
-    #   rust: stable
-
-    #   # for wasm tests
-    #   #
-    #   addons:
-    #     firefox: latest
-
-    #   script:
-    #     - bash ci.bash
-
-
-    # - name: windows nightly rust
-    #   os  : windows
-    #   rust: nightly
-
-    #   # for wasm tests
-    #   #
-    #   addons:
-    #     firefox: latest
-
-    #   script:
-    #     - bash ci.bash
 
 
 
