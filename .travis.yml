@@ -54,8 +54,7 @@ jobs:
 
       after_success: |
         cargo install --force cargo-tarpaulin
-        cargo test --features "spawn_handle async_std tokio_tp tokio_ct localpool threadpool"
-        cargo tarpaulin --out Xml
+        cargo tarpaulin --all-features --exclude-files src/bindgen.rs --out Xml
         bash <(curl -s https://codecov.io/bash)
 
 
