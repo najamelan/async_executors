@@ -29,6 +29,8 @@ use
 	wasm_bindgen_test :: { *                        } ,
 };
 
+wasm_bindgen_test_configure!( run_in_browser );
+
 
 // pass a Bindgen to a function that takes exec: `impl Spawn`
 //

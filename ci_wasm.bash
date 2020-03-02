@@ -11,6 +11,7 @@ set -x
 # --no-default-features is needed to turn of notwasm so this won't try to compile examples
 # features don't work in wasm-pack, so using cargo test directly here
 #
-cargo test --target wasm32-unknown-unknown --no-default-features
-cargo test --target wasm32-unknown-unknown --no-default-features --features spawn_handle
-cargo test --target wasm32-unknown-unknown --no-default-features --features "spawn_handle bindgen"
+wasm-pack test --firefox --headless -- --no-default-features
+wasm-pack test --firefox --headless -- --no-default-features --features spawn_handle
+wasm-pack test --firefox --headless -- --no-default-features --features bindgen
+wasm-pack test --firefox --headless -- --no-default-features --features "spawn_handle bindgen"

@@ -24,6 +24,7 @@ then
 	# will run doc tests which require nightly.
 	#
 	cargo test --all-features
+	cargo doc --all-features --no-deps
 
 else
 
