@@ -99,6 +99,7 @@ categories = ["asynchronous", "concurrency"]
 description = "Implements Spawn, SpawnLocal and SpawnHandle for commonly used executors."
 documentation = "https://docs.rs/async_executors"
 edition = "2018"
+exclude = ["examples", "tests"]
 keywords = ["async", "executor", "futures"]
 license = "Unlicense"
 name = "async_executors"

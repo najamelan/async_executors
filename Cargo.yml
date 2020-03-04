@@ -22,6 +22,7 @@ package:
   categories    : [asynchronous, concurrency]
   license       : Unlicense
   edition       : "2018"
+  exclude       : [ examples, tests ]
 
   metadata:
     docs:
