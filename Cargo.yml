@@ -82,6 +82,9 @@ features:
   #
   notwasm: []
 
+  # enable when running cargo +nightly doc. Doesn't work on stable.
+  # enable when running cargo +nightly test for doctests.
+  #
   docs: []
 
 

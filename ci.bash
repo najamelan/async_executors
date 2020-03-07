@@ -21,7 +21,7 @@ cargo test --features spawn_handle
 if [[ "$TRAVIS_RUST_VERSION" == nightly ]] || [[ $(rustup default) =~ "nightly" ]]
 then
 
-	# will run doc tests which require nightly.
+	# will run doc tests which requires nightly.
 	#
 	cargo test --all-features
 	cargo doc --all-features --no-deps

@@ -1,12 +1,8 @@
-// These are only available on nightly
-//
-#![cfg_attr( feature = "docs", feature( doc_cfg, external_doc )) ]
-
 // See: https://github.com/rust-lang/rust/issues/44732#issuecomment-488766871
 //
-#![cfg_attr( feature = "docs", doc(include = "../README.md") )]
+#![cfg_attr( feature = "docs", feature(doc_cfg, external_doc) )]
+#![cfg_attr( feature = "docs", doc(include = "../README.md")  )]
 //!
-
 #![ doc   ( html_root_url = "https://docs.rs/async_executors" ) ]
 #![ deny  ( missing_docs                                      ) ]
 #![ forbid( unsafe_code                                       ) ]
