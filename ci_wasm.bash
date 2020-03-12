@@ -8,6 +8,8 @@ set -e
 #
 set -x
 
+export RUSTFLAGS="-D warnings"
+
 # --no-default-features is needed to turn of notwasm so this won't try to compile examples
 # features don't work in wasm-pack, so using cargo test directly here
 #

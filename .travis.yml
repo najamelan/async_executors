@@ -69,8 +69,6 @@ jobs:
         - bash ci_wasm.bash
 
 
-    # currently wasm-bindgen-cli does not compile on windows, so we skip wasm on windows for now.
-    #
     - name: windows stable rust
       os  : windows
       rust: stable
