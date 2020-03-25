@@ -120,12 +120,17 @@ use
 };
 
 
+// Example of a library function that needs an executor. Just use impl Trait.
+//
 fn needs_exec( exec: impl SpawnHandle<()> )
 {
    let handle = exec.spawn_handle( async {} );
 }
 
 
+// A type that needs to hold on to an executor during it's lifetime. Here it
+// must be heap allocated.
+//
 struct SomeObj{ exec: Arc< dyn SpawnHandle<u8> > }
 
 
@@ -143,6 +148,7 @@ impl SomeObj
       self.exec.spawn_handle( task ).expect( "spawn" )
    }
 }
+
 
 fn main()
 {
