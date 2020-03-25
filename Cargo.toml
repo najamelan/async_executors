@@ -111,6 +111,7 @@ version = "0.2.0"
 [package.metadata.docs]
 [package.metadata.docs.rs]
 all-features = true
+targets = []
 
 [target]
 [target."cfg(target_arch = \"wasm32\")"]

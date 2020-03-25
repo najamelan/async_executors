@@ -28,6 +28,7 @@ package:
     docs:
       rs:
         all-features: true
+        targets     : []
 
 
 # Please see the readme for details.
