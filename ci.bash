@@ -10,11 +10,13 @@ set -x
 
 export RUSTFLAGS="-D warnings"
 
-cargo test
-cargo test --features async_std
-cargo test --features tokio_tp
-cargo test --features tokio_ct
-cargo test --features spawn_handle
+cargo check
+cargo check --features async_std
+cargo check --features tokio_tp
+cargo check --features tokio_ct
+cargo check --features spawn_handle
+
+cargo test --all-features
 
 # checking with rustup for when not running on travis.
 #
@@ -23,11 +25,6 @@ then
 
 	# will run doc tests which requires nightly.
 	#
-	cargo test --all-features
 	cargo doc --all-features --no-deps
-
-else
-
-	cargo test --features "spawn_handle async_std tokio_tp tokio_ct localpool threadpool"
 
 fi
