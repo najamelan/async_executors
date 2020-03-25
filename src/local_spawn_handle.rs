@@ -11,7 +11,7 @@ use
 /// This is similar to [`SpawnHandle`](crate::SpawnHandle) except that it allows spawning `!Send` futures. Please see
 /// the docs on [`SpawnHandle`](crate::SpawnHandle).
 //
-#[ cfg_attr( feature = "docs", doc(cfg( feature = "spawn_handle" )) ) ]
+#[ cfg_attr( nightly, doc(cfg( feature = "spawn_handle" )) ) ]
 //
 pub trait LocalSpawnHandle<Out: 'static>
 {
@@ -23,7 +23,7 @@ pub trait LocalSpawnHandle<Out: 'static>
 
 /// Let's you spawn a !Send future and get a [JoinHandle] to await the output of a future.
 //
-#[ cfg_attr( feature = "docs", doc(cfg( feature = "spawn_handle" )) ) ]
+#[ cfg_attr( nightly, doc(cfg( feature = "spawn_handle" )) ) ]
 //
 pub trait LocalSpawnHandleExt<Out: 'static> : LocalSpawnHandle<Out>
 {

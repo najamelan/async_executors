@@ -83,11 +83,6 @@ features:
   #
   notwasm: []
 
-  # enable when running cargo +nightly doc. Doesn't work on stable.
-  # enable when running cargo +nightly test for doctests.
-  #
-  docs: []
-
 
 badges:
 
@@ -128,6 +123,18 @@ dev-dependencies:
   futures           : { version: ^0.3, features: [ thread-pool ] }
   # log               : ^0.4
   # flexi_logger      : ^0.11
+
+
+build-dependencies:
+
+  rustc_version: ^0.2
+
+
+profile:
+
+  release:
+
+    codegen-units: 1
 
 
 target:

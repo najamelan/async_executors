@@ -33,7 +33,7 @@ use tokio::{ task::JoinHandle as TokioJoinHandle };
 //
 #[ derive( Debug ) ]
 //
-#[ cfg_attr( feature = "docs", doc(cfg( feature = "spawn_handle" )) ) ]
+#[ cfg_attr( nightly, doc(cfg( feature = "spawn_handle" )) ) ]
 //
 #[ must_use = "JoinHandle will cancel your future when dropped." ]
 //

@@ -37,7 +37,7 @@ use
 //
 #[ derive( Debug, Clone ) ]
 //
-#[ cfg_attr( feature = "docs", doc(cfg( feature = "tokio_ct" )) ) ]
+#[ cfg_attr( nightly, doc(cfg( feature = "tokio_ct" )) ) ]
 //
 pub struct TokioCt
 {

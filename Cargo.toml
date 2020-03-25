@@ -6,6 +6,9 @@ status = "actively-developed"
 [badges.travis-ci]
 repository = "najamelan/async_executors"
 
+[build-dependencies]
+rustc_version = "^0.2"
+
 [dependencies]
 [dependencies.async_std_crate]
 optional = true
@@ -84,7 +87,6 @@ required-features = ["notwasm", "spawn_handle", "async_std"]
 async_std = ["async_std_crate"]
 bindgen = ["wasm-bindgen-futures"]
 default = ["notwasm"]
-docs = []
 localpool = ["futures-executor"]
 notwasm = []
 spawn_handle = ["futures-util", "futures-channel", "futures-core", "pin-utils"]
@@ -112,6 +114,10 @@ version = "0.2.0"
 [package.metadata.docs.rs]
 all-features = true
 targets = []
+
+[profile]
+[profile.release]
+codegen-units = 1
 
 [target]
 [target."cfg(target_arch = \"wasm32\")"]

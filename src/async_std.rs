@@ -11,7 +11,7 @@ use
 //
 #[ derive( Copy, Clone, Default ) ]
 //
-#[ cfg_attr( feature = "docs", doc(cfg( feature = "async_std" )) ) ]
+#[ cfg_attr( nightly, doc(cfg( feature = "async_std" )) ) ]
 //
 pub struct AsyncStd;
 

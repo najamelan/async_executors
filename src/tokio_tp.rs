@@ -48,7 +48,7 @@ use
 //
 #[ derive( Debug, Clone ) ]
 //
-#[ cfg_attr( feature = "docs", doc(cfg( feature = "tokio_tp" )) ) ]
+#[ cfg_attr( nightly, doc(cfg( feature = "tokio_tp" )) ) ]
 //
 pub struct TokioTp
 {
