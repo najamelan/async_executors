@@ -103,11 +103,6 @@ impl<T> JoinHandle<T>
 }
 
 
-// Even if T is not Unpin, JoinHandle still is.
-//
-impl<T> Unpin for JoinHandle<T> {}
-
-
 impl<T: 'static> Future for JoinHandle<T>
 {
 	type Output = T;
