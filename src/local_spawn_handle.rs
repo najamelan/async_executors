@@ -2,16 +2,16 @@
 //
 use
 {
-	futures_util :: { task::{ LocalSpawnExt, SpawnError, LocalFutureObj }, future::FutureExt } ,
+	futures_util :: { task::{ LocalSpawnExt, SpawnError, LocalFutureObj }, future::{ FutureExt, abortable } } ,
 	crate        :: { import::*, JoinHandle, remote_handle::remote_handle              } ,
-	std          :: { pin::Pin, future::Future, sync::Arc, rc::Rc         } ,
+	std          :: { pin::Pin, future::Future, sync::{ Arc, atomic::AtomicBool }, rc::Rc         } ,
 };
 
 
 /// This is similar to [`SpawnHandle`](crate::SpawnHandle) except that it allows spawning `!Send` futures. Please see
 /// the docs on [`SpawnHandle`](crate::SpawnHandle).
 //
-#[ cfg_attr( feature = "docs", doc(cfg( feature = "spawn_handle" )) ) ]
+#[ cfg_attr( nightly, doc(cfg( feature = "spawn_handle" )) ) ]
 //
 pub trait LocalSpawnHandle<Out: 'static>
 {
@@ -23,7 +23,7 @@ pub trait LocalSpawnHandle<Out: 'static>
 
 /// Let's you spawn a !Send future and get a [JoinHandle] to await the output of a future.
 //
-#[ cfg_attr( feature = "docs", doc(cfg( feature = "spawn_handle" )) ) ]
+#[ cfg_attr( nightly, doc(cfg( feature = "spawn_handle" )) ) ]
 //
 pub trait LocalSpawnHandleExt<Out: 'static> : LocalSpawnHandle<Out>
 {
@@ -130,13 +130,15 @@ impl<Out: 'static> LocalSpawnHandle<Out> for crate::TokioCt
 {
 	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		// tokio's JoinHandle requires Send on the future, so we have to revert to RemoteHandle here.
-		// This has some overhead.
-		//
-		let (fut, handle) = remote_handle( future );
-		self.spawn_local(fut)?;
+		let (fut, a_handle) = abortable( future );
 
-		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
+		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::Tokio
+		{
+			handle  : self.local.spawn_local( fut ) ,
+			detached: AtomicBool::new( false )  ,
+			a_handle                            ,
+		}})
+
 	}
 }
 

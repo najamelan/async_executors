@@ -4,8 +4,8 @@ use
 	tokio::runtime :: { Handle as TokioRtHandle } ,
 };
 
-/// A handle to a [TokioCt](crate::TokioCt) or [TokioTp](crate::TokioTp) executor. It implements `Spawn`, `SpawnHandle` and
-/// `SpawnHandleOs` traits.
+/// A handle to a [TokioCt](crate::TokioCt) or [TokioTp](crate::TokioTp) executor. It implements `Spawn` and `SpawnHandle` traits.
+/// You can obtain one from [TokioCt::handle](crate::TokioCt::handle) or [TokioTp::handle](crate::TokioTp::handle).
 ///
 /// For [TokioTp](crate::TokioTp) this can be used to avoid a drop order problem for the tokio Runtime. See the
 /// documentation for [TokioTp](crate::TokioTp) for an explanation.
@@ -14,7 +14,7 @@ use
 ///
 /// The handle is only operational as long as the parent executor is alive. There is no compiler
 /// assisted lifetime tracking for this as generally spawned futures you would like to give the
-/// handle to need to be `'static`, so usability would be rather hampered, however you must make
+/// handle to need to be `'static`, so usability would be rather hampered. You must make
 /// sure you manage the lifetimes manually.
 ///
 /// If the parent executor is already dropped when [spawn](futures_util::task::SpawnExt::spawn) is called, the future just
@@ -33,7 +33,7 @@ use
 /// unwound, nor any destructors called during the unwind can observe data in an inconsistent state.
 ///
 /// See the relevant [catch_unwind RFC](https://github.com/rust-lang/rfcs/blob/master/text/1236-stabilize-catch-panic.md)
-/// and it's discussion threads for more info as well as the documentation in stdlib.
+/// and it's discussion threads for more info as well as the documentation of [std::panic::UnwindSafe].
 //
 #[ derive( Debug, Clone ) ]
 //

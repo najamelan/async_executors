@@ -50,7 +50,7 @@ use
 /// So to enable several output types you can use the
 /// [following workaround](https://github.com/najamelan/async_executors/tree/master/examples/spawn_handle_multi.rs).
 //
-#[ cfg_attr( feature = "docs", doc(cfg( feature = "spawn_handle" )) ) ]
+#[ cfg_attr( nightly, doc(cfg( feature = "spawn_handle" )) ) ]
 //
 pub trait SpawnHandle<Out: 'static + Send>
 {
@@ -62,7 +62,7 @@ pub trait SpawnHandle<Out: 'static + Send>
 /// Convenience trait for passing in a generic future to [`SpawnHandle`]. Much akin to `Spawn` and `SpawnExt` in the
 /// futures library.
 //
-#[ cfg_attr( feature = "docs", doc(cfg( feature = "spawn_handle" )) ) ]
+#[ cfg_attr( nightly, doc(cfg( feature = "spawn_handle" )) ) ]
 //
 pub trait SpawnHandleExt<Out: 'static + Send> : SpawnHandle<Out>
 {

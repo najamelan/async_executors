@@ -6,6 +6,9 @@ status = "actively-developed"
 [badges.travis-ci]
 repository = "najamelan/async_executors"
 
+[build-dependencies]
+rustc_version = "^0.2"
+
 [dependencies]
 [dependencies.async_std_crate]
 optional = true
@@ -53,7 +56,6 @@ optional = true
 version = "^0.4"
 
 [dev-dependencies]
-pretty_assertions = "^0.6"
 static_assertions = "^1"
 
 [dev-dependencies.futures]
@@ -84,7 +86,6 @@ required-features = ["notwasm", "spawn_handle", "async_std"]
 async_std = ["async_std_crate"]
 bindgen = ["wasm-bindgen-futures"]
 default = ["notwasm"]
-docs = []
 localpool = ["futures-executor"]
 notwasm = []
 spawn_handle = ["futures-util", "futures-channel", "futures-core", "pin-utils"]
@@ -99,17 +100,23 @@ categories = ["asynchronous", "concurrency"]
 description = "Implements Spawn, SpawnLocal and SpawnHandle for commonly used executors."
 documentation = "https://docs.rs/async_executors"
 edition = "2018"
+exclude = ["examples", "tests", "TODO.md", "deny.toml", ".travis.yml", "CONTRIBUTING.md"]
 keywords = ["async", "executor", "futures"]
 license = "Unlicense"
 name = "async_executors"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_executors"
-version = "0.2.0"
+version = "0.2.1"
 
 [package.metadata]
 [package.metadata.docs]
 [package.metadata.docs.rs]
 all-features = true
+targets = []
+
+[profile]
+[profile.release]
+codegen-units = 1
 
 [target]
 [target."cfg(target_arch = \"wasm32\")"]

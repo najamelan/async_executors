@@ -113,19 +113,23 @@ You can use the `SpawnHandle` and `LocalSpawnHandle` traits as bounds for obtain
 ```rust
 use
 {
-  async_executors::*,
-  std::sync::Arc,
-  futures::future::FutureExt,
-  futures::executor::{ ThreadPool, block_on },
+  async_executors :: { JoinHandle, SpawnHandle, SpawnHandleExt       } ,
+  std             :: { sync::Arc                                     } ,
+  futures         :: { FutureExt, executor::{ ThreadPool, block_on } } ,
 };
 
 
+// Example of a library function that needs an executor. Just use impl Trait.
+//
 fn needs_exec( exec: impl SpawnHandle<()> )
 {
    let handle = exec.spawn_handle( async {} );
 }
 
 
+// A type that needs to hold on to an executor during it's lifetime. Here it
+// must be heap allocated.
+//
 struct SomeObj{ exec: Arc< dyn SpawnHandle<u8> > }
 
 
@@ -143,6 +147,7 @@ impl SomeObj
       self.exec.spawn_handle( task ).expect( "spawn" )
    }
 }
+
 
 fn main()
 {
@@ -174,8 +179,8 @@ Some executors are a bit special, so make sure to check the API docs for the one
 ```rust
 use
 {
-  async_executors::*,
-  std::convert::TryFrom,
+  async_executors :: { AsyncStd, TokioTp, SpawnHandle } ,
+  std             :: { convert::TryFrom               } ,
 };
 
 fn needs_exec( exec: impl SpawnHandle<()> + SpawnHandle<String> ){};
@@ -194,11 +199,8 @@ API documentation can be found on [docs.rs](https://docs.rs/async_executors).
 
 ## Contributing
 
-This repository accepts contributions. Ideas, questions, feature requests and bug reports can be filed through Github issues.
+Please check out the [contribution guidelines](https://github.com/najamelan/async_executors/blob/master/CONTRIBUTING.md).
 
-Pull Requests are welcome on Github. By committing pull requests, you accept that your code might be modified and reformatted to fit the project coding style or to improve the implementation. Contributed code is considered licensed under the Unlicence unless explicitly agreed otherwise.
-
-Please discuss what you want to see modified before filing a pull request if you don't want to be doing work that might be rejected. Please file PR's against the `dev` branch, don't forget to update the changelog and the documentation.
 
 ### Testing
 

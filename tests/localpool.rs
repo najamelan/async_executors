@@ -24,7 +24,7 @@ use
 //
 #[ test ]
 //
-fn test_spawn_handle()
+fn spawn_handle()
 {
 	let mut exec     = LocalPool::new();
 	let     spawner  = exec.spawner();
@@ -39,7 +39,7 @@ fn test_spawn_handle()
 //
 #[ test ]
 //
-fn test_spawn_handle_arc()
+fn spawn_handle_arc()
 {
 	let mut exec     = LocalPool::new();
 	let     spawner  = exec.spawner();
@@ -55,7 +55,7 @@ fn test_spawn_handle_arc()
 //
 #[ test ]
 //
-fn test_spawn_handle_os()
+fn spawn_handle_os()
 {
 	let mut wrap = LocalPool::new();
 	let     exec = wrap.spawner();
@@ -74,7 +74,7 @@ fn test_spawn_handle_os()
 //
 #[ test ]
 //
-fn test_spawn_handle_local()
+fn spawn_handle_local()
 {
 	let mut exec     = LocalPool::new();
 	let     spawner  = exec.spawner();
@@ -89,7 +89,7 @@ fn test_spawn_handle_local()
 //
 #[ test ]
 //
-fn test_spawn_handle_rc_local()
+fn spawn_handle_rc_local()
 {
 	let mut exec     = LocalPool::new();
 	let     spawner  = exec.spawner();
@@ -105,7 +105,7 @@ fn test_spawn_handle_rc_local()
 //
 #[ test ]
 //
-fn test_spawn_handle_local_os()
+fn spawn_handle_local_os()
 {
 	let mut wrap = LocalPool::new();
 	let     exec = wrap.spawner();

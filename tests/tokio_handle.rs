@@ -29,11 +29,11 @@ use
 //
 #[ cfg( feature = "tokio_tp" ) ]
 //
-fn test_spawn()
+fn spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut wrap     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec     = wrap.handle();
+	let wrap         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = wrap.handle();
 
 	increment( 4, exec, tx );
 
@@ -49,11 +49,11 @@ fn test_spawn()
 //
 #[ cfg( feature = "tokio_tp" ) ]
 //
-fn test_spawn_ref()
+fn spawn_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut wrap     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec     = wrap.handle();
+	let wrap         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = wrap.handle();
 
 	increment_ref( 4, &exec, tx );
 
@@ -69,11 +69,11 @@ fn test_spawn_ref()
 //
 #[ cfg( feature = "tokio_tp" ) ]
 //
-fn test_spawn_with_ref()
+fn spawn_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut wrap     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec     = wrap.handle();
+	let wrap         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = wrap.handle();
 
 	increment( 4, &exec, tx );
 
@@ -89,11 +89,11 @@ fn test_spawn_with_ref()
 //
 #[ cfg( feature = "tokio_tp" ) ]
 //
-fn test_spawn_clone_with_ref()
+fn spawn_clone_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut wrap     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec     = wrap.handle();
+	let wrap         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = wrap.handle();
 
 	increment_clone( 4, &exec, tx );
 
@@ -110,11 +110,11 @@ fn test_spawn_clone_with_ref()
 //
 #[ cfg( feature = "tokio_tp" ) ]
 //
-fn test_spawn_clone_with_arc()
+fn spawn_clone_with_arc()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut wrap     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec     = wrap.handle();
+	let wrap         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = wrap.handle();
 
 	increment( 4, Arc::new(exec), tx );
 
@@ -130,10 +130,10 @@ fn test_spawn_clone_with_arc()
 //
 #[ test ]
 //
-fn test_spawn_handle()
+fn spawn_handle()
 {
-	let mut wrap = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec = wrap.handle();
+	let wrap = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec = wrap.handle();
 
 	let result = wrap.block_on( increment_spawn_handle( 4, exec ) );
 
@@ -147,10 +147,10 @@ fn test_spawn_handle()
 //
 #[ test ]
 //
-fn test_spawn_handle_arc()
+fn spawn_handle_arc()
 {
-	let mut wrap = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec = wrap.handle();
+	let wrap = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec = wrap.handle();
 
 	let result = wrap.block_on( increment_spawn_handle( 4, Arc::new(exec) ) );
 
@@ -164,10 +164,10 @@ fn test_spawn_handle_arc()
 //
 #[ test ]
 //
-fn test_spawn_handle_os()
+fn spawn_handle_os()
 {
-	let mut wrap = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec = wrap.handle();
+	let wrap = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec = wrap.handle();
 
 	let result = wrap.block_on( increment_spawn_handle_os( 4, &exec ) );
 
@@ -181,7 +181,7 @@ fn test_spawn_handle_os()
 //
 #[ cfg( feature = "tokio_tp" ) ]
 //
-fn test_spawn_drop_exec_tp()
+fn spawn_drop_exec_tp()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let wrap         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
@@ -203,7 +203,7 @@ fn test_spawn_drop_exec_tp()
 //
 #[ cfg( feature = "tokio_ct" ) ]
 //
-fn test_spawn_drop_exec_ct()
+fn spawn_drop_exec_ct()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let wrap         = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );

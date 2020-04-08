@@ -2,30 +2,38 @@ package:
 
   # When releasing to crates.io:
   #
+  # - last check for all TODO, FIXME, expect, unwrap.
+  # - re-read and final polish of documentation
+  # - run cargo udeps
+  # - run cargo clippy
+  # - run cargo audit
+  # - recheck log statements (informative, none left that were just for development, ...)
   # - Update CHANGELOG.md.
   # - Update version numbers in Cargo.yml, Cargo.toml, install section of readme.
-  # - verify CI result
-  # - test dependent crates
+  # - verify CI result and code coverage
+  # - run cargo test on dependent crates
   # - cargo publish
   # - merge dev branch into master
-  # - create git tag
+  # - create git tag with version number
   #
-  version       : 0.2.0
+  version       : 0.2.1
   name          : async_executors
   authors       : [ Naja Melan <najamelan@autistici.org> ]
   description   : Implements Spawn, SpawnLocal and SpawnHandle for commonly used executors.
   documentation : https://docs.rs/async_executors
   repository    : https://github.com/najamelan/async_executors
   readme        : README.md
-  keywords      : [async, executor, futures]
-  categories    : [asynchronous, concurrency]
+  keywords      : [ async, executor, futures  ]
+  categories    : [ asynchronous, concurrency ]
   license       : Unlicense
   edition       : "2018"
+  exclude       : [ examples, tests, TODO.md, deny.toml, .travis.yml, CONTRIBUTING.md ]
 
   metadata:
     docs:
       rs:
         all-features: true
+        targets     : []
 
 
 # Please see the readme for details.
@@ -80,8 +88,6 @@ features:
   #
   notwasm: []
 
-  docs: []
-
 
 badges:
 
@@ -117,11 +123,23 @@ dependencies:
 
 dev-dependencies:
 
-  pretty_assertions : ^0.6
   static_assertions : ^1
   futures           : { version: ^0.3, features: [ thread-pool ] }
+  # pretty_assertions : ^0.6
   # log               : ^0.4
   # flexi_logger      : ^0.11
+
+
+build-dependencies:
+
+  rustc_version: ^0.2
+
+
+profile:
+
+  release:
+
+    codegen-units: 1
 
 
 target:

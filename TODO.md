@@ -1,8 +1,6 @@
 # TODO:
 
-extra tests for async-std:
-
-  - possible to deplete threadpool from it's threads by panicking?
+- remove vendoring of RemoteHandle as soon as a new version of futures is available.
 
 - spawn_blocking? This is provided by tokio and async_std, but does not take a future, rather a closure.
   However it still returns a joinhandle that must be awaited. So if we wrap that in our joinhandle type,
@@ -11,9 +9,8 @@ extra tests for async-std:
 
 # Wrap up
 
-- CI - fix windows wasm-bindgen-cli
-- clean up benchmark repo
-- write blogpost
+- CI - fix windows wasm testing
+
 
 ## Consistent behavior:
 

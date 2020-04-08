@@ -10,13 +10,57 @@ use
 
 /// An executor that uses [tokio::runtime::Runtime].
 ///
+/// ## Example
+///
+/// The following example shows how to pass an executor to a library function.
+///
+/// ```rust
+/// use
+/// {
+///    futures::task    :: { Spawn, SpawnExt          } ,
+///    async_executors  :: { TokioTp                  } ,
+///    tokio::runtime   :: { Builder                  } ,
+///    std::convert     :: { TryFrom                  } ,
+///    futures::channel :: { oneshot, oneshot::Sender } ,
+/// };
+///
+///
+/// fn lib_function( exec: impl Spawn, tx: Sender<&'static str> )
+/// {
+///    exec.spawn( async
+///    {
+///       tx.send( "I can spawn from a library" ).expect( "send string" );
+///
+///    }).expect( "spawn task" );
+/// }
+///
+///
+/// fn main()
+/// {
+///    // You provide the builder, and async_executors will set the right scheduler.
+///    // Of course you can set other configuration on the builder before.
+///    //
+///    let exec = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+///
+///    let program = async
+///    {
+///       let (tx, rx) = oneshot::channel();
+///
+///       lib_function( &exec, tx );
+///       assert_eq!( "I can spawn from a library", rx.await.expect( "receive on channel" ) );
+///    };
+///
+///    exec.block_on( program );
+/// }
+/// ```
+///
 /// ## Drop order.
 ///
-/// TokioTp bundles an `Arc<Mutex<tokio::runtime::Runtime>>` with a `tokio::runtime::handle`.
+/// TokioTp bundles an `Arc<Mutex<tokio::runtime::Runtime>>` with a [`tokio::runtime::Handle`].
 /// Doing so has some nice properties. The type behaves similarly to other wrapped executors in
 /// this crate. It implements all the spawn traits directly and is self contained. That means
 /// you can pass it to an API and holding the type means it's valid. If we give out just a
-/// `tokio::runtime::handle`, it can only be used to spawn tasks as long as the `Runtime` is
+/// [`tokio::runtime::Handle`], it can only be used to spawn tasks as long as the `Runtime` is
 /// alive.
 ///
 /// However, a new problem arises. `Runtime` should never be dropped from async context. Since we
@@ -44,11 +88,11 @@ use
 /// Note that these are logic errors, not related to the class of problems that cannot happen
 /// in safe rust (memory safety, undefined behavior, unsoundness, data races, ...). See the relevant
 /// [catch_unwind RFC](https://github.com/rust-lang/rfcs/blob/master/text/1236-stabilize-catch-panic.md)
-/// and it's discussion threads for more info as well as the documentation in [std::panic::UnwindSafe].
+/// and it's discussion threads for more info as well as the documentation of [std::panic::UnwindSafe].
 //
 #[ derive( Debug, Clone ) ]
 //
-#[ cfg_attr( feature = "docs", doc(cfg( feature = "tokio_tp" )) ) ]
+#[ cfg_attr( nightly, doc(cfg( feature = "tokio_tp" )) ) ]
 //
 pub struct TokioTp
 {
@@ -62,7 +106,7 @@ impl TokioTp
 {
 	/// Wrapper around [Runtime::block_on].
 	//
-	pub fn block_on< F: Future >( &mut self, f: F ) -> F::Output
+	pub fn block_on< F: Future >( &self, f: F ) -> F::Output
 	{
 		self.exec.lock().block_on( f )
 	}
