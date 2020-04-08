@@ -18,7 +18,7 @@ use
 //
 #[ test ]
 //
-fn test_spawn_handle()
+fn spawn_handle()
 {
 	let exec   = ThreadPool::new().expect( "create threadpool" );
 	let result = block_on( increment_spawn_handle( 4, exec ) );
@@ -31,7 +31,7 @@ fn test_spawn_handle()
 //
 #[ test ]
 //
-fn test_spawn_handle_arc()
+fn spawn_handle_arc()
 {
 	let exec   = ThreadPool::new().expect( "create threadpool" );
 	let result = block_on( increment_spawn_handle( 4, Arc::new(exec) ) );
@@ -44,7 +44,7 @@ fn test_spawn_handle_arc()
 //
 #[ test ]
 //
-fn test_spawn_handle_os()
+fn spawn_handle_os()
 {
 	let exec   = ThreadPool::new().expect( "create threadpool" );
 	let result = block_on( increment_spawn_handle_os( 4, &exec ) );
@@ -60,7 +60,7 @@ fn test_spawn_handle_os()
 //
 #[ test ]
 //
-fn test_join_handle_detach()
+fn join_handle_detach()
 {
 	let exec   = ThreadPool::new().expect( "create threadpool" );
 

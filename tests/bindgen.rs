@@ -36,7 +36,7 @@ wasm_bindgen_test_configure!( run_in_browser );
 //
 #[ wasm_bindgen_test ]
 //
-fn test_spawn()
+fn spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = Bindgen::default();
@@ -58,7 +58,7 @@ fn test_spawn()
 //
 #[ wasm_bindgen_test ]
 //
-fn test_spawn_ref()
+fn spawn_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = Bindgen::default();
@@ -80,7 +80,7 @@ fn test_spawn_ref()
 //
 #[ wasm_bindgen_test ]
 //
-fn test_spawn_with_ref()
+fn spawn_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = Bindgen::default();
@@ -102,7 +102,7 @@ fn test_spawn_with_ref()
 //
 #[ wasm_bindgen_test ]
 //
-fn test_spawn_clone_with_ref()
+fn spawn_clone_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = Bindgen::default();
@@ -125,7 +125,7 @@ fn test_spawn_clone_with_ref()
 //
 #[ wasm_bindgen_test ]
 //
-fn test_spawn_clone_with_arc()
+fn spawn_clone_with_arc()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = Bindgen::default();
@@ -149,7 +149,7 @@ fn test_spawn_clone_with_arc()
 //
 #[ wasm_bindgen_test ]
 //
-fn test_spawn_handle()
+fn spawn_handle()
 {
 	let exec = Bindgen::default();
 
@@ -170,7 +170,7 @@ fn test_spawn_handle()
 //
 #[ wasm_bindgen_test ]
 //
-fn test_spawn_handle_arc()
+fn spawn_handle_arc()
 {
 	let exec = Bindgen::default();
 
@@ -191,7 +191,7 @@ fn test_spawn_handle_arc()
 //
 #[ wasm_bindgen_test ]
 //
-fn test_spawn_handle_os()
+fn spawn_handle_os()
 {
 	let exec = Bindgen::default();
 	let ex2  = exec.clone();
@@ -215,7 +215,7 @@ fn test_spawn_handle_os()
 //
 #[ wasm_bindgen_test ]
 //
-fn test_spawn_local()
+fn spawn_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = Bindgen::default();
@@ -237,7 +237,7 @@ fn test_spawn_local()
 //
 #[ wasm_bindgen_test ]
 //
-fn test_spawn_ref_local()
+fn spawn_ref_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = Bindgen::default();
@@ -259,7 +259,7 @@ fn test_spawn_ref_local()
 //
 #[ wasm_bindgen_test ]
 //
-fn test_spawn_with_ref_local()
+fn spawn_with_ref_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = Bindgen::default();
@@ -281,7 +281,7 @@ fn test_spawn_with_ref_local()
 //
 #[ wasm_bindgen_test ]
 //
-fn test_spawn_clone_with_ref_local()
+fn spawn_clone_with_ref_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = Bindgen::default();
@@ -304,7 +304,7 @@ fn test_spawn_clone_with_ref_local()
 //
 #[ wasm_bindgen_test ]
 //
-fn test_spawn_clone_with_arc_local()
+fn spawn_clone_with_arc_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = Bindgen::default();
@@ -328,7 +328,7 @@ fn test_spawn_clone_with_arc_local()
 //
 #[ wasm_bindgen_test ]
 //
-fn test_spawn_handle_local()
+fn spawn_handle_local()
 {
 	let exec         = Bindgen::default();
 
@@ -349,7 +349,7 @@ fn test_spawn_handle_local()
 //
 #[ wasm_bindgen_test ]
 //
-fn test_spawn_handle_arc_local()
+fn spawn_handle_arc_local()
 {
 	let exec         = Bindgen::default();
 
@@ -371,7 +371,7 @@ fn test_spawn_handle_arc_local()
 //
 #[ wasm_bindgen_test ]
 //
-fn test_spawn_handle_os_local()
+fn spawn_handle_os_local()
 {
 	let exec = Bindgen::default();
 	let ex2  = exec.clone();

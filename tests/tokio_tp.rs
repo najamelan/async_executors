@@ -29,7 +29,7 @@ use
 //
 #[ test ]
 //
-fn test_spawn()
+fn spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
@@ -46,7 +46,7 @@ fn test_spawn()
 //
 #[ test ]
 //
-fn test_spawn_ref()
+fn spawn_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
@@ -63,7 +63,7 @@ fn test_spawn_ref()
 //
 #[ test ]
 //
-fn test_spawn_with_ref()
+fn spawn_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
@@ -80,7 +80,7 @@ fn test_spawn_with_ref()
 //
 #[ test ]
 //
-fn test_spawn_clone_with_ref()
+fn spawn_clone_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
@@ -98,7 +98,7 @@ fn test_spawn_clone_with_ref()
 //
 #[ test ]
 //
-fn test_spawn_clone_with_arc()
+fn spawn_clone_with_arc()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
@@ -117,7 +117,7 @@ fn test_spawn_clone_with_arc()
 //
 #[ test ]
 //
-fn test_spawn_handle()
+fn spawn_handle()
 {
 	let exec = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
 
@@ -133,7 +133,7 @@ fn test_spawn_handle()
 //
 #[ test ]
 //
-fn test_spawn_handle_arc()
+fn spawn_handle_arc()
 {
 	let exec = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
 
@@ -149,7 +149,7 @@ fn test_spawn_handle_arc()
 //
 #[ test ]
 //
-fn test_spawn_handle_os()
+fn spawn_handle_os()
 {
 	let exec = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
 
@@ -163,7 +163,7 @@ fn test_spawn_handle_os()
 //
 #[ test ]
 //
-fn test_build_name_thread()
+fn build_name_thread()
 {
 	let (tx, rx) = oneshot::channel();
 
@@ -192,7 +192,7 @@ fn test_build_name_thread()
 //
 #[ test ]
 //
-fn test_join_handle_detach()
+fn join_handle_detach()
 {
 	let wrap         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
 	let exec         = wrap.handle();
