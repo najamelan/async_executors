@@ -34,8 +34,9 @@ jobs:
       rust: stable
 
       script:
-        - bash ci.bash
-        - bash ci_wasm.bash
+        - bash ci/test.bash
+        - bash ci/wasm.bash
+        - bash ci/deny.bash
 
 
     - name: linux nightly rust
@@ -52,9 +53,9 @@ jobs:
             - libdbus-glib-1-dev # firefox
 
       script:
-        - bash ci.bash
-        - bash ci_wasm.bash
-        - bash coverage.bash
+        - bash ci/test.bash
+        - bash ci/wasm.bash
+        - bash ci/coverage.bash
 
 
     - name: osx stable rust
@@ -65,8 +66,8 @@ jobs:
         firefox: latest
 
       script:
-        - bash ci.bash
-        - bash ci_wasm.bash
+        - bash ci/test.bash
+        - bash ci/wasm.bash
 
 
     - name: windows stable rust
@@ -79,8 +80,8 @@ jobs:
       #   firefox: latest
 
       script:
-        - bash ci.bash
-      #   - bash ci_wasm.bash # can't find firefox binary, I'm giving up.
+        - bash ci/test.bash
+        # - bash ci/wasm.bash # can't find firefox binary, I'm giving up.
 
 
 

@@ -12,7 +12,7 @@
 - we removed impl Unpin for JoinHandle. Try to see what happens if you have a T that is !Unpin.
 # Wrap up
 
-- CI - fix windows wasm-bindgen-cli
+- CI - fix windows wasm testing
 
 
 ## Consistent behavior:
