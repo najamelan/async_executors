@@ -62,7 +62,7 @@ impl TokioTp
 {
 	/// Wrapper around [Runtime::block_on].
 	//
-	pub fn block_on< F: Future >( &mut self, f: F ) -> F::Output
+	pub fn block_on< F: Future >( &self, f: F ) -> F::Output
 	{
 		self.exec.lock().block_on( f )
 	}

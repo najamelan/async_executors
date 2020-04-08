@@ -32,8 +32,8 @@ use
 fn test_spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut wrap     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec     = wrap.handle();
+	let wrap         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = wrap.handle();
 
 	increment( 4, exec, tx );
 
@@ -52,8 +52,8 @@ fn test_spawn()
 fn test_spawn_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut wrap     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec     = wrap.handle();
+	let wrap         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = wrap.handle();
 
 	increment_ref( 4, &exec, tx );
 
@@ -72,8 +72,8 @@ fn test_spawn_ref()
 fn test_spawn_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut wrap     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec     = wrap.handle();
+	let wrap         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = wrap.handle();
 
 	increment( 4, &exec, tx );
 
@@ -92,8 +92,8 @@ fn test_spawn_with_ref()
 fn test_spawn_clone_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut wrap     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec     = wrap.handle();
+	let wrap         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = wrap.handle();
 
 	increment_clone( 4, &exec, tx );
 
@@ -113,8 +113,8 @@ fn test_spawn_clone_with_ref()
 fn test_spawn_clone_with_arc()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let mut wrap     = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec     = wrap.handle();
+	let wrap         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = wrap.handle();
 
 	increment( 4, Arc::new(exec), tx );
 
@@ -132,8 +132,8 @@ fn test_spawn_clone_with_arc()
 //
 fn test_spawn_handle()
 {
-	let mut wrap = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec = wrap.handle();
+	let wrap = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec = wrap.handle();
 
 	let result = wrap.block_on( increment_spawn_handle( 4, exec ) );
 
@@ -149,8 +149,8 @@ fn test_spawn_handle()
 //
 fn test_spawn_handle_arc()
 {
-	let mut wrap = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec = wrap.handle();
+	let wrap = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec = wrap.handle();
 
 	let result = wrap.block_on( increment_spawn_handle( 4, Arc::new(exec) ) );
 
@@ -166,8 +166,8 @@ fn test_spawn_handle_arc()
 //
 fn test_spawn_handle_os()
 {
-	let mut wrap = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let     exec = wrap.handle();
+	let wrap = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec = wrap.handle();
 
 	let result = wrap.block_on( increment_spawn_handle_os( 4, &exec ) );
 
