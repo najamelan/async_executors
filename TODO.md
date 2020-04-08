@@ -1,5 +1,7 @@
 # TODO:
 
+- remove vendoring of RemoteHandle as soon as a new version of futures is available.
+
 - spawn_blocking? This is provided by tokio and async_std, but does not take a future, rather a closure.
   However it still returns a joinhandle that must be awaited. So if we wrap that in our joinhandle type,
   we now have inconsistent behavior, as both frameworks don't provide any way to cancel the closure when

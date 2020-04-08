@@ -56,7 +56,6 @@ optional = true
 version = "^0.4"
 
 [dev-dependencies]
-pretty_assertions = "^0.6"
 static_assertions = "^1"
 
 [dev-dependencies.futures]
@@ -101,13 +100,13 @@ categories = ["asynchronous", "concurrency"]
 description = "Implements Spawn, SpawnLocal and SpawnHandle for commonly used executors."
 documentation = "https://docs.rs/async_executors"
 edition = "2018"
-exclude = ["examples", "tests"]
+exclude = ["examples", "tests", "TODO.md", "deny.toml", ".travis.yml", "CONTRIBUTING.md"]
 keywords = ["async", "executor", "futures"]
 license = "Unlicense"
 name = "async_executors"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_executors"
-version = "0.2.0"
+version = "0.2.1"
 
 [package.metadata]
 [package.metadata.docs]

@@ -1,5 +1,18 @@
 # async_executors - CHANGELOG
 
+## 0.2.1 - 2020-04-08
+
+  - FIX: JoinHandle::detach didn't work properly. Sorry, my bad as it wasn't even tested.
+  - remove the Unpin impl from JoinHandle. The joinhandle is still Unpin anyway.
+  - run cargo deny in CI.
+  - Vamp up the docs, removing some errors and adding examples.
+  - `TokioCt` and `TokioTp` block_on no longer require `&mut self`, just `&self`. Since they
+    implement `Clone`, it didn't protect against re-entrance anyway.
+  - improve performance of `spawn_handle_local` on `TokioCt` as I mistakenly thought `tokio::JoinHandle<T>`
+    required `T` to be `Send`, so I was not using the native `JoinHandle`.
+  - only build on default target on docs.rs.
+  - clean up and configure the CI configuration.
+
 ## 0.2 - 2020-02-29
 
   - tracing-futures 0.2.3 is out, so no patching required anymore.
@@ -10,7 +23,7 @@
     This also improves performance dramatically. Thanks @Yandros for pointing out
     LocalSet.
 
-  - BREAKING CHANGE: the API of SpawnHandle has been reworked. 0.1 had double traits, one
+  - **BREAKING CHANGE**: the API of SpawnHandle has been reworked. 0.1 had double traits, one
     not object safe. There were two reasons for this:
     - the os version needed an extra boxing. Benchmarks showed that the overhead from this is neglectable.
     - the os version needs to have the output type on the trait instead of on the spawn function.
