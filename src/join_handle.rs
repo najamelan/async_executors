@@ -87,7 +87,8 @@ impl<T> JoinHandle<T>
 			InnerJh::Tokio{ ref detached, .. } =>
 			{
 				// only other use of this is in Drop impl and we consume self here,
-				// so there cannot be any race, hence Relaxed ordering.
+				// so there cannot be any race as this does not sync things across threads,
+				// hence Relaxed ordering.
 				//
 				detached.store( true, Ordering::Relaxed );
 			}
@@ -144,6 +145,8 @@ impl<T: 'static> Future for JoinHandle<T>
 
 impl<T> Drop for JoinHandle<T>
 {
+	// see reasoning about Relaxed atomic in detach().
+	//
 	fn drop( &mut self )
 	{
 		match &mut self.inner
@@ -152,12 +155,12 @@ impl<T> Drop for JoinHandle<T>
 			//
 			InnerJh::Tokio{ a_handle, detached, .. } =>
 
-				if detached.load( Ordering::Relaxed ) { a_handle.abort() },
+				if !detached.load( Ordering::Relaxed ) { a_handle.abort() },
 
 
 			#[ cfg( feature = "async_std" ) ] InnerJh::AsyncStd { a_handle, detached, .. } =>
 
-				if detached.load( Ordering::Relaxed ) { a_handle.abort() },
+				if !detached.load( Ordering::Relaxed ) { a_handle.abort() },
 
 
 			InnerJh::RemoteHandle( _ ) => {},

@@ -20,8 +20,9 @@
 // ✔ pass a Rc<TokioCt> to a function that takes exec: `impl LocalSpawnHandle`
 // ✔ pass a   &TokioCt  to a function that takes exec: `&dyn LocalSpawnHandle`
 //
-// ✔ make sure handle() works from within spawned task.
-// ✔ make sure we can spawn without being in a future running on block_on.
+// ✔ handle() works from within spawned task.
+// ✔ we can spawn without being in a future running on block_on.
+// ✔ Joinhandle::detach allows task to keep running.
 //
 mod common;
 
@@ -331,7 +332,7 @@ fn test_spawn_handle_rc_local()
 //
 fn test_spawn_handle_local_os()
 {
-	let exec = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio current thread" );
 
 	let result = exec.block_on( increment_spawn_handle_os( 4, &exec ) );
 
@@ -347,7 +348,7 @@ fn test_spawn_handle_local_os()
 fn test_handle()
 {
 	let (mut tx, mut rx) = mpsc::channel( 1 );
-	let exec             = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec             = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio current thread" );
 
 	let task = async
 	{
@@ -381,7 +382,7 @@ fn test_spawn_outside_block_on()
 {
 	let (mut tx, mut rx) = mpsc::channel( 1 );
 
-	let exec = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio current thread" );
 
 	exec.spawn( async move
 	{
@@ -397,3 +398,38 @@ fn test_spawn_outside_block_on()
 	assert_eq!( "hello", result );
 }
 
+
+
+// Joinhandle::detach allows task to keep running.
+//
+#[ cfg( feature = "spawn_handle" ) ]
+//
+#[ test ]
+//
+fn test_join_handle_detach()
+{
+	let wrap         = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio current thread" );
+	let exec         = wrap.handle();
+
+	let (in_tx , in_rx ) = oneshot::channel();
+	let (out_tx, out_rx) = oneshot::channel();
+
+
+	let in_join_handle = exec.spawn_handle( async move
+	{
+		let content = in_rx.await.expect( "receive on in" );
+
+		out_tx.send( content ).expect( "send on out" );
+
+	}).expect( "spawn task" );
+
+
+	in_join_handle.detach();
+
+	wrap.block_on( async move
+	{
+		in_tx.send( 5u8 ).expect( "send on in" );
+
+		assert_eq!( out_rx.await, Ok(5) );
+	});
+}

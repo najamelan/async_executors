@@ -2,10 +2,10 @@
 //
 pub use
 {
-	futures         :: { FutureExt, SinkExt, channel::mpsc::Sender, executor::block_on } ,
-	futures::task   :: { LocalSpawnExt, SpawnExt, LocalSpawn, Spawn                    } ,
-	std             :: { sync::Arc, rc::Rc                                             } ,
-	async_executors :: { *                                                             } ,
+	futures         :: { FutureExt, SinkExt, channel::{ mpsc::Sender, oneshot }, executor::block_on } ,
+	futures::task   :: { LocalSpawnExt, SpawnExt, LocalSpawn, Spawn                                 } ,
+	std             :: { sync::Arc, rc::Rc                                                          } ,
+	async_executors :: { *                                                                          } ,
 };
 
 

@@ -12,6 +12,8 @@
 // ✔ pass a    &TokioTp  to a function that takes exec: `&dyn SpawnHandle`
 // ✔ pass a builder with some config set.
 //
+// ✔ Joinhandle::detach allows task to keep running.
+//
 mod common;
 
 use
@@ -182,3 +184,38 @@ fn test_build_name_thread()
 	});
 }
 
+
+
+// Joinhandle::detach allows task to keep running.
+//
+#[ cfg( feature = "spawn_handle" ) ]
+//
+#[ test ]
+//
+fn test_join_handle_detach()
+{
+	let wrap         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = wrap.handle();
+
+	let (in_tx , in_rx ) = oneshot::channel();
+	let (out_tx, out_rx) = oneshot::channel();
+
+
+	let in_join_handle = exec.spawn_handle( async move
+	{
+		let content = in_rx.await.expect( "receive on in" );
+
+		out_tx.send( content ).expect( "send on out" );
+
+	}).expect( "spawn task" );
+
+
+	in_join_handle.detach();
+
+	wrap.block_on( async move
+	{
+		in_tx.send( 5u8 ).expect( "send on in" );
+
+		assert_eq!( out_rx.await, Ok(5) );
+	});
+}
