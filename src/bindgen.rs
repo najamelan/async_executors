@@ -5,8 +5,9 @@ use
 };
 
 
-/// A type that implements [`Spawn`] and [`LocalSpawn`] and spawns on the _wasm-bingen-futures_ executor.
-/// The executor is global, eg. not self contained.
+/// A type that implements [`Spawn`], [`LocalSpawn`], [`SpawnHandle`](crate::SpawnHandle) and [`LocalSpawnHandle`](crate::LocalSpawnHandle).
+/// Spawns on the _wasm-bingen-futures_ executor. The executor is global, eg. not self contained
+/// and zero sized.
 //
 #[ derive( Copy, Clone, Default ) ]
 //

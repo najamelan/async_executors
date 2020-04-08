@@ -86,6 +86,9 @@ impl<T> JoinHandle<T>
 			//
 			InnerJh::Tokio{ ref detached, .. } =>
 			{
+				// only other use of this is in Drop impl and we consume self here,
+				// so there cannot be any race, hence Relaxed ordering.
+				//
 				detached.store( true, Ordering::Relaxed );
 			}
 

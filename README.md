@@ -113,10 +113,9 @@ You can use the `SpawnHandle` and `LocalSpawnHandle` traits as bounds for obtain
 ```rust
 use
 {
-  async_executors::*,
-  std::sync::Arc,
-  futures::future::FutureExt,
-  futures::executor::{ ThreadPool, block_on },
+  async_executors :: { JoinHandle, SpawnHandle, SpawnHandleExt       } ,
+  std             :: { sync::Arc                                     } ,
+  futures         :: { FutureExt, executor::{ ThreadPool, block_on } } ,
 };
 
 
@@ -180,8 +179,8 @@ Some executors are a bit special, so make sure to check the API docs for the one
 ```rust
 use
 {
-  async_executors::*,
-  std::convert::TryFrom,
+  async_executors :: { AsyncStd, TokioTp, SpawnHandle } ,
+  std             :: { convert::TryFrom               } ,
 };
 
 fn needs_exec( exec: impl SpawnHandle<()> + SpawnHandle<String> ){};

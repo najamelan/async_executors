@@ -24,7 +24,7 @@ impl AsyncStd
 		Self::default()
 	}
 
-	/// Wrapper around [async_std::task::spawn](::async_std_crate::task::block_on()).
+	/// Wrapper around [async_std::task::block_on](::async_std_crate::task::block_on()).
 	//
 	pub fn block_on<F: Future>(future: F) -> F::Output
 	{
