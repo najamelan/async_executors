@@ -55,14 +55,14 @@ pub struct TokioCt
 
 impl TokioCt
 {
-	/// This is the entry point for this executor. You must call spawn from within a future that is running through `block_on`.
-	/// Once this call returns, no remaining tasks shall be polled anymore. However the tasks stay in the executor,
-	/// so if you make a second call to `block_on` with a new task, the older tasks will start making progress again.
+	/// This is the entry point for this executor. Once this call returns, no remaining tasks shall be polled anymore.
+	/// However the tasks stay in the executor, so if you make a second call to `block_on` with a new task, the older
+	/// tasks will start making progress again.
 	///
 	/// For simplicity, it's advised to just create top level task that you run through `block_on` and make sure your
 	/// program is done when it returns.
 	//
-	pub fn block_on< F: Future >( &mut self, f: F ) -> F::Output
+	pub fn block_on< F: Future >( &self, f: F ) -> F::Output
 	{
 		self.exec.borrow_mut().block_on( self.local.run_until( f ) )
 	}
