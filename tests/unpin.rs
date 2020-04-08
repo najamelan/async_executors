@@ -1,4 +1,4 @@
-#![ cfg(all( nightly, feature = "spawn_handle" )) ]
+#![ cfg(all( nightly, feature = "spawn_handle", any( feature = "threadpool", feature = "async_std" ) )) ]
 #![ feature( negative_impls )]
 
 // Tested:
@@ -8,11 +8,7 @@
 //
 mod common;
 
-use
-{
-	common  :: { *                    } ,
-	futures :: { executor::ThreadPool } ,
-};
+use common::*;
 
 
 #[ derive( PartialEq, Eq, Debug ) ]
@@ -25,9 +21,15 @@ impl !Unpin for Boon {}
 fn assert_unpin<T: Unpin>( _t: &T ) {}
 
 
+
+
+#[ cfg( feature = "threadpool" ) ]
+//
+use futures::executor::ThreadPool;
+
 // the handle is unpin even if T isn't
 //
-#[ test ]
+#[ test ] #[ cfg( feature = "threadpool" ) ]
 //
 fn unpin_handle()
 {
@@ -44,7 +46,7 @@ fn unpin_handle()
 
 // the handle is unpin even if T isn't
 //
-#[ test ]
+#[ test ] #[ cfg( feature = "async_std" ) ]
 //
 fn unpin_handle_async_std()
 {
