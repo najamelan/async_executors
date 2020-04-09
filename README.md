@@ -204,7 +204,7 @@ Please check out the [contribution guidelines](https://github.com/najamelan/asyn
 
 ### Testing
 
-Run `./ci.bash` to run all tests.
+Run `ci/test.bash` to run all tests.
 
 ### Code of conduct
 
