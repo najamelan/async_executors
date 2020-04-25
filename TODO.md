@@ -1,6 +1,17 @@
 # TODO:
 
-- remove vendoring of RemoteHandle as soon as a new version of futures is available.
+- BUG: we hit an unreachable in joinhandle:125
+  we definitely need more testing around the exact behavior here. line 124 does an expect as well on Aborted from futures...
+
+- should we implement Spawn::status?
+
+- take tokio Builder by value.
+
+- fn spawn_handle<'a, Out>( fut: impl Future<Output=Out> + 'a + Send ) -> JoinHandle<'a, Out> ?
+
+- impl SpawnHandle for FuturesUnordered?
+
+- remove vendoring of RemoteHandle as soon as a new version (3.5) of futures is available.
 
 - spawn_blocking? This is provided by tokio and async_std, but does not take a future, rather a closure.
   However it still returns a joinhandle that must be awaited. So if we wrap that in our joinhandle type,

@@ -74,7 +74,8 @@ The only dependency is `futures-task`, the rest are the optional dependencies to
 
 ## Security
 
-The crate itself uses `#[ forbid(unsafe_code) ]`
+~~The crate itself uses `#[ forbid(unsafe_code) ]`~~. Will be re-enabled as soon as a new version of futures comes out because currently
+we vendor RemoteHandle and with the latest release of `pin-utils` that now has unsafe.
 
 Our dependencies use unsafe.
 

@@ -4,7 +4,7 @@
 
 #![ doc   ( html_root_url = "https://docs.rs/async_executors" ) ]
 #![ deny  ( missing_docs                                      ) ]
-#![ forbid( unsafe_code                                       ) ]
+// #![ forbid( unsafe_code                                       ) ]
 #![ allow ( clippy::suspicious_else_formatting                ) ]
 
 #![ warn
