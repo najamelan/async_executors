@@ -1,13 +1,8 @@
 # TODO:
 
-- BUG: we hit an unreachable in joinhandle:125
-  we definitely need more testing around the exact behavior here. line 124 does an expect as well on Aborted from futures...
-
 - should we implement Spawn::status?
 
 - take tokio Builder by value.
-
-- fn spawn_handle<'a, Out>( fut: impl Future<Output=Out> + 'a + Send ) -> JoinHandle<'a, Out> ?
 
 - impl SpawnHandle for FuturesUnordered?
 
