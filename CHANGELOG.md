@@ -1,5 +1,12 @@
 # async_executors - CHANGELOG
 
+## 0.2.2 - 2020-04-25
+
+  - Temporarily remove forbid unsafe. A non-breaking change update of pin-utils now causes a macro to no longer pass.
+    We have this because we vendor RemoteHandle from futures until they release a new version.
+  - Improve an error message for a panic on JoinHandle.
+
+
 ## 0.2.1 - 2020-04-08
 
   - FIX: JoinHandle::detach didn't work properly. Sorry, my bad as it wasn't even tested.

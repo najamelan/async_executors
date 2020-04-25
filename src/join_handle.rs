@@ -26,10 +26,14 @@ use tokio::{ task::JoinHandle as TokioJoinHandle };
 /// It does wrap futures in [Abortable](futures_util::future::Abortable) where needed as
 /// [tokio] and [async-std](async_std_crate) don't support canceling out of the box.
 ///
+/// # Panics
+///
 /// There is an inconsistency between executors when it comes to a panicking task.
 /// Generally we unwind the thread on which the handle is awaited when a task panics,
 /// but async-std will also let the executor thread unwind. No `catch_unwind` was added to
 /// bring async-std in line with the other executors here.
+///
+/// Awaiting the JoinHandle can also panic if you drop the executor before it completes.
 //
 #[ derive( Debug ) ]
 //
@@ -121,8 +125,17 @@ impl<T: 'static> Future for JoinHandle<T>
 			{
 				match futures_util::ready!( Pin::new( handle ).poll( cx ) )
 				{
-					Ok (t) => Poll::Ready( t.expect( "task panicked" ) ),
-					Err(_) => unreachable!( "task shouldn't be aborted" ),
+					// expect: it returns futures::future::Aborted, but we hold this abortable and
+					// only expose the abort through being dropped, so this should be unreachable.
+					//
+					Ok (t) => Poll::Ready( t.expect( "task aborted" ) ),
+
+					//
+					Err(e) =>
+					{
+						dbg!(e);
+						panic!( "Task has been canceled. Are you dropping the executor to early?" );
+					}
 				}
 			}
 
