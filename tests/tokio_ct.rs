@@ -186,6 +186,36 @@ fn spawn_handle_os()
 }
 
 
+
+// spawn a large number of tasks.
+//
+#[ cfg( feature = "spawn_handle" ) ]
+//
+#[ test ]
+//
+fn spawn_handle_many()
+{
+	let exec = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+
+	let _result = exec.clone().block_on( async move
+	{
+		let amount  = 1000;
+		let mut rxs = Vec::with_capacity( amount );
+
+		for i in 0..amount
+		{
+			let (mut tx, rx) = mpsc::channel(3);
+
+			rxs.push( rx.fold(0, |_,i| futures::future::ready(i)) );
+
+			tokio::task::spawn_local( async move { tx.send(i).await.unwrap(); } );
+		}
+
+		futures::future::join_all( rxs ).await;
+	});
+}
+
+
 // ------------------ Local
 //
 

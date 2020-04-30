@@ -54,12 +54,6 @@
 //
 mod import
 {
-	// #[ cfg( test ) ]
-	// //
-	// pub(crate) use
-	// {
-	// 	pretty_assertions :: { assert_eq } ,
-	// };
 	#[ cfg(any( feature = "bindgen", feature = "tokio_ct", feature = "tokio_tp", feature = "async_std" )) ]
 	//
 	pub(crate) use

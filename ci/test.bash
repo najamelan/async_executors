@@ -16,6 +16,9 @@ cargo check --features tokio_tp
 cargo check --features tokio_ct
 cargo check --features spawn_handle
 
+# Currently doc tests in readme will fail without all features, because we have no way of turning on
+# the features for the doctest.
+#
 cargo test --all-features
 
 # checking with rustup for when not running on travis.
