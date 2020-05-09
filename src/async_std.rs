@@ -1,7 +1,6 @@
 use
 {
 	crate :: { import::* } ,
-	std   :: { future::Future } ,
 };
 
 
@@ -24,7 +23,11 @@ impl AsyncStd
 		Self::default()
 	}
 
+
 	/// Wrapper around [async_std::task::block_on](::async_std_crate::task::block_on()).
+	//
+	#[cfg(not(target_os = "unknown"))]
+	#[ cfg_attr( nightly, doc(cfg(not( target_os = "unknown" ))) ) ]
 	//
 	pub fn block_on<F: Future>(future: F) -> F::Output
 	{
@@ -33,12 +36,40 @@ impl AsyncStd
 }
 
 
+#[ cfg( target_arch = "wasm32" ) ]
+//
+impl Spawn for AsyncStd
+{
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	{
+		async_std_crate::task::spawn_local( future );
 
+		Ok(())
+	}
+}
+
+
+#[ cfg(not( target_arch = "wasm32" )) ]
+//
 impl Spawn for AsyncStd
 {
 	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
 	{
 		async_std_crate::task::spawn( future );
+
+		Ok(())
+	}
+}
+
+
+
+impl LocalSpawn for AsyncStd
+{
+	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	{
+		// We drop the JoinHandle, so the task becomes detached.
+		//
+		let _ = async_std_crate::task::spawn_local( future );
 
 		Ok(())
 	}

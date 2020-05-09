@@ -124,6 +124,25 @@ impl<T, Out> LocalSpawnHandle<Out> for WithDispatch<T> where T: LocalSpawnHandle
 
 
 
+#[ cfg( feature = "async_std" ) ]
+//
+impl<Out: 'static> LocalSpawnHandle<Out> for crate::async_std::AsyncStd
+{
+	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
+	{
+		let (fut, a_handle) = abortable( future );
+
+		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::AsyncStd
+		{
+			handle  : async_std_crate::task::spawn_local( fut ) ,
+			detached: AtomicBool::new( false )            ,
+			a_handle                                      ,
+		}})
+	}
+}
+
+
+
 #[ cfg(any( feature = "tokio_ct" )) ]
 //
 impl<Out: 'static> LocalSpawnHandle<Out> for crate::TokioCt

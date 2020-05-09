@@ -156,7 +156,7 @@ impl<T, Out> SpawnHandle<Out> for WithDispatch<T> where T: SpawnHandle<Out>, Out
 
 
 
-#[ cfg( feature = "async_std" ) ]
+#[ cfg(all( feature = "async_std", not(target_arch = "wasm32") )) ]
 //
 impl<Out: 'static + Send> SpawnHandle<Out> for crate::async_std::AsyncStd
 {
@@ -169,6 +169,25 @@ impl<Out: 'static + Send> SpawnHandle<Out> for crate::async_std::AsyncStd
 			handle  : async_std_crate::task::spawn( fut ) ,
 			detached: AtomicBool::new( false )            ,
 			a_handle                                      ,
+		}})
+	}
+}
+
+
+
+#[ cfg(all( feature = "async_std", target_arch = "wasm32" )) ]
+//
+impl<Out: 'static + Send> SpawnHandle<Out> for crate::async_std::AsyncStd
+{
+	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
+	{
+		let (fut, a_handle) = abortable( future );
+
+		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::AsyncStd
+		{
+			handle  : async_std_crate::task::spawn_local( fut ) ,
+			detached: AtomicBool::new( false )                  ,
+			a_handle                                            ,
 		}})
 	}
 }

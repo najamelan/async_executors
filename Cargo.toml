@@ -11,9 +11,10 @@ rustc_version = "^0.2"
 
 [dependencies]
 [dependencies.async_std_crate]
+features = ["unstable"]
 optional = true
 package = "async-std"
-version = "^1"
+version = "^1.6.0-beta"
 
 [dependencies.futures-channel]
 optional = true

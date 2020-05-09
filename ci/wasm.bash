@@ -16,4 +16,7 @@ export RUSTFLAGS="-D warnings"
 wasm-pack test --firefox --headless -- --no-default-features
 wasm-pack test --firefox --headless -- --no-default-features --features spawn_handle
 wasm-pack test --firefox --headless -- --no-default-features --features bindgen
+wasm-pack test --firefox --headless -- --no-default-features --features async_std
+wasm-pack test --firefox --headless -- --no-default-features --features "spawn_handle async_std"
 wasm-pack test --firefox --headless -- --no-default-features --features "spawn_handle bindgen"
+wasm-pack test --firefox --headless -- --no-default-features --features "spawn_handle bindgen async_std"

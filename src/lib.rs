@@ -62,7 +62,7 @@ mod import
 	};
 
 
-	#[ cfg(any( feature = "tokio_ct", feature = "bindgen" )) ]
+	#[ cfg(any( feature = "tokio_ct", feature = "bindgen", feature = "async_std" )) ]
 	//
 	pub(crate) use
 	{

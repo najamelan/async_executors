@@ -1,4 +1,4 @@
-#![ cfg( feature = "async_std" ) ]
+#![ cfg(all( feature = "async_std", not(target_os = "unknown") )) ]
 
 // Tested:
 //
@@ -202,4 +202,149 @@ fn join_handle_abort()
 	{
 		assert!( rx.await.is_ok() );
 	})
+}
+
+
+// ------------------ Local
+//
+
+
+// pass a AsyncStd to a function that takes exec: `impl LocalSpawn`
+//
+#[ test ]
+//
+fn spawn_local()
+{
+	let (tx, mut rx) = mpsc::channel( 1 );
+
+	let res = AsyncStd::block_on( async
+	{
+		increment_local( 4, AsyncStd, tx );
+
+		rx.next().await.expect( "Some" )
+	});
+
+	assert_eq!( 5u8, res );
+}
+
+
+// pass a &AsyncStd to a function that takes exec: `&impl LocalSpawn`
+//
+#[ test ]
+//
+fn spawn_ref_local()
+{
+	let (tx, mut rx) = mpsc::channel( 1 );
+
+	let res = AsyncStd::block_on( async
+	{
+		increment_ref_local( 4, &AsyncStd, tx );
+
+		rx.next().await.expect( "Some" )
+	});
+
+	assert_eq!( 5u8, res );
+}
+
+
+// pass a &AsyncStd to a function that takes exec: `impl LocalSpawn`
+//
+#[ test ]
+//
+fn spawn_with_ref_local()
+{
+	let (tx, mut rx) = mpsc::channel( 1 );
+
+	let res = AsyncStd::block_on( async
+	{
+		increment_local( 4, &AsyncStd, tx );
+
+		rx.next().await.expect( "Some" )
+	});
+
+	assert_eq!( 5u8, res );
+}
+
+
+// pass a &AsyncStd to a function that takes exec: `impl LocalSpawn + Clone`
+//
+#[ test ]
+//
+fn spawn_clone_with_ref_local()
+{
+	let (tx, mut rx) = mpsc::channel( 1 );
+
+	let res = AsyncStd::block_on( async
+	{
+		increment_clone_local( 4, &AsyncStd, tx );
+
+		rx.next().await.expect( "Some" )
+	});
+
+	assert_eq!( 5u8, res );
+}
+
+
+
+
+// pass a Arc<AsyncStd> to a function that takes exec: `impl LocalSpawn`.
+// Possible since futures 0.3.2.
+//
+#[ test ]
+//
+fn spawn_clone_with_rc_local()
+{
+	let (tx, mut rx) = mpsc::channel( 1 );
+
+	let res = AsyncStd::block_on( async
+	{
+		increment_clone_local( 4, Rc::new( AsyncStd ), tx );
+
+		rx.next().await.expect( "Some" )
+	});
+
+	assert_eq!( 5u8, res );
+}
+
+
+// pass a AsyncStd to a function that takes exec: `impl LocalSpawnHandle`
+//
+#[ cfg( feature = "spawn_handle" ) ]
+//
+#[ test ]
+//
+fn spawn_handle_local()
+{
+	let res = AsyncStd::block_on( increment_spawn_handle_local( 4, AsyncStd ) );
+
+	assert_eq!( 5u8, *res );
+}
+
+
+// pass an Rc<AsyncStd> to a function that takes exec: `impl LocalSpawnHandle`
+//
+#[ cfg( feature = "spawn_handle" ) ]
+//
+#[ test ]
+//
+fn spawn_handle_rc_local()
+{
+	let res = AsyncStd::block_on( increment_spawn_handle_local( 4, Rc::new( AsyncStd ) ) );
+
+	assert_eq!( 5u8, *res );
+}
+
+
+
+// pass a &AsyncStd to a function that takes exec: `&dyn LocalSpawnHandle`
+//
+#[ cfg( feature = "spawn_handle" ) ]
+//
+#[ test ]
+//
+fn spawn_handle_local_os()
+{
+	let result = AsyncStd::block_on( increment_spawn_handle_os( 4, &AsyncStd ) );
+
+	assert_eq!( 5u8, result );
 }
