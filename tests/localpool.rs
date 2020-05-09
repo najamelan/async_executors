@@ -1,4 +1,4 @@
-#![ cfg(all( feature = "localpool", feature = "spawn_handle" )) ]
+#![ cfg( feature = "localpool" ) ]
 
 // Tested:
 //

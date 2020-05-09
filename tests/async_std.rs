@@ -111,8 +111,6 @@ fn spawn_clone_with_arc()
 
 // pass a AsyncStd to a function that takes exec: `impl SpawnHandle`
 //
-#[ cfg( feature = "spawn_handle" ) ]
-//
 #[ test ]
 //
 fn spawn_handle()
@@ -126,8 +124,6 @@ fn spawn_handle()
 
 // pass an Arc<AsyncStd> to a function that takes exec: `impl SpawnHandle`
 //
-#[ cfg( feature = "spawn_handle" ) ]
-//
 #[ test ]
 //
 fn spawn_handle_arc()
@@ -140,8 +136,6 @@ fn spawn_handle_arc()
 
 
 // pass a AsyncStd to a function that takes exec: `&dyn SpawnHandle`
-//
-#[ cfg( feature = "spawn_handle" ) ]
 //
 #[ test ]
 //
@@ -169,8 +163,6 @@ impl Drop for DropNotify
 
 
 // Joinhandle::drop aborts the task.
-//
-#[ cfg( feature = "spawn_handle" ) ]
 //
 #[ test ]
 //
@@ -309,8 +301,6 @@ fn spawn_clone_with_rc_local()
 
 // pass a AsyncStd to a function that takes exec: `impl LocalSpawnHandle`
 //
-#[ cfg( feature = "spawn_handle" ) ]
-//
 #[ test ]
 //
 fn spawn_handle_local()
@@ -322,8 +312,6 @@ fn spawn_handle_local()
 
 
 // pass an Rc<AsyncStd> to a function that takes exec: `impl LocalSpawnHandle`
-//
-#[ cfg( feature = "spawn_handle" ) ]
 //
 #[ test ]
 //
@@ -337,8 +325,6 @@ fn spawn_handle_rc_local()
 
 
 // pass a &AsyncStd to a function that takes exec: `&dyn LocalSpawnHandle`
-//
-#[ cfg( feature = "spawn_handle" ) ]
 //
 #[ test ]
 //

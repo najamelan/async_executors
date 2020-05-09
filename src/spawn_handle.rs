@@ -4,7 +4,7 @@ use
 {
 	futures_util :: { future::{ FutureExt, abortable }, task::SpawnExt                    } ,
 	futures_task :: { SpawnError, FutureObj                                               } ,
-	crate        :: { JoinHandle, remote_handle::remote_handle                            } ,
+	crate        :: { JoinHandle                                                          } ,
 	std          :: { pin::Pin, future::Future, sync::{ Arc, atomic::AtomicBool }, rc::Rc } ,
 };
 
@@ -50,8 +50,6 @@ use
 /// So to enable several output types you can use the
 /// [following workaround](https://github.com/najamelan/async_executors/tree/master/examples/spawn_handle_multi.rs).
 //
-#[ cfg_attr( nightly, doc(cfg( feature = "spawn_handle" )) ) ]
-//
 pub trait SpawnHandle<Out: 'static + Send>
 {
 	/// Spawn a future and return a [`JoinHandle`] that can be awaited for the output of the future.
@@ -61,8 +59,6 @@ pub trait SpawnHandle<Out: 'static + Send>
 
 /// Convenience trait for passing in a generic future to [`SpawnHandle`]. Much akin to `Spawn` and `SpawnExt` in the
 /// futures library.
-//
-#[ cfg_attr( nightly, doc(cfg( feature = "spawn_handle" )) ) ]
 //
 pub trait SpawnHandleExt<Out: 'static + Send> : SpawnHandle<Out>
 {
@@ -120,121 +116,12 @@ impl<T, Out> SpawnHandle<Out> for &T where T: SpawnHandle<Out>, Out: 'static + S
 }
 
 
+
 impl<T, Out> SpawnHandle<Out> for &mut T where T: SpawnHandle<Out>, Out: 'static + Send
 {
 	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		(**self).spawn_handle_obj( future )
-	}
-}
-
-
-
-#[ cfg(all( feature = "async_std", not(target_arch = "wasm32") )) ]
-//
-impl<Out: 'static + Send> SpawnHandle<Out> for crate::async_std::AsyncStd
-{
-	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
-	{
-		let (fut, a_handle) = abortable( future );
-
-		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::AsyncStd
-		{
-			handle  : async_std_crate::task::spawn( fut ) ,
-			detached: AtomicBool::new( false )            ,
-			a_handle                                      ,
-		}})
-	}
-}
-
-
-
-#[ cfg(all( feature = "async_std", target_arch = "wasm32" )) ]
-//
-impl<Out: 'static + Send> SpawnHandle<Out> for crate::async_std::AsyncStd
-{
-	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
-	{
-		let (fut, a_handle) = abortable( future );
-
-		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::AsyncStd
-		{
-			handle  : async_std_crate::task::spawn_local( fut ) ,
-			detached: AtomicBool::new( false )                  ,
-			a_handle                                            ,
-		}})
-	}
-}
-
-
-
-#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
-//
-impl<Out: 'static + Send> SpawnHandle<Out> for crate::TokioHandle
-{
-	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
-	{
-		let (fut, a_handle) = abortable( future );
-
-		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::Tokio
-		{
-			handle  : self.spawner.spawn( fut ) ,
-			detached: AtomicBool::new( false )  ,
-			a_handle                            ,
-		}})
-	}
-}
-
-
-
-#[ cfg( feature = "tokio_tp" ) ]
-//
-impl<Out: 'static + Send> SpawnHandle<Out> for crate::TokioTp
-{
-	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
-	{
-		let (fut, a_handle) = abortable( future );
-
-		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::Tokio
-		{
-			handle  : self.handle.spawn( fut ) ,
-			detached: AtomicBool::new( false ) ,
-			a_handle                           ,
-		}})
-	}
-}
-
-
-
-#[ cfg( feature = "tokio_ct" ) ]
-//
-impl<Out: 'static + Send> SpawnHandle<Out> for crate::TokioCt
-{
-	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
-	{
-		let (fut, a_handle) = abortable( future );
-
-		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::Tokio
-		{
-			handle  : self.handle.spawn( fut ) ,
-			detached: AtomicBool::new( false ) ,
-			a_handle                           ,
-		}})
-	}
-}
-
-
-
-#[ cfg( feature = "bindgen" ) ]
-//
-impl<Out: 'static + Send> SpawnHandle<Out> for crate::Bindgen
-{
-	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
-	{
-		let (fut, handle) = remote_handle( future );
-		wasm_bindgen_futures::spawn_local(fut);
-
-		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
 	}
 }
 
@@ -246,7 +133,7 @@ impl<Out: 'static + Send> SpawnHandle<Out> for futures_executor::LocalSpawner
 {
 	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		let (fut, handle) = remote_handle( future );
+		let (fut, handle) = future.remote_handle();
 
 		self.spawn( fut )?;
 
@@ -262,7 +149,7 @@ impl<Out: 'static + Send> SpawnHandle<Out> for futures_executor::ThreadPool
 {
 	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		let (fut, handle) = remote_handle( future );
+		let (fut, handle) = future.remote_handle();
 
 		self.spawn( fut )?;
 

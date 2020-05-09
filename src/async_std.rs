@@ -1,6 +1,9 @@
 use
 {
-	futures_task::{ FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError },
+	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle, join_handle::InnerJh } ,
+	futures_task :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError        } ,
+	futures_util :: { future::abortable                                               } ,
+	std          :: { sync::atomic::AtomicBool                                        } ,
 };
 
 
@@ -36,6 +39,7 @@ impl AsyncStd
 }
 
 
+
 #[ cfg( target_arch = "wasm32" ) ]
 //
 impl Spawn for AsyncStd
@@ -49,6 +53,7 @@ impl Spawn for AsyncStd
 }
 
 
+
 #[ cfg(not( target_arch = "wasm32" )) ]
 //
 impl Spawn for AsyncStd
@@ -58,6 +63,61 @@ impl Spawn for AsyncStd
 		async_std_crate::task::spawn( future );
 
 		Ok(())
+	}
+}
+
+
+
+#[ cfg( not(target_arch = "wasm32") ) ]
+//
+impl<Out: 'static + Send> SpawnHandle<Out> for AsyncStd
+{
+	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
+	{
+		let (fut, a_handle) = abortable( future );
+
+		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::AsyncStd
+		{
+			handle  : async_std_crate::task::spawn( fut ) ,
+			detached: AtomicBool::new( false )            ,
+			a_handle                                      ,
+		}})
+	}
+}
+
+
+
+#[ cfg( target_arch = "wasm32" ) ]
+//
+impl<Out: 'static + Send> SpawnHandle<Out> for AsyncStd
+{
+	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
+	{
+		let (fut, a_handle) = abortable( future );
+
+		Ok( JoinHandle{ inner: InnerJh::AsyncStd
+		{
+			handle  : async_std_crate::task::spawn_local( fut ) ,
+			detached: AtomicBool::new( false )                  ,
+			a_handle                                            ,
+		}})
+	}
+}
+
+
+
+impl<Out: 'static> LocalSpawnHandle<Out> for AsyncStd
+{
+	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
+	{
+		let (fut, a_handle) = abortable( future );
+
+		Ok( JoinHandle{ inner: InnerJh::AsyncStd
+		{
+			handle  : async_std_crate::task::spawn_local( fut ) ,
+			detached: AtomicBool::new( false )            ,
+			a_handle                                      ,
+		}})
 	}
 }
 

@@ -126,7 +126,7 @@ fn spawn_clone_with_arc()
 
 // pass a TokioTp to a function that takes exec: `impl SpawnHandle`
 //
-#[ cfg(all( feature = "spawn_handle", feature = "tokio_tp" )) ]
+#[ cfg( feature = "tokio_tp" ) ]
 //
 #[ test ]
 //
@@ -143,7 +143,7 @@ fn spawn_handle()
 
 // pass an Arc<TokioTp> to a function that takes exec: `impl SpawnHandle`
 //
-#[ cfg(all( feature = "spawn_handle", feature = "tokio_tp" )) ]
+#[ cfg( feature = "tokio_tp" ) ]
 //
 #[ test ]
 //
@@ -160,7 +160,7 @@ fn spawn_handle_arc()
 
 // pass a AsyncStd to a function that takes exec: `&dyn SpawnHandle`
 //
-#[ cfg(all( feature = "spawn_handle", feature = "tokio_tp" )) ]
+#[ cfg( feature = "tokio_tp" ) ]
 //
 #[ test ]
 //

@@ -1,9 +1,9 @@
 use
 {
-	futures_util    :: { future::{ FutureExt } } ,
-	futures_task    :: { SpawnError, LocalFutureObj, FutureObj } ,
+	futures_util    :: { future::{ FutureExt }                     } ,
+	futures_task    :: { SpawnError, LocalFutureObj, FutureObj     } ,
 	crate           :: { JoinHandle, SpawnHandle, LocalSpawnHandle } ,
-	tracing_futures :: { Instrument, Instrumented, WithDispatch } ,
+	tracing_futures :: { Instrument, Instrumented, WithDispatch    } ,
 };
 
 

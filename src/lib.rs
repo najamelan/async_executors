@@ -4,7 +4,7 @@
 
 #![ doc   ( html_root_url = "https://docs.rs/async_executors" ) ]
 #![ deny  ( missing_docs                                      ) ]
-// #![ forbid( unsafe_code                                       ) ]
+#![ forbid( unsafe_code                                       ) ]
 #![ allow ( clippy::suspicious_else_formatting                ) ]
 
 #![ warn
@@ -39,14 +39,14 @@
 #[ cfg( feature = "bindgen"  ) ] mod bindgen;
 #[ cfg( feature = "bindgen"  ) ] pub use bindgen::*;
 
-#[ cfg( feature = "spawn_handle" ) ] mod spawn_handle       ;
-#[ cfg( feature = "spawn_handle" ) ] mod local_spawn_handle ;
-#[ cfg( feature = "spawn_handle" ) ] mod join_handle        ;
-#[ cfg( feature = "spawn_handle" ) ] mod remote_handle      ;
-
-#[ cfg( feature = "spawn_handle" ) ] pub use spawn_handle       ::*;
-#[ cfg( feature = "spawn_handle" ) ] pub use local_spawn_handle ::*;
-#[ cfg( feature = "spawn_handle" ) ] pub use join_handle        ::*;
-
-
 #[ cfg( feature = "tracing" ) ] mod tracing;
+
+mod spawn_handle       ;
+mod local_spawn_handle ;
+mod join_handle        ;
+
+pub use spawn_handle       ::*;
+pub use local_spawn_handle ::*;
+pub use join_handle        ::*;
+
+

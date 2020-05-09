@@ -2,11 +2,12 @@
 //
 use
 {
-	crate          :: { TokioHandle                                 } ,
-	parking_lot    :: { Mutex                                       } ,
-	std            :: { sync::Arc, convert::TryFrom, future::Future } ,
-	futures_task   :: { FutureObj, Spawn, SpawnError                } ,
-	tokio::runtime :: { Runtime, Builder, Handle as TokioRtHandle   } ,
+	crate          :: { TokioHandle, SpawnHandle, JoinHandle, join_handle::InnerJh          } ,
+	parking_lot    :: { Mutex                                                               } ,
+	std            :: { sync::{ Arc, atomic::AtomicBool }, convert::TryFrom, future::Future } ,
+	futures_task   :: { FutureObj, Spawn, SpawnError                                        } ,
+	futures_util   :: { future::abortable                                                   } ,
+	tokio::runtime :: { Runtime, Builder, Handle as TokioRtHandle                           } ,
 };
 
 
@@ -152,5 +153,22 @@ impl Spawn for TokioTp
 		let _ = self.handle.spawn( future );
 
 		Ok(())
+	}
+}
+
+
+
+impl<Out: 'static + Send> SpawnHandle<Out> for TokioTp
+{
+	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
+	{
+		let (fut, a_handle) = abortable( future );
+
+		Ok( JoinHandle{ inner: InnerJh::Tokio
+		{
+			handle  : self.handle.spawn( fut ) ,
+			detached: AtomicBool::new( false ) ,
+			a_handle                           ,
+		}})
 	}
 }

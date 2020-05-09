@@ -18,7 +18,7 @@ mod common;
 
 use
 {
-	common          :: * ,
+	common          :: { *                                     } ,
 	futures         :: { channel::{ mpsc, oneshot }, StreamExt } ,
 	tokio::runtime  :: { Builder                               } ,
 	std             :: { convert::TryFrom                      } ,
@@ -113,8 +113,6 @@ fn spawn_clone_with_arc()
 
 // pass a TokioTp to a function that takes exec: `impl SpawnHandle`
 //
-#[ cfg( feature = "spawn_handle" ) ]
-//
 #[ test ]
 //
 fn spawn_handle()
@@ -129,8 +127,6 @@ fn spawn_handle()
 
 // pass an Arc<TokioTp> to a function that takes exec: `impl SpawnHandle`
 //
-#[ cfg( feature = "spawn_handle" ) ]
-//
 #[ test ]
 //
 fn spawn_handle_arc()
@@ -144,8 +140,6 @@ fn spawn_handle_arc()
 
 
 // pass a AsyncStd to a function that takes exec: `&dyn SpawnHandle`
-//
-#[ cfg( feature = "spawn_handle" ) ]
 //
 #[ test ]
 //
@@ -187,8 +181,6 @@ fn build_name_thread()
 
 
 // Joinhandle::detach allows task to keep running.
-//
-#[ cfg( feature = "spawn_handle" ) ]
 //
 #[ test ]
 //

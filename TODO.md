@@ -4,24 +4,12 @@
   make it easier to interop with TokioCt. For running entire test suits on different executors for example.
   that is because with tokio ct you have to call block_on.
 
-- do not require feature for spawnhandle?
-
 - think about timers and timeout.
-
-- test whether tokioct works on wasm
-
-- should we implement Spawn::status?
-
-- take tokio Builder by value.
-
-- impl SpawnHandle for FuturesUnordered?
-
-- remove vendoring of RemoteHandle as soon as a new version (3.5) of futures is available.
 
 - spawn_blocking? This is provided by tokio and async_std, but does not take a future, rather a closure.
   However it still returns a joinhandle that must be awaited. So if we wrap that in our joinhandle type,
   we now have inconsistent behavior, as both frameworks don't provide any way to cancel the closure when
-  the joinhandle get's dropped. We could make a BlockingHandle type?
+  the joinhandle get's dropped. We could make a JoinBlocking type?
 
 # Wrap up
 

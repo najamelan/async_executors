@@ -1,7 +1,10 @@
 use
 {
-	tokio::runtime :: { Handle as TokioRtHandle } ,
-	futures_task::{ FutureObj, Spawn, SpawnError },
+	crate          :: { SpawnHandle, JoinHandle      } ,
+	tokio::runtime :: { Handle as TokioRtHandle      } ,
+	futures_task   :: { FutureObj, Spawn, SpawnError } ,
+	futures_util   :: { future::abortable            } ,
+	std            :: { sync::atomic::AtomicBool     } ,
 
 };
 
@@ -44,6 +47,7 @@ pub struct TokioHandle
 }
 
 
+
 impl TokioHandle
 {
 	pub(crate) fn new( spawner: TokioRtHandle ) -> Self
@@ -51,6 +55,7 @@ impl TokioHandle
 		Self { spawner }
 	}
 }
+
 
 
 impl Spawn for TokioHandle
@@ -62,5 +67,22 @@ impl Spawn for TokioHandle
 		let _ = self.spawner.spawn( future );
 
 		Ok(())
+	}
+}
+
+
+
+impl<Out: 'static + Send> SpawnHandle<Out> for TokioHandle
+{
+	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
+	{
+		let (fut, a_handle) = abortable( future );
+
+		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::Tokio
+		{
+			handle  : self.spawner.spawn( fut ) ,
+			detached: AtomicBool::new( false )  ,
+			a_handle                            ,
+		}})
 	}
 }
