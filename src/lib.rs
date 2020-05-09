@@ -39,61 +39,14 @@
 #[ cfg( feature = "bindgen"  ) ] mod bindgen;
 #[ cfg( feature = "bindgen"  ) ] pub use bindgen::*;
 
-#[ cfg( feature = "spawn_handle" ) ] mod spawn_handle          ;
-#[ cfg( feature = "spawn_handle" ) ] mod local_spawn_handle    ;
-#[ cfg( feature = "spawn_handle" ) ] mod join_handle           ;
-#[ cfg( feature = "spawn_handle" ) ] mod remote_handle         ;
+#[ cfg( feature = "spawn_handle" ) ] mod spawn_handle       ;
+#[ cfg( feature = "spawn_handle" ) ] mod local_spawn_handle ;
+#[ cfg( feature = "spawn_handle" ) ] mod join_handle        ;
+#[ cfg( feature = "spawn_handle" ) ] mod remote_handle      ;
 
-#[ cfg( feature = "spawn_handle" ) ] pub use spawn_handle          ::*;
-#[ cfg( feature = "spawn_handle" ) ] pub use local_spawn_handle    ::*;
-#[ cfg( feature = "spawn_handle" ) ] pub use join_handle           ::*;
-
-
-
-// External dependencies
-//
-mod import
-{
-	#[ cfg(any( feature = "bindgen", feature = "tokio_ct", feature = "tokio_tp", feature = "async_std" )) ]
-	//
-	pub(crate) use
-	{
-		futures_task :: { FutureObj, Spawn, SpawnError as FutSpawnErr } ,
-	};
+#[ cfg( feature = "spawn_handle" ) ] pub use spawn_handle       ::*;
+#[ cfg( feature = "spawn_handle" ) ] pub use local_spawn_handle ::*;
+#[ cfg( feature = "spawn_handle" ) ] pub use join_handle        ::*;
 
 
-	#[ cfg(any( feature = "tokio_ct", feature = "bindgen", feature = "async_std" )) ]
-	//
-	pub(crate) use
-	{
-		futures_task :: { LocalFutureObj, LocalSpawn } ,
-	};
-
-
-	#[ cfg(any( feature = "tokio_ct", feature = "tokio_tp" )) ]
-	//
-	pub(crate) use
-	{
-		std :: { convert::TryFrom, future::Future } ,
-		tokio::{ runtime::{ Builder, Runtime, Handle as TokioRtHandle } },
-
-	};
-
-
-	#[ cfg( feature = "spawn_handle" ) ]
-	//
-	pub(crate) use
-	{
-		std :: { task::{ Poll, Context }, pin::Pin } ,
-	};
-
-
-	#[ cfg( feature = "tracing" ) ]
-	//
-	pub(crate) use
-	{
-		tracing_futures :: { Instrument, WithDispatch, Instrumented } ,
-	};
-}
-
-
+#[ cfg( feature = "tracing" ) ] mod tracing;

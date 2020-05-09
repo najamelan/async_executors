@@ -1,7 +1,7 @@
 use
 {
-	crate                :: { import::*   } ,
 	wasm_bindgen_futures :: { spawn_local } ,
+	futures_task::{ FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError },
 };
 
 
@@ -30,7 +30,7 @@ impl Bindgen
 
 impl Spawn for Bindgen
 {
-	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
 		spawn_local( future );
 
@@ -42,7 +42,7 @@ impl Spawn for Bindgen
 
 impl LocalSpawn for Bindgen
 {
-	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
 		spawn_local( future );
 

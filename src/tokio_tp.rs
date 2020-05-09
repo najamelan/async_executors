@@ -2,9 +2,11 @@
 //
 use
 {
-	crate       :: { import::*, TokioHandle } ,
-	parking_lot :: { Mutex                  } ,
-	std         :: { sync::Arc              } ,
+	crate          :: { TokioHandle                                 } ,
+	parking_lot    :: { Mutex                                       } ,
+	std            :: { sync::Arc, convert::TryFrom, future::Future } ,
+	futures_task   :: { FutureObj, Spawn, SpawnError                } ,
+	tokio::runtime :: { Runtime, Builder, Handle as TokioRtHandle   } ,
 };
 
 
@@ -17,11 +19,11 @@ use
 /// ```rust
 /// use
 /// {
-///    futures::task    :: { Spawn, SpawnExt          } ,
-///    async_executors  :: { TokioTp                  } ,
-///    tokio::runtime   :: { Builder                  } ,
-///    std::convert     :: { TryFrom                  } ,
-///    futures::channel :: { oneshot, oneshot::Sender } ,
+///    futures          :: { task::{ Spawn, SpawnExt } } ,
+///    async_executors  :: { TokioTp                   } ,
+///    tokio::runtime   :: { Builder                   } ,
+///    std::convert     :: { TryFrom                   } ,
+///    futures::channel :: { oneshot, oneshot::Sender  } ,
 /// };
 ///
 ///
@@ -143,7 +145,7 @@ impl TryFrom<&mut Builder> for TokioTp
 
 impl Spawn for TokioTp
 {
-	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
 		// We drop the JoinHandle, so the task becomes detached.
 		//

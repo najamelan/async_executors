@@ -2,8 +2,9 @@
 //
 use
 {
-	crate       :: { import::*, remote_handle::RemoteHandle                 } ,
+	crate       :: { remote_handle::RemoteHandle                            } ,
 	std         :: { future::Future, sync::atomic::{ AtomicBool, Ordering } } ,
+	std         :: { task::{ Poll, Context }, pin::Pin                      } ,
 	futures_util:: { future::{ AbortHandle, Aborted }                       } ,
 };
 

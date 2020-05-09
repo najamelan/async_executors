@@ -1,7 +1,8 @@
 use
 {
-	crate          :: { import::*               } ,
 	tokio::runtime :: { Handle as TokioRtHandle } ,
+	futures_task::{ FutureObj, Spawn, SpawnError },
+
 };
 
 /// A handle to a [TokioCt](crate::TokioCt) or [TokioTp](crate::TokioTp) executor. It implements `Spawn` and `SpawnHandle` traits.
@@ -54,7 +55,7 @@ impl TokioHandle
 
 impl Spawn for TokioHandle
 {
-	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
 		// We drop the JoinHandle, so the task becomes detached.
 		//

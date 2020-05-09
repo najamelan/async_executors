@@ -4,7 +4,7 @@ use
 {
 	futures_util :: { future::{ FutureExt, abortable }, task::SpawnExt                    } ,
 	futures_task :: { SpawnError, FutureObj                                               } ,
-	crate        :: { import::*, JoinHandle, remote_handle::remote_handle                 } ,
+	crate        :: { JoinHandle, remote_handle::remote_handle                            } ,
 	std          :: { pin::Pin, future::Future, sync::{ Arc, atomic::AtomicBool }, rc::Rc } ,
 };
 
@@ -125,32 +125,6 @@ impl<T, Out> SpawnHandle<Out> for &mut T where T: SpawnHandle<Out>, Out: 'static
 	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		(**self).spawn_handle_obj( future )
-	}
-}
-
-
-#[ cfg( feature = "tracing" ) ]
-//
-impl<T, Out> SpawnHandle<Out> for Instrumented<T> where T: SpawnHandle<Out>, Out: 'static + Send
-{
-	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
-	{
-		let fut = future.instrument( self.span().clone() );
-
-		self.inner().spawn_handle_obj( FutureObj::new(fut.boxed()) )
-	}
-}
-
-
-#[ cfg( feature = "tracing" ) ]
-//
-impl<T, Out> SpawnHandle<Out> for WithDispatch<T> where T: SpawnHandle<Out>, Out: 'static + Send
-{
-	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
-	{
-		let fut = self.with_dispatch( future );
-
-		self.inner().spawn_handle_obj( FutureObj::new(fut.boxed()) )
 	}
 }
 

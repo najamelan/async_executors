@@ -1,6 +1,6 @@
 use
 {
-	crate :: { import::* } ,
+	futures_task::{ FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError },
 };
 
 
@@ -29,7 +29,7 @@ impl AsyncStd
 	#[cfg(not(target_os = "unknown"))]
 	#[ cfg_attr( nightly, doc(cfg(not( target_os = "unknown" ))) ) ]
 	//
-	pub fn block_on<F: Future>(future: F) -> F::Output
+	pub fn block_on<F: std::future::Future>(future: F) -> F::Output
 	{
 		async_std_crate::task::block_on( future )
 	}
@@ -40,7 +40,7 @@ impl AsyncStd
 //
 impl Spawn for AsyncStd
 {
-	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
 		async_std_crate::task::spawn_local( future );
 
@@ -53,7 +53,7 @@ impl Spawn for AsyncStd
 //
 impl Spawn for AsyncStd
 {
-	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
 		async_std_crate::task::spawn( future );
 
@@ -65,7 +65,7 @@ impl Spawn for AsyncStd
 
 impl LocalSpawn for AsyncStd
 {
-	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
 		// We drop the JoinHandle, so the task becomes detached.
 		//

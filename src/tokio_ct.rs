@@ -1,8 +1,10 @@
 use
 {
-	crate :: { import::*, TokioHandle } ,
-	std   :: { rc::Rc, cell::RefCell  } ,
-	tokio :: { task::LocalSet         } ,
+	crate :: { TokioHandle } ,
+	std   :: { rc::Rc, cell::RefCell, convert::TryFrom, future::Future                } ,
+	tokio :: { task::LocalSet, runtime::{ Builder, Runtime, Handle as TokioRtHandle } } ,
+	futures_task::{ FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError         } ,
+
 };
 
 
@@ -139,7 +141,7 @@ impl TryFrom<&mut Builder> for TokioCt
 
 impl Spawn for TokioCt
 {
-	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
 		// We drop the JoinHandle, so the task becomes detached.
 		//
@@ -153,7 +155,7 @@ impl Spawn for TokioCt
 
 impl LocalSpawn for TokioCt
 {
-	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
 		// We drop the JoinHandle, so the task becomes detached.
 		//
