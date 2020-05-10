@@ -2,7 +2,7 @@ package:
 
   # When releasing to crates.io:
   #
-  # - last check for all TODO, FIXME, expect, unwrap.
+  # - last check for all TODO, FIXME, expect, unwrap, todo!, unreachable!.
   # - recheck log statements (informative, none left that were just for development, ...)
   # - `cargo +nightly doc` and re-read and final polish of documentation.
   #

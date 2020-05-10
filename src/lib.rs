@@ -41,6 +41,12 @@
 
 #[ cfg( feature = "tracing" ) ] mod tracing;
 
+// Re-export for convenience.
+//
+#[ cfg( feature = "localpool"  ) ] pub use futures_executor::LocalPool;
+#[ cfg( feature = "localpool"  ) ] pub use futures_executor::LocalSpawner;
+#[ cfg( feature = "threadpool" ) ] pub use futures_executor::ThreadPool;
+
 mod spawn_handle       ;
 mod local_spawn_handle ;
 mod join_handle        ;

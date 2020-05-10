@@ -1,5 +1,7 @@
 //! An example showing how to take an executor in an API that can use SpawnHandle
 //! with multiple output types.
+//!
+//! You can also make your object generic over the executor. This shows how you can avoid that.
 //
 use
 {

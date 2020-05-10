@@ -95,7 +95,7 @@ impl<T, Out> LocalSpawnHandle<Out> for &mut T where T: LocalSpawnHandle<Out>, Ou
 
 #[ cfg( feature = "localpool" ) ]
 //
-impl<Out: 'static> LocalSpawnHandle<Out> for futures_executor::LocalSpawner
+impl<Out: 'static> LocalSpawnHandle<Out> for crate::LocalSpawner
 {
 	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{

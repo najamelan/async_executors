@@ -129,7 +129,7 @@ impl<T, Out> SpawnHandle<Out> for &mut T where T: SpawnHandle<Out>, Out: 'static
 
 #[ cfg( feature = "localpool" ) ]
 //
-impl<Out: 'static + Send> SpawnHandle<Out> for futures_executor::LocalSpawner
+impl<Out: 'static + Send> SpawnHandle<Out> for crate::LocalSpawner
 {
 	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
@@ -145,7 +145,7 @@ impl<Out: 'static + Send> SpawnHandle<Out> for futures_executor::LocalSpawner
 
 #[ cfg( feature = "threadpool" ) ]
 //
-impl<Out: 'static + Send> SpawnHandle<Out> for futures_executor::ThreadPool
+impl<Out: 'static + Send> SpawnHandle<Out> for crate::ThreadPool
 {
 	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{

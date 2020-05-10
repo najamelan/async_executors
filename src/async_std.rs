@@ -10,6 +10,8 @@ use
 /// An executor that spawns tasks on async-std. In contrast to the other executors, this one
 /// is not self contained, because async-std does not provide an API that allows that,
 /// so the threadpool is global.
+///
+/// It works on Wasm.
 //
 #[ derive( Copy, Clone, Default ) ]
 //
@@ -27,7 +29,8 @@ impl AsyncStd
 	}
 
 
-	/// Wrapper around [async_std::task::block_on](::async_std_crate::task::block_on()).
+	/// Wrapper around [async_std::task::block_on](::async_std_crate::task::block_on()). This is not available on Wasm
+	/// as Wasm does not have threads and you're not allowed to block the only thread you have.
 	//
 	#[cfg(not(target_os = "unknown"))]
 	#[ cfg_attr( nightly, doc(cfg(not( target_os = "unknown" ))) ) ]

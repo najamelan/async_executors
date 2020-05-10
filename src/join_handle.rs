@@ -134,8 +134,7 @@ impl<T: 'static> Future for JoinHandle<T>
 					//
 					Err(e) =>
 					{
-						dbg!(e);
-						panic!( "Task has been canceled. Are you dropping the executor to early?" );
+						panic!( "Task has been canceled. Are you dropping the executor to early? Error: {}", e );
 					}
 				}
 			}
