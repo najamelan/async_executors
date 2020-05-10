@@ -4,7 +4,7 @@
 
 #![ doc   ( html_root_url = "https://docs.rs/async_executors" ) ]
 #![ deny  ( missing_docs                                      ) ]
-// #![ forbid( unsafe_code                                       ) ]
+#![ forbid( unsafe_code                                       ) ]
 #![ allow ( clippy::suspicious_else_formatting                ) ]
 
 #![ warn
@@ -39,67 +39,20 @@
 #[ cfg( feature = "bindgen"  ) ] mod bindgen;
 #[ cfg( feature = "bindgen"  ) ] pub use bindgen::*;
 
-#[ cfg( feature = "spawn_handle" ) ] mod spawn_handle          ;
-#[ cfg( feature = "spawn_handle" ) ] mod local_spawn_handle    ;
-#[ cfg( feature = "spawn_handle" ) ] mod join_handle           ;
-#[ cfg( feature = "spawn_handle" ) ] mod remote_handle         ;
+#[ cfg( feature = "tracing" ) ] mod tracing;
 
-#[ cfg( feature = "spawn_handle" ) ] pub use spawn_handle          ::*;
-#[ cfg( feature = "spawn_handle" ) ] pub use local_spawn_handle    ::*;
-#[ cfg( feature = "spawn_handle" ) ] pub use join_handle           ::*;
-
-
-
-// External dependencies
+// Re-export for convenience.
 //
-mod import
-{
-	// #[ cfg( test ) ]
-	// //
-	// pub(crate) use
-	// {
-	// 	pretty_assertions :: { assert_eq } ,
-	// };
-	#[ cfg(any( feature = "bindgen", feature = "tokio_ct", feature = "tokio_tp", feature = "async_std" )) ]
-	//
-	pub(crate) use
-	{
-		futures_task :: { FutureObj, Spawn, SpawnError as FutSpawnErr } ,
-	};
+#[ cfg( feature = "localpool"  ) ] pub use futures_executor::LocalPool;
+#[ cfg( feature = "localpool"  ) ] pub use futures_executor::LocalSpawner;
+#[ cfg( feature = "threadpool" ) ] pub use futures_executor::ThreadPool;
 
+mod spawn_handle       ;
+mod local_spawn_handle ;
+mod join_handle        ;
 
-	#[ cfg(any( feature = "tokio_ct", feature = "bindgen" )) ]
-	//
-	pub(crate) use
-	{
-		futures_task :: { LocalFutureObj, LocalSpawn } ,
-	};
-
-
-	#[ cfg(any( feature = "tokio_ct", feature = "tokio_tp" )) ]
-	//
-	pub(crate) use
-	{
-		std :: { convert::TryFrom, future::Future } ,
-		tokio::{ runtime::{ Builder, Runtime, Handle as TokioRtHandle } },
-
-	};
-
-
-	#[ cfg( feature = "spawn_handle" ) ]
-	//
-	pub(crate) use
-	{
-		std :: { task::{ Poll, Context }, pin::Pin } ,
-	};
-
-
-	#[ cfg( feature = "tracing" ) ]
-	//
-	pub(crate) use
-	{
-		tracing_futures :: { Instrument, WithDispatch, Instrumented } ,
-	};
-}
+pub use spawn_handle       ::*;
+pub use local_spawn_handle ::*;
+pub use join_handle        ::*;
 
 

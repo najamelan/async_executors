@@ -1,8 +1,10 @@
 use
 {
-	crate :: { import::*, TokioHandle } ,
-	std   :: { rc::Rc, cell::RefCell  } ,
-	tokio :: { task::LocalSet         } ,
+	crate        :: { TokioHandle, SpawnHandle, LocalSpawnHandle, JoinHandle, join_handle::InnerJh      } ,
+	std          :: { rc::Rc, cell::RefCell, convert::TryFrom, future::Future, sync::atomic::AtomicBool } ,
+	tokio        :: { task::LocalSet, runtime::{ Builder, Runtime, Handle as TokioRtHandle }            } ,
+	futures_task :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError                          } ,
+	futures_util :: { future::abortable                                                                 } ,
 };
 
 
@@ -139,7 +141,7 @@ impl TryFrom<&mut Builder> for TokioCt
 
 impl Spawn for TokioCt
 {
-	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
 		// We drop the JoinHandle, so the task becomes detached.
 		//
@@ -153,13 +155,48 @@ impl Spawn for TokioCt
 
 impl LocalSpawn for TokioCt
 {
-	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), FutSpawnErr>
+	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
 		// We drop the JoinHandle, so the task becomes detached.
 		//
 		let _ = self.local.spawn_local( future );
 
 		Ok(())
+	}
+}
+
+
+
+impl<Out: 'static + Send> SpawnHandle<Out> for TokioCt
+{
+	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
+	{
+		let (fut, a_handle) = abortable( future );
+
+		Ok( JoinHandle{ inner: InnerJh::Tokio
+		{
+			handle  : self.handle.spawn( fut ) ,
+			detached: AtomicBool::new( false ) ,
+			a_handle                           ,
+		}})
+	}
+}
+
+
+
+impl<Out: 'static> LocalSpawnHandle<Out> for TokioCt
+{
+	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
+	{
+		let (fut, a_handle) = abortable( future );
+
+		Ok( JoinHandle{ inner: InnerJh::Tokio
+		{
+			handle  : self.local.spawn_local( fut ) ,
+			detached: AtomicBool::new( false )  ,
+			a_handle                            ,
+		}})
+
 	}
 }
 

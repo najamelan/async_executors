@@ -145,8 +145,6 @@ fn spawn_clone_with_arc()
 
 // pass a Bindgen to a function that takes exec: `impl SpawnHandle`
 //
-#[ cfg( feature = "spawn_handle" ) ]
-//
 #[ wasm_bindgen_test ]
 //
 fn spawn_handle()
@@ -166,8 +164,6 @@ fn spawn_handle()
 
 // pass an Arc<Bindgen> to a function that takes exec: `impl SpawnHandle`
 //
-#[ cfg( feature = "spawn_handle" ) ]
-//
 #[ wasm_bindgen_test ]
 //
 fn spawn_handle_arc()
@@ -186,8 +182,6 @@ fn spawn_handle_arc()
 
 
 // pass a &Bindgen to a function that takes exec: `&dyn SpawnHandle`
-//
-#[ cfg( feature = "spawn_handle" ) ]
 //
 #[ wasm_bindgen_test ]
 //
@@ -324,8 +318,6 @@ fn spawn_clone_with_arc_local()
 
 // pass a Bindgen to a function that takes exec: `impl SpawnHandle`
 //
-#[ cfg( feature = "spawn_handle" ) ]
-//
 #[ wasm_bindgen_test ]
 //
 fn spawn_handle_local()
@@ -344,8 +336,6 @@ fn spawn_handle_local()
 
 
 // pass an Arc<Bindgen> to a function that takes exec: `impl SpawnHandle`
-//
-#[ cfg( feature = "spawn_handle" ) ]
 //
 #[ wasm_bindgen_test ]
 //
@@ -366,8 +356,6 @@ fn spawn_handle_arc_local()
 
 
 // pass a &Bindgen to a function that takes exec: `&dyn SpawnHandle`
-//
-#[ cfg( feature = "spawn_handle" ) ]
 //
 #[ wasm_bindgen_test ]
 //

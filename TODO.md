@@ -1,17 +1,15 @@
 # TODO:
 
-- should we implement Spawn::status?
+- making sure that all executors have block_on and wrapping those of the futures library would
+  make it easier to interop with TokioCt. For running entire test suits on different executors for example.
+  that is because with tokio ct you have to call block_on.
 
-- take tokio Builder by value.
-
-- impl SpawnHandle for FuturesUnordered?
-
-- remove vendoring of RemoteHandle as soon as a new version (3.5) of futures is available.
+- think about timers and timeout.
 
 - spawn_blocking? This is provided by tokio and async_std, but does not take a future, rather a closure.
   However it still returns a joinhandle that must be awaited. So if we wrap that in our joinhandle type,
   we now have inconsistent behavior, as both frameworks don't provide any way to cancel the closure when
-  the joinhandle get's dropped. We could make a BlockingHandle type?
+  the joinhandle get's dropped. We could make a JoinBlocking type?
 
 # Wrap up
 

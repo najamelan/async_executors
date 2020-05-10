@@ -17,9 +17,7 @@ fn lib_function( exec: impl Spawn )
 
 fn main()
 {
-	let exec = AsyncStd::default();
-
-	lib_function( exec );
+	lib_function( AsyncStd );
 
 	// Don't do this at home, but in a very basic example like here, the process might exit before
 	// the future runs. Use join handles, or channels to synchronize in real code if you need to wait

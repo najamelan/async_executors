@@ -1,4 +1,4 @@
-#![ cfg(all( feature = "threadpool", feature = "spawn_handle" )) ]
+#![ cfg( feature = "threadpool" ) ]
 
 // ✔ pass a     ThreadPool  to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a Arc<ThreadPool> to a function that takes exec: `impl SpawnHandle`
@@ -55,8 +55,6 @@ fn spawn_handle_os()
 
 
 // Joinhandle::detach allows task to keep running.
-//
-#[ cfg( feature = "spawn_handle" ) ]
 //
 #[ test ]
 //

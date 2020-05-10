@@ -139,8 +139,6 @@ fn spawn_clone_with_arc()
 
 // pass a TokioCt to a function that takes exec: `impl SpawnHandle`
 //
-#[ cfg( feature = "spawn_handle" ) ]
-//
 #[ test ]
 //
 fn spawn_handle()
@@ -154,8 +152,6 @@ fn spawn_handle()
 
 
 // pass an Arc<TokioCt> to a function that takes exec: `impl SpawnHandle`
-//
-#[ cfg( feature = "spawn_handle" ) ]
 //
 #[ test ]
 //
@@ -172,8 +168,6 @@ fn spawn_handle_arc()
 
 // pass a &TokioCt to a function that takes exec: `&dyn SpawnHandle`
 //
-#[ cfg( feature = "spawn_handle" ) ]
-//
 #[ test ]
 //
 fn spawn_handle_os()
@@ -183,6 +177,34 @@ fn spawn_handle_os()
 	let result = exec.block_on( increment_spawn_handle_os( 4, &exec ) );
 
 	assert_eq!( 5u8, result );
+}
+
+
+
+// spawn a large number of tasks.
+//
+#[ test ]
+//
+fn spawn_handle_many()
+{
+	let exec = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+
+	let _result = exec.block_on( async move
+	{
+		let amount  = 1000;
+		let mut rxs = Vec::with_capacity( amount );
+
+		for i in 0..amount
+		{
+			let (mut tx, rx) = mpsc::channel(3);
+
+			rxs.push( rx.fold(0, |_,i| futures::future::ready(i)) );
+
+			tokio::task::spawn_local( async move { tx.send(i).await.unwrap(); } );
+		}
+
+		futures::future::join_all( rxs ).await;
+	});
 }
 
 
@@ -293,8 +315,6 @@ fn spawn_clone_with_rc_local()
 
 // pass a TokioCt to a function that takes exec: `impl LocalSpawnHandle`
 //
-#[ cfg( feature = "spawn_handle" ) ]
-//
 #[ test ]
 //
 fn spawn_handle_local()
@@ -308,8 +328,6 @@ fn spawn_handle_local()
 
 
 // pass an Rc<TokioCt> to a function that takes exec: `impl LocalSpawnHandle`
-//
-#[ cfg( feature = "spawn_handle" ) ]
 //
 #[ test ]
 //
@@ -325,8 +343,6 @@ fn spawn_handle_rc_local()
 
 
 // pass a &TokioCt to a function that takes exec: `&dyn LocalSpawnHandle`
-//
-#[ cfg( feature = "spawn_handle" ) ]
 //
 #[ test ]
 //
@@ -401,8 +417,6 @@ fn spawn_outside_block_on()
 
 
 // Joinhandle::detach allows task to keep running.
-//
-#[ cfg( feature = "spawn_handle" ) ]
 //
 #[ test ]
 //

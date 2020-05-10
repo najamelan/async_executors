@@ -2,21 +2,30 @@ package:
 
   # When releasing to crates.io:
   #
-  # - last check for all TODO, FIXME, expect, unwrap.
-  # - re-read and final polish of documentation
-  # - run cargo udeps
-  # - run cargo clippy
-  # - run cargo audit
+  # - last check for all TODO, FIXME, expect, unwrap, todo!, unreachable!.
   # - recheck log statements (informative, none left that were just for development, ...)
+  # - `cargo +nightly doc` and re-read and final polish of documentation.
+  #
   # - Update CHANGELOG.md.
   # - Update version numbers in Cargo.yml, Cargo.toml, install section of readme.
-  # - verify CI result and code coverage
-  # - run cargo test on dependent crates
-  # - cargo publish
-  # - merge dev branch into master
-  # - create git tag with version number
   #
-  version       : 0.2.2
+  # - `touch **.rs && cargo clippy --tests --examples --benches --all-features`
+  # - `cargo update`
+  # - `cargo outdated --root-deps-only`
+  # - `cargo audit`
+  # - `cargo udeps --all-targets --all-features`
+  # - `cargo crev crate verify --show-all --recursive` and review.
+  # - 'cargo test --all-targets --all-features'
+  #
+  # - push dev and verify CI result
+  # - `cargo test` on dependent crates
+  #
+  # - cargo publish
+  # - `git checkout master && git merge dev --no-ff`
+  # - `git tag x.x.x` with version number.
+  # - `git push && git push --tags`
+  #
+  version       : 0.3.0-beta.1
   name          : async_executors
   authors       : [ Naja Melan <najamelan@autistici.org> ]
   description   : Implements Spawn, SpawnLocal and SpawnHandle for commonly used executors.
@@ -78,12 +87,6 @@ features:
   #
   tracing: [ tracing-futures ]
 
-  # Provide an executor agnostic JoinHandle and the SpawnHandle family of traits.
-  # Remove pin-utils, futures-core and futures-channel when no longer vendoring remote_handle.
-  # Depends on: https://github.com/rust-lang/futures-rs/pull/2081
-  #
-  spawn_handle: [ futures-util, futures-channel, futures-core, pin-utils ]
-
   # only used internally, don't use
   #
   notwasm: []
@@ -100,13 +103,13 @@ dependencies:
   # Public deps
   #
   futures-task        : { version: ^0.3                                         }
-  futures-util        : { version: ^0.3, optional: true                         }
-  tracing-futures     : { version: ^0.2, optional: true, features: [futures-03] }
+  futures-util        : { version: ^0.3                                         }
   futures-executor    : { version: ^0.3, optional: true                         }
+  tracing-futures     : { version: ^0.2, optional: true, features: [futures-03] }
 
   # Private deps
   #
-  async_std_crate     : { version: ^1   , optional: true, package: async-std }
+  async_std_crate     : { version: ^1.6.0-beta, optional: true, package: async-std, features: [ unstable ] }
   tokio               : { version: ^0.2 , optional: true                     }
   parking_lot         : { version: ^0.10, optional: true                     }
 

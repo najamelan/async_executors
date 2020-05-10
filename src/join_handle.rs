@@ -2,9 +2,9 @@
 //
 use
 {
-	crate       :: { import::*, remote_handle::RemoteHandle                 } ,
 	std         :: { future::Future, sync::atomic::{ AtomicBool, Ordering } } ,
-	futures_util:: { future::{ AbortHandle, Aborted }                       } ,
+	std         :: { task::{ Poll, Context }, pin::Pin                      } ,
+	futures_util:: { future::{ AbortHandle, Aborted, RemoteHandle }         } ,
 };
 
 
@@ -37,11 +37,10 @@ use tokio::{ task::JoinHandle as TokioJoinHandle };
 //
 #[ derive( Debug ) ]
 //
-#[ cfg_attr( nightly, doc(cfg( feature = "spawn_handle" )) ) ]
-//
 #[ must_use = "JoinHandle will cancel your future when dropped." ]
 //
 pub struct JoinHandle<T> { pub(crate) inner: InnerJh<T> }
+
 
 
 #[ derive(Debug) ] #[ allow(dead_code) ]
@@ -74,6 +73,7 @@ pub(crate) enum InnerJh<T>
 	//
 	RemoteHandle( Option<RemoteHandle<T>> ),
 }
+
 
 
 impl<T> JoinHandle<T>
@@ -111,6 +111,7 @@ impl<T> JoinHandle<T>
 }
 
 
+
 impl<T: 'static> Future for JoinHandle<T>
 {
 	type Output = T;
@@ -133,8 +134,7 @@ impl<T: 'static> Future for JoinHandle<T>
 					//
 					Err(e) =>
 					{
-						dbg!(e);
-						panic!( "Task has been canceled. Are you dropping the executor to early?" );
+						panic!( "Task has been canceled. Are you dropping the executor to early? Error: {}", e );
 					}
 				}
 			}
@@ -154,6 +154,7 @@ impl<T: 'static> Future for JoinHandle<T>
 		}
 	}
 }
+
 
 
 impl<T> Drop for JoinHandle<T>

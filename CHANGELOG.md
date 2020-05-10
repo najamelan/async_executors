@@ -1,5 +1,13 @@
 # async_executors - CHANGELOG
 
+## 0.3.0-beta.1 - 2020-05-10
+
+  - futures 0.3.5 has been released, so we no longer have to vendor RemoteHandle. It means we are now `forbid( unsafe )` and
+    the spawn_handle feature has been removed since we no longer require extra dependencies in order to provide the traits.
+  - update to async-std 1.6.0-beta.1. Async-std is now backed by smol. It now supports Wasm and `LocalSpawn`. Local spawning
+    is unstable, so we turn on the unstable feature. As they are still in beta, we reflect that in our version.
+
+
 ## 0.2.2 - 2020-04-25
 
   - Temporarily remove forbid unsafe. A non-breaking change update of pin-utils now causes a macro to no longer pass.

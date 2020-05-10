@@ -1,4 +1,4 @@
-#![ cfg(all( nightly, feature = "spawn_handle", any( feature = "threadpool", feature = "async_std" ) )) ]
+#![ cfg(all( nightly, not(target_os = "unknown"), any( feature = "threadpool", feature = "async_std" ) )) ]
 #![ feature( negative_impls )]
 
 // Tested:
