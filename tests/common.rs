@@ -92,6 +92,7 @@ pub fn increment_ref_local( a: u8, exec: &impl LocalSpawn, tx: Sender<u8> )
 pub fn increment_clone( a: u8, exec: impl Spawn + Clone, tx: Sender<u8> )
 {
 	let second = exec.clone();
+	drop( exec );
 
 	let res = second.spawn( sum( a, 1, tx ) );
 
@@ -106,6 +107,7 @@ pub fn increment_clone( a: u8, exec: impl Spawn + Clone, tx: Sender<u8> )
 pub fn increment_clone_local( a: u8, exec: impl LocalSpawn + Clone, tx: Sender<u8> )
 {
 	let second = exec.clone();
+	drop( exec );
 
 	let res = second.spawn_local( sum( a, 1, tx ) );
 

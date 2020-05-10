@@ -189,7 +189,7 @@ fn spawn_handle_many()
 {
 	let exec = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
 
-	let _result = exec.clone().block_on( async move
+	let _result = exec.block_on( async move
 	{
 		let amount  = 1000;
 		let mut rxs = Vec::with_capacity( amount );
