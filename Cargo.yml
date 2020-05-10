@@ -11,8 +11,9 @@ package:
   #
   # - `touch **.rs && cargo clippy --tests --examples --benches --all-features`
   # - `cargo update`
-  # - `cargo udeps --all-targets --all-features`
+  # - `cargo outdated --root-deps-only`
   # - `cargo audit`
+  # - `cargo udeps --all-targets --all-features`
   # - `cargo crev crate verify --show-all --recursive` and review.
   # - 'cargo test --all-targets --all-features'
   #
