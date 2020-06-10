@@ -14,7 +14,7 @@ rustc_version = "^0.2"
 features = ["unstable"]
 optional = true
 package = "async-std"
-version = "^1.6.0-beta"
+version = "^1.6"
 
 [dependencies.futures-executor]
 optional = true
@@ -29,6 +29,10 @@ version = "^0.3"
 [dependencies.parking_lot]
 optional = true
 version = "^0.10"
+
+[dependencies.pin-utils]
+optional = true
+version = "^0.1"
 
 [dependencies.tokio]
 optional = true
@@ -71,7 +75,7 @@ path = "examples/spawn_handle_multi.rs"
 required-features = ["notwasm", "spawn_handle", "async_std"]
 
 [features]
-async_std = ["async_std_crate"]
+async_std = ["async_std_crate", "pin-utils"]
 bindgen = ["wasm-bindgen-futures"]
 default = ["notwasm"]
 localpool = ["futures-executor"]
@@ -93,7 +97,7 @@ license = "Unlicense"
 name = "async_executors"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_executors"
-version = "0.3.0-beta.1"
+version = "0.3.0"
 
 [package.metadata]
 [package.metadata.docs]
