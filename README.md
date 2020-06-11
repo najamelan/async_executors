@@ -51,14 +51,14 @@ With [cargo yaml](https://gitlab.com/storedbox/cargo-yaml):
 ```yaml
 dependencies:
 
-   async_executors: ^0.3.0-beta
+   async_executors: ^0.3
 ```
 
 With Cargo.toml
 ```toml
 [dependencies]
 
-    async_executors = "0.3.0-beta"
+    async_executors = "0.3"
 ```
 
 ### Upgrade
@@ -204,7 +204,7 @@ let tp = TokioTp::try_from( &mut tokio::runtime::Builder::new() ).expect( "build
 needs_exec( tp );
 ```
 
-For more examples, check out the [examples directory](https://github.com/najamelan/async_executors/tree/master/examples). If you want to get a more polished API for adhering to structured concurrency, check out [_async_nursery_](https://crates.io/crates/async_nursery)
+For more examples, check out the [examples directory](https://github.com/najamelan/async_executors/tree/master/examples). If you want to get a more polished API for adhering to structured concurrency, check out [_async_nursery_](https://crates.io/crates/async_nursery).
 
 ## API
 

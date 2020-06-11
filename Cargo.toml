@@ -14,15 +14,7 @@ rustc_version = "^0.2"
 features = ["unstable"]
 optional = true
 package = "async-std"
-version = "^1.6.0-beta"
-
-[dependencies.futures-channel]
-optional = true
-version = "^0.3"
-
-[dependencies.futures-core]
-optional = true
-version = "^0.3"
+version = "^1.6"
 
 [dependencies.futures-executor]
 optional = true
@@ -40,7 +32,7 @@ version = "^0.10"
 
 [dependencies.pin-utils]
 optional = true
-version = "0.1.0-alpha"
+version = "^0.1"
 
 [dependencies.tokio]
 optional = true
@@ -58,9 +50,18 @@ version = "^0.4"
 [dev-dependencies]
 static_assertions = "^1"
 
+[dev-dependencies.async_std_crate]
+features = ["attributes", "unstable"]
+package = "async-std"
+version = "^1.6"
+
 [dev-dependencies.futures]
 features = ["thread-pool"]
 version = "^0.3"
+
+[dev-dependencies.futures-timer]
+features = ["wasm-bindgen"]
+version = "^3"
 
 [[example]]
 name = "async_std"
@@ -105,7 +106,7 @@ license = "Unlicense"
 name = "async_executors"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_executors"
-version = "0.3.0-beta.1"
+version = "0.3.0"
 
 [package.metadata]
 [package.metadata.docs]
