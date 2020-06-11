@@ -51,14 +51,14 @@ With [cargo yaml](https://gitlab.com/storedbox/cargo-yaml):
 ```yaml
 dependencies:
 
-   async_executors: ^0.3.0-beta
+   async_executors: ^0.3
 ```
 
 With Cargo.toml
 ```toml
 [dependencies]
 
-    async_executors = "0.3.0-beta"
+    async_executors = "0.3"
 ```
 
 ### Upgrade

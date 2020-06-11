@@ -2,7 +2,7 @@
 
 ## 0.3.0 - 2020-06-10
 
-  - update to async-std 1.6. Local spawn still requires the unstable feature on async-std.
+  - update to async-std 1.6. Local spawn still requires the `unstable` feature on async-std so _async_executors_ enables that.
 
 ## 0.3.0-beta.1 - 2020-05-10
 

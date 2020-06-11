@@ -84,7 +84,7 @@ path = "examples/spawn_handle_multi.rs"
 required-features = ["notwasm", "spawn_handle", "async_std"]
 
 [features]
-async_std = ["async_std_crate", "pin-utils"]
+async_std = ["async_std_crate"]
 bindgen = ["wasm-bindgen-futures"]
 default = ["notwasm"]
 localpool = ["futures-executor"]

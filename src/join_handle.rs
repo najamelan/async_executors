@@ -64,8 +64,9 @@ pub(crate) enum InnerJh<T>
 	//
 	AsyncStd
 	{
-		handle  : Option< AsyncStdJoinHandle<T> > ,
-		detached: AtomicBool                      ,
+		handle  : AsyncStdJoinHandle<Result<T, Aborted>> ,
+		a_handle: AbortHandle                            ,
+		detached: AtomicBool                             ,
 	},
 
 	/// Wrapper around futures RemoteHandle.
@@ -141,9 +142,11 @@ impl<T: 'static> Future for JoinHandle<T>
 
 			#[ cfg( feature = "async_std" ) ] InnerJh::AsyncStd{ handle, .. } =>
 			{
-				// The unwrap is fine since it's never removed from the option until drop.
-				//
-				Pin::new( handle.as_mut().unwrap() ).poll( cx )
+				match futures_util::ready!( Pin::new( handle ).poll( cx ) )
+				{
+					Ok (t) => Poll::Ready( t ),
+					Err(_) => unreachable!(),
+				}
 			}
 
 
@@ -169,25 +172,10 @@ impl<T> Drop for JoinHandle<T>
 				if !detached.load( Ordering::Relaxed ) { a_handle.abort() },
 
 
-			#[ cfg( feature = "async_std" ) ] InnerJh::AsyncStd { handle, detached } =>
-			{
-				// The unwrap is fine, since it will always be there until we drop it here.
-				// We have to pass it by value to `cancel`, and that is the only reason it's in
-				// an option in the first place.
-				//
-				if !detached.load( Ordering::Relaxed )
-				{
-					// We have to poll it at least once.
-					//
-					let waker  = futures_task::noop_waker();
-					let mut cx = std::task::Context::from_waker( &waker );
+			#[ cfg( feature = "async_std" ) ] InnerJh::AsyncStd { a_handle, detached, .. } =>
 
-					let fut = handle.take().unwrap().cancel();
-					pin_utils::pin_mut!( fut );
+				if !detached.load( Ordering::Relaxed ) { a_handle.abort() },
 
-					while let Poll::Pending = Pin::new( &mut fut ).poll( &mut cx ) {}
-				}
-			}
 
 			InnerJh::RemoteHandle( _ ) => {},
 		};

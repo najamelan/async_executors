@@ -4,7 +4,7 @@ package:
   #
   # - last check for all TODO, FIXME, expect, unwrap, todo!, unreachable!.
   # - recheck log statements (informative, none left that were just for development, ...)
-  # - `cargo +nightly doc` and re-read and final polish of documentation.
+  # - `cargo +nightly doc --no-deps --all-features --open` and re-read and final polish of documentation.
   #
   # - Update CHANGELOG.md.
   # - Update version numbers in Cargo.yml, Cargo.toml, install section of readme.
@@ -57,7 +57,7 @@ features:
 
   # Enables the async-std task executor. Not available on WASM.
   #
-  async_std : [ async_std_crate, pin-utils ]
+  async_std : [ async_std_crate ]
 
   # Enables the tokio current_thread executor. Not available on WASM.
   #
