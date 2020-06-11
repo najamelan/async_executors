@@ -20,6 +20,9 @@ use
 {
 	common  :: { *                        } ,
 	futures :: { channel::mpsc, StreamExt } ,
+	std             :: { time::Duration           } ,
+	futures_timer   :: { Delay                    } ,
+	async_std_crate as async_std,
 };
 
 
@@ -163,20 +166,19 @@ impl Drop for DropNotify
 
 
 // Joinhandle::drop aborts the task.
+// Make sure that a task that is currently waiting for it's waker to be woken up
+// get's dropped when JoinHandle is dropped.
 //
-#[ test ]
+#[ async_std::test ]
 //
-fn join_handle_abort()
+async fn join_handle_abort()
 {
 	let exec      = AsyncStd::default();
 	let (tx , rx) = oneshot::channel::<()>();
-	let notify    = DropNotify{ tx: Some(tx) };
 
-	// it's important we move in notify.
-	//
-	let in_join_handle = exec.spawn_handle( async move
+	let join_handle = exec.spawn_handle( async move
 	{
-		let _my_notify = notify;
+		let _notify = DropNotify{ tx: Some(tx) };
 
 		// This will never end.
 		// TODO: Replace with the std version when that is merged in stable.
@@ -185,15 +187,15 @@ fn join_handle_abort()
 
 	}).expect( "spawn task" );
 
+	// Don't drop the handle before the task is scheduled by the executor.
+	//
+	Delay::new( Duration::from_millis(10) ).await;
 
-	drop( in_join_handle );
+	drop( join_handle );
 
 	// This should not deadlock.
 	//
-	AsyncStd::block_on( async
-	{
-		assert!( rx.await.is_ok() );
-	})
+	assert!( rx.await.is_ok() );
 }
 
 

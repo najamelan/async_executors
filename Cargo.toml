@@ -50,9 +50,18 @@ version = "^0.4"
 [dev-dependencies]
 static_assertions = "^1"
 
+[dev-dependencies.async_std_crate]
+features = ["attributes"]
+package = "async-std"
+version = "^1.6"
+
 [dev-dependencies.futures]
 features = ["thread-pool"]
 version = "^0.3"
+
+[dev-dependencies.futures-timer]
+features = ["wasm-bindgen"]
+version = "^3"
 
 [[example]]
 name = "async_std"
