@@ -125,7 +125,7 @@ dev-dependencies:
   static_assertions : ^1
   futures           : { version: ^0.3, features: [ thread-pool ] }
   futures-timer     : { version: ^3  , features: [ wasm-bindgen ] }
-  async_std_crate   : { version: ^1.6, package: async-std, features: [ attributes ] }
+  async_std_crate   : { version: ^1.6, package: async-std, features: [ attributes, unstable ] }
 
   # pretty_assertions : ^0.6
   # log               : ^0.4
