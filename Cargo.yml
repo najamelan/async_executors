@@ -126,6 +126,8 @@ dev-dependencies:
   futures           : { version: ^0.3, features: [ thread-pool ] }
   futures-timer     : { version: ^3  , features: [ wasm-bindgen ] }
   async_std_crate   : { version: ^1.6, package: async-std, features: [ attributes, unstable ] }
+  tracing-subscriber: { version: ^0.2, default-features: false, features: [ fmt ] }
+  tracing_crate     : { version: ^0.1, package: tracing }
 
   # pretty_assertions : ^0.6
   # log               : ^0.4
@@ -170,3 +172,7 @@ example:
   - name             : spawn_handle_multi
     path             : examples/spawn_handle_multi.rs
     required-features: [ notwasm, spawn_handle, async_std ]
+
+  - name             : tracing
+    path             : examples/tracing.rs
+    required-features: [ notwasm, tracing, async_std ]

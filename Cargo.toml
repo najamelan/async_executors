@@ -63,6 +63,15 @@ version = "^0.3"
 features = ["wasm-bindgen"]
 version = "^3"
 
+[dev-dependencies.tracing-subscriber]
+default-features = false
+features = ["fmt"]
+version = "^0.2"
+
+[dev-dependencies.tracing_crate]
+package = "tracing"
+version = "^0.1"
+
 [[example]]
 name = "async_std"
 path = "examples/async_std.rs"
@@ -82,6 +91,11 @@ required-features = ["notwasm", "tokio_tp"]
 name = "spawn_handle_multi"
 path = "examples/spawn_handle_multi.rs"
 required-features = ["notwasm", "spawn_handle", "async_std"]
+
+[[example]]
+name = "tracing"
+path = "examples/tracing.rs"
+required-features = ["notwasm", "tracing", "async_std"]
 
 [features]
 async_std = ["async_std_crate"]
