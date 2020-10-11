@@ -1,9 +1,9 @@
 use
 {
 	async_executors :: { AsyncStd, SpawnHandle, SpawnHandleExt } ,
-	tracing_futures :: { Instrument            } ,
-	tracing_crate as tracing,
-	async_std_crate as async_std,
+	tracing_futures :: { Instrument                            } ,
+	tracing_crate   as tracing                                   ,
+	async_std_crate as async_std                                 ,
 };
 
 

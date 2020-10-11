@@ -152,9 +152,7 @@ impl SomeObj
 
    fn run( &self ) -> JoinHandle<u8>
    {
-      let task = async{ 5 }.boxed();
-
-      self.exec.spawn_handle( task ).expect( "spawn" )
+      self.exec.spawn_handle( async{ 5 } ).expect( "spawn" )
    }
 }
 
