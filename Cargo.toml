@@ -90,7 +90,7 @@ required-features = ["notwasm", "tokio_tp"]
 [[example]]
 name = "spawn_handle_multi"
 path = "examples/spawn_handle_multi.rs"
-required-features = ["notwasm", "spawn_handle", "async_std"]
+required-features = ["notwasm", "async_std"]
 
 [[example]]
 name = "tracing"
