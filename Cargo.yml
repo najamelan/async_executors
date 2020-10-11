@@ -112,7 +112,7 @@ dependencies:
   #
   async_std_crate     : { version: ^1.6 , optional: true, package: async-std, features: [ unstable ] }
   tokio               : { version: ^0.2 , optional: true }
-  parking_lot         : { version: ^0.10, optional: true }
+  parking_lot         : { version: ^0.11, optional: true }
   pin-utils           : { version: ^0.1 , optional: true }
 
   # necessary for the crate to compile for `cargo doc`
@@ -171,7 +171,7 @@ example:
 
   - name             : spawn_handle_multi
     path             : examples/spawn_handle_multi.rs
-    required-features: [ notwasm, spawn_handle, async_std ]
+    required-features: [ notwasm, async_std ]
 
   - name             : tracing
     path             : examples/tracing.rs
