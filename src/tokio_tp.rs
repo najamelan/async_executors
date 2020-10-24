@@ -2,12 +2,11 @@
 //
 use
 {
-	crate          :: { TokioHandle, SpawnHandle, JoinHandle, join_handle::InnerJh          } ,
-	parking_lot    :: { Mutex                                                               } ,
-	std            :: { sync::{ Arc, atomic::AtomicBool }, convert::TryFrom, future::Future } ,
-	futures_task   :: { FutureObj, Spawn, SpawnError                                        } ,
-	futures_util   :: { future::abortable                                                   } ,
-	tokio::runtime :: { Runtime, Builder, Handle as TokioRtHandle                           } ,
+	crate          :: { SpawnHandle, JoinHandle, join_handle::InnerJh     } ,
+	std            :: { sync::{ Arc, atomic::AtomicBool }, future::Future } ,
+	futures_task   :: { FutureObj, Spawn, SpawnError                      } ,
+	futures_util   :: { future::abortable                                 } ,
+	tokio::runtime :: { Runtime                                           } ,
 };
 
 
@@ -21,7 +20,7 @@ use
 /// use
 /// {
 ///    futures          :: { task::{ Spawn, SpawnExt } } ,
-///    async_executors  :: { TokioTp                   } ,
+///    async_executors  :: { TokioTpBuilder            } ,
 ///    tokio::runtime   :: { Builder                   } ,
 ///    std::convert     :: { TryFrom                   } ,
 ///    futures::channel :: { oneshot, oneshot::Sender  } ,
@@ -43,7 +42,7 @@ use
 ///    // You provide the builder, and async_executors will set the right scheduler.
 ///    // Of course you can set other configuration on the builder before.
 ///    //
-///    let exec = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+///    let exec = TokioTpBuilder::new().build().expect( "create tokio threadpool" );
 ///
 ///    let program = async
 ///    {
@@ -99,8 +98,7 @@ use
 //
 pub struct TokioTp
 {
-	pub(crate) exec  : Arc< Mutex<Runtime> >,
-	pub(crate) handle: TokioRtHandle        ,
+	pub(crate) exec: Arc< Runtime >,
 }
 
 
@@ -111,35 +109,7 @@ impl TokioTp
 	//
 	pub fn block_on< F: Future >( &self, f: F ) -> F::Output
 	{
-		self.exec.lock().block_on( f )
-	}
-
-	/// Obtain a handle to this executor that can easily be cloned and that implements the
-	/// Spawn trait.
-	///
-	/// This handle only works as long as the parent executor is still alive.
-	//
-	pub fn handle( &self ) -> TokioHandle
-	{
-		TokioHandle::new( self.handle.clone() )
-	}
-}
-
-
-
-impl TryFrom<&mut Builder> for TokioTp
-{
-	type Error = std::io::Error;
-
-	fn try_from( builder: &mut Builder ) -> Result<Self, Self::Error>
-	{
-		let exec = builder.threaded_scheduler().build()?;
-
-		Ok( Self
-		{
-			handle: exec.handle().clone()       ,
-			exec  : Arc::new( Mutex::new(exec) ),
-		})
+		self.exec.block_on( f )
 	}
 }
 
@@ -150,7 +120,7 @@ impl Spawn for TokioTp
 	{
 		// We drop the JoinHandle, so the task becomes detached.
 		//
-		let _ = self.handle.spawn( future );
+		let _ = self.exec.spawn( future );
 
 		Ok(())
 	}
@@ -166,7 +136,7 @@ impl<Out: 'static + Send> SpawnHandle<Out> for TokioTp
 
 		Ok( JoinHandle{ inner: InnerJh::Tokio
 		{
-			handle  : self.handle.spawn( fut ) ,
+			handle  : self.exec.spawn( fut ) ,
 			detached: AtomicBool::new( false ) ,
 			a_handle                           ,
 		}})

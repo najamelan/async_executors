@@ -1,8 +1,8 @@
 use
 {
-	crate        :: { TokioHandle, SpawnHandle, LocalSpawnHandle, JoinHandle, join_handle::InnerJh      } ,
-	std          :: { rc::Rc, cell::RefCell, convert::TryFrom, future::Future, sync::atomic::AtomicBool } ,
-	tokio        :: { task::LocalSet, runtime::{ Builder, Runtime, Handle as TokioRtHandle }            } ,
+	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle, join_handle::InnerJh      } ,
+	std          :: { sync::Arc, future::Future, sync::atomic::AtomicBool } ,
+	tokio        :: { task::LocalSet, runtime::{  Runtime }            } ,
 	futures_task :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError                          } ,
 	futures_util :: { future::abortable                                                                 } ,
 };
@@ -26,12 +26,12 @@ use
 /// //
 /// use
 /// {
-///    async_executors :: { TokioCt, LocalSpawnHandleExt } ,
+///    async_executors :: { TokioCt, TokioCtBuilder, LocalSpawnHandleExt } ,
 ///    tokio           :: { runtime::Builder             } ,
-///    std             :: { convert::TryFrom, rc::Rc     } ,
+///    std             :: { rc::Rc     } ,
 /// };
 ///
-/// let exec = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio runtime" );
+/// let exec = TokioCtBuilder::new().build().expect( "create tokio runtime" );
 ///
 /// // block_on takes a &self, so if you need to `async move`,
 /// // just clone it for use inside the async block.
@@ -75,14 +75,14 @@ use
 //
 pub struct TokioCt
 {
-	pub(crate) exec  : Rc<RefCell< Runtime  >> ,
-	pub(crate) local : Rc<         LocalSet  > ,
+	pub(crate) exec  : Arc< Runtime  > ,
+	pub(crate) local : Arc< LocalSet > ,
 
 	// We keep one handy, because users might pass this into a task they run with block_on, which
 	// borrows the exec field. So we shouldn't need to borrow when handle is called, otherwise
 	// the RefCell will panic.
 	//
-	pub(crate) handle: TokioRtHandle,
+	// pub(crate) handle: TokioRtHandle,
 }
 
 
@@ -103,40 +103,9 @@ impl TokioCt
 	//
 	pub fn block_on< F: Future >( &self, f: F ) -> F::Output
 	{
-		self.exec.borrow_mut().block_on( self.local.run_until( f ) )
-	}
-
-	/// Obtain a handle to this executor that can be send to another thread. This allows spawning
-	/// tasks on this executor from other threads, but as such requires those tasks to be `Send`.
-	///
-	/// Wrapper around [`tokio::runtime::Handle`].
-	//
-	pub fn handle( &self ) -> TokioHandle
-	{
-		TokioHandle::new( self.handle.clone() )
+		self.exec.block_on( self.local.run_until( f ) )
 	}
 }
-
-
-
-impl TryFrom<&mut Builder> for TokioCt
-{
-	type Error = std::io::Error;
-
-	fn try_from( builder: &mut Builder ) -> Result<Self, Self::Error>
-	{
-		let exec  = builder.basic_scheduler().build()?;
-		let local = LocalSet::new();
-
-		Ok( Self
-		{
-			 handle   : exec.handle().clone()          ,
-			 exec     : Rc::new( RefCell::new(exec ) ) ,
-			 local    : Rc::new( local               ) ,
-		})
-	}
-}
-
 
 
 impl Spawn for TokioCt
@@ -175,7 +144,7 @@ impl<Out: 'static + Send> SpawnHandle<Out> for TokioCt
 
 		Ok( JoinHandle{ inner: InnerJh::Tokio
 		{
-			handle  : self.handle.spawn( fut ) ,
+			handle  : self.exec.spawn( fut ) ,
 			detached: AtomicBool::new( false ) ,
 			a_handle                           ,
 		}})
@@ -193,8 +162,8 @@ impl<Out: 'static> LocalSpawnHandle<Out> for TokioCt
 		Ok( JoinHandle{ inner: InnerJh::Tokio
 		{
 			handle  : self.local.spawn_local( fut ) ,
-			detached: AtomicBool::new( false )  ,
-			a_handle                            ,
+			detached: AtomicBool::new( false )      ,
+			a_handle                                ,
 		}})
 
 	}

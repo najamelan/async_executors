@@ -187,7 +187,7 @@ Some executors are a bit special, so make sure to check the API docs for the one
 ```rust
 use
 {
-  async_executors :: { AsyncStd, TokioTp, SpawnHandle } ,
+  async_executors :: { AsyncStd, TokioTpBuilder, SpawnHandle } ,
   std             :: { convert::TryFrom               } ,
 };
 
@@ -197,7 +197,7 @@ fn needs_exec( exec: impl SpawnHandle<()> + SpawnHandle<String> ){};
 //
 needs_exec( AsyncStd );
 
-let tp = TokioTp::try_from( &mut tokio::runtime::Builder::new() ).expect( "build threadpool" );
+let tp = TokioTpBuilder::new().build().expect( "build threadpool" );
 
 needs_exec( tp );
 ```

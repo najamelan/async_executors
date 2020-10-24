@@ -36,7 +36,7 @@ version = "^0.1"
 
 [dependencies.tokio]
 optional = true
-version = "^0.2"
+version = "^0.3"
 
 [dependencies.tracing-futures]
 features = ["futures-03"]
@@ -104,8 +104,8 @@ default = ["notwasm"]
 localpool = ["futures-executor"]
 notwasm = []
 threadpool = ["futures-executor/thread-pool"]
-tokio_ct = ["tokio/rt-core", "tokio/rt-util"]
-tokio_tp = ["tokio/rt-threaded", "parking_lot"]
+tokio_ct = ["tokio/rt"]
+tokio_tp = ["tokio/rt-multi-thread"]
 tracing = ["tracing-futures"]
 
 [package]
