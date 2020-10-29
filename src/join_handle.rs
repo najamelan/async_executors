@@ -53,9 +53,8 @@ pub(crate) enum InnerJh<T>
 	//
 	Tokio
 	{
-		handle  : TokioJoinHandle<Result<T, Aborted>> ,
-		a_handle: AbortHandle                         ,
-		detached: AtomicBool                          ,
+		handle  : TokioJoinHandle<T> ,
+		detached: AtomicBool         ,
 	},
 
 	/// Wrapper around AsyncStd JoinHandle.
@@ -126,12 +125,8 @@ impl<T: 'static> Future for JoinHandle<T>
 			{
 				match futures_util::ready!( Pin::new( handle ).poll( cx ) )
 				{
-					// expect: it returns futures::future::Aborted, but we hold this abortable and
-					// only expose the abort through being dropped, so this should be unreachable.
-					//
-					Ok (t) => Poll::Ready( t.expect( "task aborted" ) ),
+					Ok (t) => Poll::Ready( t ),
 
-					//
 					Err(e) =>
 					{
 						panic!( "Task has been canceled. Are you dropping the executor to early? Error: {}", e );
@@ -167,9 +162,9 @@ impl<T> Drop for JoinHandle<T>
 		{
 			#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
 			//
-			InnerJh::Tokio{ a_handle, detached, .. } =>
+			InnerJh::Tokio{ handle, detached, .. } =>
 
-				if !detached.load( Ordering::Relaxed ) { a_handle.abort() },
+				if !detached.load( Ordering::Relaxed ) { handle.abort() },
 
 
 			#[ cfg( feature = "async_std" ) ] InnerJh::AsyncStd { a_handle, detached, .. } =>
