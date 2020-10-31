@@ -20,7 +20,6 @@
 // ✔ pass a Rc<TokioCt> to a function that takes exec: `impl LocalSpawnHandle`
 // ✔ pass a   &TokioCt  to a function that takes exec: `&dyn LocalSpawnHandle`
 //
-// ✔ handle() works from within spawned task.
 // ✔ we can spawn without being in a future running on block_on.
 // ✔ Joinhandle::detach allows task to keep running.
 //
@@ -354,36 +353,6 @@ fn spawn_handle_local_os()
 	assert_eq!( 5u8, result );
 }
 
-
-
-// // make sure handle() works from within spawned task.
-// //
-// #[ test ]
-// //
-// fn handle()
-// {
-// 	let (mut tx, mut rx) = mpsc::channel( 1 );
-// 	let exec             = TokioCtBuilder::new().build().expect( "create tokio current thread" );
-
-// 	let task = async
-// 	{
-// 		let inner = async
-// 		{
-// 			std::thread::spawn( move ||
-// 			{
-// 				exec.spawn( async move { tx.send( 5u8 ).await.expect( "send on tx" ); } ).expect( "spawn on handle" );
-// 			});
-// 		};
-
-// 		exec.spawn( inner ).expect( "spawn inner" );
-
-// 		rx.next().await.expect( "wait on rx" )
-// 	};
-
-// 	let result = exec.block_on( task );
-
-// 	assert_eq!( 5u8, result );
-// }
 
 
 

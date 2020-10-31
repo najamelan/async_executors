@@ -38,8 +38,9 @@ use
 ///
 /// fn main()
 /// {
-///    // You provide the builder, and async_executors will set the right scheduler.
-///    // Of course you can set other configuration on the builder before.
+///    // You must use the builder. This guarantees that TokioTp is always backed up by a threadpool.
+///    // You can set other configurations by calling `tokio_builder()` on TokioTpBuilder, so you get
+///    // access to the `tokio::runtime::Builder`.
 ///    //
 ///    let exec = TokioTpBuilder::new().build().expect( "create tokio threadpool" );
 ///
@@ -55,24 +56,6 @@ use
 /// }
 /// ```
 ///
-/// ## Drop order.
-///
-/// TokioTp bundles an `Arc<Mutex<tokio::runtime::Runtime>>` with a [`tokio::runtime::Handle`].
-/// Doing so has some nice properties. The type behaves similarly to other wrapped executors in
-/// this crate. It implements all the spawn traits directly and is self contained. That means
-/// you can pass it to an API and holding the type means it's valid. If we give out just a
-/// [`tokio::runtime::Handle`], it can only be used to spawn tasks as long as the `Runtime` is
-/// alive.
-///
-/// However, a new problem arises. `Runtime` should never be dropped from async context. Since we
-/// use a reference counted `Runtime`, the last one actually invokes drop, and if that last one is
-/// in async context, it panics the thread. If you pass a clone into some async task and that tasks
-/// is not properly synchronized, it might outlive the code in non-async context that spawned it.
-/// Now drop happens in async context and boom.
-///
-/// To solve this you can either make sure all tasks are properly synchronized (eg. await `JoinHandle`s
-/// so no tasks containing an executor outlive the parent), or hand out [TokioHandle] which can be
-/// obtained from [`TokioTp::handle`] and which implements all required traits to spawn.
 ///
 /// ## Unwind Safety.
 ///
@@ -86,7 +69,10 @@ use
 /// You should make sure that if your future panics, no code that lives on after the spawned task has
 /// unwound, nor any destructors called during the unwind can observe data in an inconsistent state.
 ///
-/// Note that these are logic errors, not related to the class of problems that cannot happen
+/// If a future is run with `block_on` as opposed to `spawn`, the panic will not be caught and the
+/// thread calling `block_on` will be unwound.
+///
+/// Note that unwind safety is related to logic errors, not related to the memory safety issues that cannot happen
 /// in safe rust (memory safety, undefined behavior, unsoundness, data races, ...). See the relevant
 /// [catch_unwind RFC](https://github.com/rust-lang/rfcs/blob/master/text/1236-stabilize-catch-panic.md)
 /// and it's discussion threads for more info as well as the documentation of [std::panic::UnwindSafe].
@@ -97,18 +83,70 @@ use
 //
 pub struct TokioTp
 {
-	pub(crate) exec: Arc< Runtime >,
+	pub(crate) exec: Option< Arc<Runtime> >,
 }
 
 
 
 impl TokioTp
 {
-	/// Wrapper around [Runtime::block_on].
+	/// Forwards to [Runtime::block_on].
 	//
 	pub fn block_on< F: Future >( &self, f: F ) -> F::Output
 	{
-		self.exec.block_on( f )
+		self.exec.as_ref().unwrap().block_on( f )
+	}
+
+
+	/// See: [tokio::runtime::Runtime::shutdown_timeout]
+	///
+	///  This tries to unwrap the Arc<Runtime> we hold, so that works only if no other clones are around. If this is not the
+	///  only reference, self will be returned to you as an error. It means you cannot shutdown the runtime because there are
+	///  other clones of the executor still alive.
+	//
+	pub fn shutdown_timeout( mut self, duration: std::time::Duration ) -> Result<(), Self>
+	{
+		let arc = self.exec.take().unwrap();
+
+		let rt  = match Arc::try_unwrap( arc )
+		{
+			Ok(rt) => rt,
+			Err(arc) =>
+			{
+				self.exec = Some(arc);
+				return Err(self);
+			}
+		};
+
+		rt.shutdown_timeout( duration );
+
+		Ok(())
+	}
+
+
+	/// See: [tokio::runtime::Runtime::shutdown_background]
+	///
+	///  This tries to unwrap the Arc<Runtime> we hold, so that works only if no other clones are around. If this is not the
+	///  only reference, self will be returned to you as an error. It means you cannot shutdown the runtime because there are
+	///  other clones of the executor still alive.
+	//
+	pub fn shutdown_background( mut self ) -> Result<(), Self>
+	{
+		let arc = self.exec.take().unwrap();
+
+		let rt  = match Arc::try_unwrap( arc )
+		{
+			Ok(rt) => rt,
+			Err(arc) =>
+			{
+				self.exec = Some(arc);
+				return Err(self);
+			}
+		};
+
+		rt.shutdown_background();
+
+		Ok(())
 	}
 }
 
@@ -119,7 +157,7 @@ impl Spawn for TokioTp
 	{
 		// We drop the JoinHandle, so the task becomes detached.
 		//
-		let _ = self.exec.spawn( future );
+		let _ = self.exec.as_ref().unwrap().spawn( future );
 
 		Ok(())
 	}
@@ -133,7 +171,7 @@ impl<Out: 'static + Send> SpawnHandle<Out> for TokioTp
 	{
 		Ok( JoinHandle{ inner: InnerJh::Tokio
 		{
-			handle  : self.exec.spawn( future ) ,
+			handle  : self.exec.as_ref().unwrap().spawn( future ) ,
 			detached: AtomicBool::new( false  ) ,
 		}})
 	}
