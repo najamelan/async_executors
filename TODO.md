@@ -1,6 +1,6 @@
 # TODO:
 
-- tokio now has abort on the joinhandle.
+- add support for async-executor.
 
 - making sure that all executors have block_on and wrapping those of the futures library would
   make it easier to interop with TokioCt. For running entire test suits on different executors for example.
