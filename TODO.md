@@ -3,6 +3,8 @@
 - add support for async-global-executor. This is what async-std uses, so maybe support that directly and drop support for async-std?
   the api of async-global-executor is better as well, since async-std JoinHandle detaches on drop, which forces us to use futures::Abortable.
 
+- support smolscale?
+
 - wrapping the executors of the futures library would make it easier to interop with TokioCt if they were wrapped and we put block_on on the wrapper for consistent api. For running entire test suits on different executors for example. That is because with tokio ct you have to call block_on.
 
 - think about timers and timeout.
