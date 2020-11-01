@@ -20,8 +20,6 @@ use
 {
 	common          :: { *                                     } ,
 	futures         :: { channel::{ mpsc, oneshot }, StreamExt } ,
-	tokio::runtime  :: { Builder                               } ,
-	std             :: { convert::TryFrom                      } ,
 };
 
 
@@ -32,7 +30,7 @@ use
 fn spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = TokioTpBuilder::new().build().expect( "create tokio threadpool" );
 
 	increment( 4, exec.clone(), tx );
 
@@ -49,7 +47,7 @@ fn spawn()
 fn spawn_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = TokioTpBuilder::new().build().expect( "create tokio threadpool" );
 
 	increment_ref( 4, &exec, tx );
 
@@ -66,7 +64,7 @@ fn spawn_ref()
 fn spawn_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = TokioTpBuilder::new().build().expect( "create tokio threadpool" );
 
 	increment( 4, &exec, tx );
 
@@ -83,7 +81,7 @@ fn spawn_with_ref()
 fn spawn_clone_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = TokioTpBuilder::new().build().expect( "create tokio threadpool" );
 
 	increment_clone( 4, &exec, tx );
 
@@ -101,7 +99,7 @@ fn spawn_clone_with_ref()
 fn spawn_clone_with_arc()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec         = TokioTpBuilder::new().build().expect( "create tokio threadpool" );
 
 	increment( 4, Arc::new( exec.clone() ), tx );
 
@@ -117,7 +115,7 @@ fn spawn_clone_with_arc()
 //
 fn spawn_handle()
 {
-	let exec = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec = TokioTpBuilder::new().build().expect( "create tokio threadpool" );
 
 	let result = exec.block_on( increment_spawn_handle( 4, exec.clone() ) );
 
@@ -131,7 +129,7 @@ fn spawn_handle()
 //
 fn spawn_handle_arc()
 {
-	let exec = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec = TokioTpBuilder::new().build().expect( "create tokio threadpool" );
 
 	let result = exec.block_on( increment_spawn_handle( 4, Arc::new( exec.clone() ) ) );
 
@@ -145,7 +143,7 @@ fn spawn_handle_arc()
 //
 fn spawn_handle_os()
 {
-	let exec = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec = TokioTpBuilder::new().build().expect( "create tokio threadpool" );
 
 	let result = exec.block_on( increment_spawn_handle_os( 4, &exec ) );
 
@@ -161,7 +159,9 @@ fn build_name_thread()
 {
 	let (tx, rx) = oneshot::channel();
 
-	let exec = TokioTp::try_from( Builder::new().thread_name( "test_thread" ) ).expect( "create tokio threadpool" );
+	let mut builder = TokioTpBuilder::new();
+	builder.tokio_builder().thread_name( "test_thread" );
+	let exec = builder.build().expect( "create tokio threadpool" );
 
 	let task = async move
 	{
@@ -186,8 +186,7 @@ fn build_name_thread()
 //
 fn join_handle_detach()
 {
-	let wrap         = TokioTp::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
-	let exec         = wrap.handle();
+	let exec         = TokioTpBuilder::new().build().expect( "create tokio threadpool" );
 
 	let (in_tx , in_rx ) = oneshot::channel();
 	let (out_tx, out_rx) = oneshot::channel();
@@ -204,7 +203,7 @@ fn join_handle_detach()
 
 	in_join_handle.detach();
 
-	wrap.block_on( async move
+	exec.block_on( async move
 	{
 		in_tx.send( 5u8 ).expect( "send on in" );
 

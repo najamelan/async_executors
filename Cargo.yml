@@ -26,7 +26,7 @@ package:
   # - `git tag x.x.x` with version number.
   # - `git push && git push --tags`
   #
-  version       : 0.3.0
+  version       : 0.4.0-beta.1
   name          : async_executors
   authors       : [ Naja Melan <najamelan@autistici.org> ]
   description   : Implements Spawn, SpawnLocal and SpawnHandle for commonly used executors.
@@ -61,11 +61,11 @@ features:
 
   # Enables the tokio current_thread executor. Not available on WASM.
   #
-  tokio_ct  : [ tokio/rt-core, tokio/rt-util ]
+  tokio_ct  : [ tokio/rt ]
 
   # Enables the tokio thread_pool executor. Not available on WASM.
   #
-  tokio_tp  : [ tokio/rt-threaded, parking_lot ]
+  tokio_tp  : [ tokio/rt-multi-thread ]
 
   # Enables the wasm-bindgen-futures executor. Only available on WASM. If no other executors are enabled
   # this will be enabled by default. Currently the only executor available on WASM, so it makes no sense
@@ -111,8 +111,7 @@ dependencies:
   # Private deps
   #
   async_std_crate     : { version: ^1.6 , optional: true, package: async-std, features: [ unstable ] }
-  tokio               : { version: ^0.2 , optional: true }
-  parking_lot         : { version: ^0.10, optional: true }
+  tokio               : { version: ^0.3 , optional: true }
   pin-utils           : { version: ^0.1 , optional: true }
 
   # necessary for the crate to compile for `cargo doc`
@@ -126,6 +125,8 @@ dev-dependencies:
   futures           : { version: ^0.3, features: [ thread-pool ] }
   futures-timer     : { version: ^3  , features: [ wasm-bindgen ] }
   async_std_crate   : { version: ^1.6, package: async-std, features: [ attributes, unstable ] }
+  tracing-subscriber: { version: ^0.2, default-features: false, features: [ fmt ] }
+  tracing_crate     : { version: ^0.1, package: tracing }
 
   # pretty_assertions : ^0.6
   # log               : ^0.4
@@ -134,7 +135,7 @@ dev-dependencies:
 
 build-dependencies:
 
-  rustc_version: ^0.2
+  rustc_version: ^0.3
 
 
 profile:
@@ -169,4 +170,8 @@ example:
 
   - name             : spawn_handle_multi
     path             : examples/spawn_handle_multi.rs
-    required-features: [ notwasm, spawn_handle, async_std ]
+    required-features: [ notwasm, async_std ]
+
+  - name             : tracing
+    path             : examples/tracing.rs
+    required-features: [ notwasm, tracing, async_std ]

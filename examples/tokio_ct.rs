@@ -1,9 +1,8 @@
 use
 {
 	futures::task    :: { LocalSpawn, LocalSpawnExt } ,
-	async_executors  :: { TokioCt                   } ,
-	tokio::runtime   :: { Builder                   } ,
-	std              :: { convert::TryFrom, rc::Rc  } ,
+	async_executors  :: { TokioCtBuilder            } ,
+	std              :: { rc::Rc                    } ,
 	futures::channel :: { oneshot, oneshot::Sender  } ,
 };
 
@@ -25,7 +24,7 @@ fn main()
 	// You provide the builder, and async_executors will set the right scheduler.
 	// Of course you can set other configuration on the builder before.
 	//
-	let exec = TokioCt::try_from( &mut Builder::new() ).expect( "create tokio threadpool" );
+	let exec = TokioCtBuilder::new().build().expect( "create tokio threadpool" );
 
 	let program = async
 	{

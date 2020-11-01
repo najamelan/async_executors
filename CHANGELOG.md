@@ -1,5 +1,11 @@
 # async_executors - CHANGELOG
 
+## 0.4.0-beta.1
+
+  - BREAKING CHANGE: support tokio 0.3. Will go out of beta when tokio releases 1.0.
+  - add example for use with tracing.
+  - update cargo deny.
+
 ## 0.3.0 - 2020-06-10
 
   - update to async-std 1.6. Local spawn still requires the `unstable` feature on async-std so _async_executors_ enables that.
