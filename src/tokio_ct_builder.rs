@@ -60,3 +60,12 @@ impl TokioCtBuilder
 	}
 }
 
+
+impl Default for TokioCtBuilder
+{
+	fn default() -> Self
+	{
+		Self::new()
+	}
+}
+

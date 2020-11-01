@@ -58,3 +58,12 @@ impl TokioTpBuilder
 	}
 }
 
+
+impl Default for TokioTpBuilder
+{
+	fn default() -> Self
+	{
+		Self::new()
+	}
+}
+
