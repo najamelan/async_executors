@@ -7,7 +7,7 @@ status = "actively-developed"
 repository = "najamelan/async_executors"
 
 [build-dependencies]
-rustc_version = "^0.2"
+rustc_version = "^0.3"
 
 [dependencies]
 [dependencies.async_std_crate]
@@ -25,10 +25,6 @@ version = "^0.3"
 
 [dependencies.futures-util]
 version = "^0.3"
-
-[dependencies.parking_lot]
-optional = true
-version = "^0.11"
 
 [dependencies.pin-utils]
 optional = true
@@ -120,7 +116,7 @@ license = "Unlicense"
 name = "async_executors"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_executors"
-version = "0.3.0"
+version = "0.4.0-beta.1"
 
 [package.metadata]
 [package.metadata.docs]

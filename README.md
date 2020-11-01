@@ -51,14 +51,14 @@ With [cargo yaml](https://gitlab.com/storedbox/cargo-yaml):
 ```yaml
 dependencies:
 
-   async_executors: ^0.3
+   async_executors: ^0.4.0-beta
 ```
 
 With Cargo.toml
 ```toml
 [dependencies]
 
-    async_executors = "0.3"
+    async_executors = "0.4.0-beta"
 ```
 
 ### Upgrade
@@ -84,8 +84,7 @@ Our dependencies use unsafe.
 Most wrappers are very thin but the `Spawn` and `LocalSpawn` traits do imply boxing the future. With executors boxing futures
 to put them in a queue you probably get 2 heap allocations per spawn.
 
-`JoinHandle` uses the native `JoinHandle` types from _tokio_ and _async-std_ to avoid the overhead from `RemoteHandle`, but wrap the
-future in `Abortable` to create consistent behavior across all executors. The `JoinHandle` provided cancels it's future unless you call `detach` on it.
+`JoinHandle` uses the native `JoinHandle` types from _tokio_ and _async-std_ to avoid the overhead from `RemoteHandle`, but for _async-std_, wrap the future in `Abortable` to create consistent behavior across all executors. The `JoinHandle` provided cancels it's future on drop unless you call `detach` on it.
 
 `SpawnHandle` and `LocalSpawnHandle` require boxing the future twice, just like `Spawn` and `LocalSpawn`.
 
