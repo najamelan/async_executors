@@ -4,9 +4,13 @@ use
 {
 	std         :: { future::Future, sync::atomic::{ AtomicBool, Ordering } } ,
 	std         :: { task::{ Poll, Context }, pin::Pin                      } ,
-	futures_util:: { future::{ AbortHandle, Aborted, RemoteHandle }         } ,
+	futures_util:: { future::{ AbortHandle, Aborted, RemoteHandle }, ready  } ,
 };
 
+
+#[ cfg( feature = "async_global" ) ]
+//
+use async_global_executor::{ Task as AsyncGlobalTask };
 
 #[ cfg( feature = "async_std" ) ]
 //
@@ -59,6 +63,15 @@ pub(crate) enum InnerJh<T>
 
 	/// Wrapper around AsyncStd JoinHandle.
 	//
+	#[ cfg( feature = "async_global" ) ]
+	//
+	AsyncGlobal
+	{
+		task: Option< AsyncGlobalTask<T> > ,
+	},
+
+	/// Wrapper around AsyncStd JoinHandle.
+	//
 	#[ cfg( feature = "async_std" ) ]
 	//
 	AsyncStd
@@ -96,6 +109,12 @@ impl<T> JoinHandle<T>
 				detached.store( true, Ordering::Relaxed );
 			}
 
+			#[ cfg( feature = "async_global" ) ] InnerJh::AsyncGlobal{ task } =>
+			{
+				let task = task.take();
+				task.unwrap().detach();
+			}
+
 			#[ cfg( feature = "async_std" ) ] InnerJh::AsyncStd{ ref detached, .. } =>
 			{
 				detached.store( true, Ordering::Relaxed );
@@ -123,7 +142,7 @@ impl<T: 'static> Future for JoinHandle<T>
 			//
 			InnerJh::Tokio{ handle, .. } =>
 			{
-				match futures_util::ready!( Pin::new( handle ).poll( cx ) )
+				match ready!( Pin::new( handle ).poll( cx ) )
 				{
 					Ok (t) => Poll::Ready( t ),
 
@@ -137,11 +156,17 @@ impl<T: 'static> Future for JoinHandle<T>
 
 			#[ cfg( feature = "async_std" ) ] InnerJh::AsyncStd{ handle, .. } =>
 			{
-				match futures_util::ready!( Pin::new( handle ).poll( cx ) )
+				match ready!( Pin::new( handle ).poll( cx ) )
 				{
 					Ok (t) => Poll::Ready( t ),
 					Err(_) => unreachable!(),
 				}
+			}
+
+
+			#[ cfg( feature = "async_global" ) ] InnerJh::AsyncGlobal{ task, .. } =>
+			{
+				Pin::new( task.as_mut().unwrap() ).poll( cx )
 			}
 
 
@@ -170,6 +195,11 @@ impl<T> Drop for JoinHandle<T>
 			#[ cfg( feature = "async_std" ) ] InnerJh::AsyncStd { a_handle, detached, .. } =>
 
 				if !detached.load( Ordering::Relaxed ) { a_handle.abort() },
+
+
+			// Nothing needs to be done, just drop it.
+			//
+			#[ cfg( feature = "async_global" ) ] InnerJh::AsyncGlobal { .. } => {}
 
 
 			InnerJh::RemoteHandle( _ ) => {},
