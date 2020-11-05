@@ -199,6 +199,39 @@ async fn join_handle_abort()
 }
 
 
+// Joinhandle::detach does not aborts the task.
+//
+#[ async_std::test ]
+//
+async fn join_handle_detach()
+{
+	let exec              = AsyncStd::default();
+	let (out_tx , out_rx) = oneshot::channel::<()>();
+	let (in_tx  , in_rx ) = oneshot::channel::<()>();
+
+	let join_handle = exec.spawn_handle( async move
+	{
+		in_rx.await.expect( "receive in" );
+
+		out_tx.send(()).expect( "send out" );
+
+	}).expect( "spawn task" );
+
+
+	// This will drop the handle.
+	//
+	join_handle.detach();
+
+	// When commenting out this line, the next one does hang.
+	//
+	in_tx.send(()).expect( "send in" );
+
+	// This should not deadlock.
+	//
+	assert!( out_rx.await.is_ok() );
+}
+
+
 // ------------------ Local
 //
 

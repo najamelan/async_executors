@@ -34,6 +34,9 @@
 #[ cfg( feature = "tokio_tp" ) ] pub use tokio_tp::*;
 #[ cfg( feature = "tokio_tp" ) ] pub use tokio_tp_builder::*;
 
+#[ cfg( feature = "async_global") ] mod async_global;
+#[ cfg( feature = "async_global") ] pub use async_global::*;
+
 #[ cfg( feature = "async_std") ] mod async_std;
 #[ cfg( feature = "async_std") ] pub use async_std::*;
 

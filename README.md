@@ -18,7 +18,8 @@ The traits provided by this crate are also implemented for the [`Instrumented`](
 
 The currently supported executors are (file an issue on GitHub if you want to see another one supported):
 
-- [async-std](https://docs.rs/async-std) - supports spawning `!Send` futures and works on Wasm.
+- [async-global-executor](https://docs.rs/async-global-executor) - supports spawning `!Send` futures.
+- [async-std](https://docs.rs/async-std) - supports spawning `!Send` futures and works on Wasm (uses async-global-executor and bindgen under the hood).
 - [tokio](https://docs.rs/tokio) CurrentThread - [`tokio::runtime::Runtime`] with basic scheduler and a LocalSet. (supports spawning `!Send` futures)
 - [tokio](https://docs.rs/tokio) ThreadPool - [`tokio::runtime::Runtime`] with threadpool scheduler.
 - [wasm-bindgen-futures](https://docs.rs/wasm-bindgen-futures) (only available on Wasm)
@@ -187,7 +188,7 @@ Some executors are a bit special, so make sure to check the API docs for the one
 use
 {
   async_executors :: { AsyncStd, TokioTpBuilder, SpawnHandle } ,
-  std             :: { convert::TryFrom               } ,
+  std             :: { convert::TryFrom                      } ,
 };
 
 fn needs_exec( exec: impl SpawnHandle<()> + SpawnHandle<String> ){};

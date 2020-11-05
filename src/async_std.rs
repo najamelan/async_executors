@@ -143,6 +143,6 @@ impl std::fmt::Debug for AsyncStd
 {
 	fn fmt( &self, f: &mut std::fmt::Formatter<'_> ) -> std::fmt::Result
 	{
-		write!( f, "AsyncStd threadpool" )
+		write!( f, "AsyncStd executor" )
 	}
 }

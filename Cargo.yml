@@ -26,7 +26,7 @@ package:
   # - `git tag x.x.x` with version number.
   # - `git push && git push --tags`
   #
-  version       : 0.4.0-beta.1
+  version       : 0.4.0-beta.2
   name          : async_executors
   authors       : [ Naja Melan <najamelan@autistici.org> ]
   description   : Implements Spawn, SpawnLocal and SpawnHandle for commonly used executors.
@@ -83,6 +83,10 @@ features:
   #
   threadpool: [ futures-executor/thread-pool ]
 
+  # Add support for the executor from async-global-executor.
+  #
+  async_global: [ async-global-executor ]
+
   # Enable integration with tracing-futures. This implements the SpawnHandle family of traits
   # on wrapped executors Instrumented<T> and WithDispatch<T>.
   #
@@ -110,9 +114,10 @@ dependencies:
 
   # Private deps
   #
-  async_std_crate     : { version: ^1.6 , optional: true, package: async-std, features: [ unstable ] }
-  tokio               : { version: ^0.3 , optional: true }
-  pin-utils           : { version: ^0.1 , optional: true }
+  async-global-executor : { version: ^1.4.3, optional: true, default-features: false }
+  async_std_crate       : { version: ^1.6  , optional: true, package: async-std, features: [ unstable ] }
+  tokio                 : { version: ^0.3  , optional: true }
+  pin-utils             : { version: ^0.1  , optional: true }
 
   # necessary for the crate to compile for `cargo doc`
   #
@@ -124,7 +129,6 @@ dev-dependencies:
   static_assertions : ^1
   futures           : { version: ^0.3, features: [ thread-pool ] }
   futures-timer     : { version: ^3  , features: [ wasm-bindgen ] }
-  async_std_crate   : { version: ^1.6, package: async-std, features: [ attributes, unstable ] }
   tracing-subscriber: { version: ^0.2, default-features: false, features: [ fmt ] }
   tracing_crate     : { version: ^0.1, package: tracing }
 
@@ -152,6 +156,13 @@ target:
     dev-dependencies:
 
       wasm-bindgen-test: ^0.3
+
+  'cfg(not(target_os = "unknown"))':
+
+    dev-dependencies:
+
+      async_std_crate: { version: ^1.6, package: async-std, features: [ attributes, unstable ] }
+
 
 
 example:

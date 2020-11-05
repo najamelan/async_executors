@@ -10,6 +10,11 @@ repository = "najamelan/async_executors"
 rustc_version = "^0.3"
 
 [dependencies]
+[dependencies.async-global-executor]
+default-features = false
+optional = true
+version = "^1.4.3"
+
 [dependencies.async_std_crate]
 features = ["unstable"]
 optional = true
@@ -45,11 +50,6 @@ version = "^0.4"
 
 [dev-dependencies]
 static_assertions = "^1"
-
-[dev-dependencies.async_std_crate]
-features = ["attributes", "unstable"]
-package = "async-std"
-version = "^1.6"
 
 [dev-dependencies.futures]
 features = ["thread-pool"]
@@ -94,6 +94,7 @@ path = "examples/tracing.rs"
 required-features = ["notwasm", "tracing", "async_std"]
 
 [features]
+async_global = ["async-global-executor"]
 async_std = ["async_std_crate"]
 bindgen = ["wasm-bindgen-futures"]
 default = ["notwasm"]
@@ -116,7 +117,7 @@ license = "Unlicense"
 name = "async_executors"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_executors"
-version = "0.4.0-beta.1"
+version = "0.4.0-beta.2"
 
 [package.metadata]
 [package.metadata.docs]
@@ -129,6 +130,13 @@ targets = []
 codegen-units = 1
 
 [target]
+[target."cfg(not(target_os = \"unknown\"))"]
+[target."cfg(not(target_os = \"unknown\"))".dev-dependencies]
+[target."cfg(not(target_os = \"unknown\"))".dev-dependencies.async_std_crate]
+features = ["attributes", "unstable"]
+package = "async-std"
+version = "^1.6"
+
 [target."cfg(target_arch = \"wasm32\")"]
 [target."cfg(target_arch = \"wasm32\")".dev-dependencies]
 wasm-bindgen-test = "^0.3"
