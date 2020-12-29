@@ -18,15 +18,14 @@ The traits provided by this crate are also implemented for the [`Instrumented`](
 
 The currently supported executors are (file an issue on GitHub if you want to see another one supported):
 
-- [async-global-executor](https://docs.rs/async-global-executor) - supports spawning `!Send` futures.
+- [async-global-executor](https://docs.rs/async-global-executor) - supports spawning `!Send` futures and works on Wasm.
 - [async-std](https://docs.rs/async-std) - supports spawning `!Send` futures and works on Wasm (uses async-global-executor and bindgen under the hood).
 - [tokio](https://docs.rs/tokio) CurrentThread - [`tokio::runtime::Runtime`] with basic scheduler and a LocalSet. (supports spawning `!Send` futures)
 - [tokio](https://docs.rs/tokio) ThreadPool - [`tokio::runtime::Runtime`] with threadpool scheduler.
 - [wasm-bindgen-futures](https://docs.rs/wasm-bindgen-futures) (only available on Wasm)
 - the [futures-executor](https://docs.rs/futures-executor) executors - They already implemented `Spawn` and `SpawnLocal`, but we implement the `SpawnHandle` family of traits for them as well. The types `ThreadPool`, `LocalPool` and `LocalSpawner` are re-exported for convenience.
 
-All executors are behind feature flags: `async_std`, `tokio_ct`, `tokio_tp`, `bindgen`, `localpool`, `threadpool`.
-
+All executors are behind feature flags: `async_std`, `async_global`, `tokio_ct`, `tokio_tp`, `bindgen`, `localpool`, `threadpool`.
 
 
 ## Table of Contents
@@ -52,14 +51,14 @@ With [cargo yaml](https://gitlab.com/storedbox/cargo-yaml):
 ```yaml
 dependencies:
 
-   async_executors: ^0.4.0-beta
+   async_executors: ^0.4
 ```
 
 With Cargo.toml
 ```toml
 [dependencies]
 
-    async_executors = "0.4.0-beta"
+    async_executors = "0.4"
 ```
 
 ### Upgrade
