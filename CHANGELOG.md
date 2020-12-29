@@ -1,10 +1,15 @@
 # async_executors - CHANGELOG
 
-## 0.4.0-beta.2
+## 0.4.0
+
+  - add support for async-global-executor v2.
+  - add support for tokio v1
+
+## 0.4.0-beta.2 - 2020-11-05
 
   - add support for async-global-executor.
 
-## 0.4.0-beta.1
+## 0.4.0-beta.1 - 2020-11-01
 
   - BREAKING CHANGE: support tokio 0.3. Will go out of beta when tokio releases 1.0.
   - add example for use with tracing.

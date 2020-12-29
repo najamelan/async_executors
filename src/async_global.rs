@@ -49,7 +49,7 @@ impl Spawn for AsyncGlobal
 {
 	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
-		async_global_executor::spawn_local( future );
+		async_global_executor::spawn_local( future ).detach();
 
 		Ok(())
 	}

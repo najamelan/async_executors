@@ -26,7 +26,7 @@ package:
   # - `git tag x.x.x` with version number.
   # - `git push && git push --tags`
   #
-  version       : 0.4.0-beta.2
+  version       : 0.4.0
   name          : async_executors
   authors       : [ Naja Melan <najamelan@autistici.org> ]
   description   : Implements Spawn, SpawnLocal and SpawnHandle for commonly used executors.
@@ -114,9 +114,9 @@ dependencies:
 
   # Private deps
   #
-  async-global-executor : { version: ^1.4.3, optional: true, default-features: false }
+  async-global-executor : { version: ^2    , optional: true, default-features: false }
   async_std_crate       : { version: ^1.6  , optional: true, package: async-std, features: [ unstable ] }
-  tokio                 : { version: ^0.3  , optional: true }
+  tokio                 : { version: ^1    , optional: true }
   pin-utils             : { version: ^0.1  , optional: true }
 
   # necessary for the crate to compile for `cargo doc`
@@ -161,7 +161,7 @@ target:
 
     dev-dependencies:
 
-      async_std_crate: { version: ^1.6, package: async-std, features: [ attributes, unstable ] }
+      async_std_crate: { version: ^1, package: async-std, features: [ attributes, unstable ] }
 
 
 
