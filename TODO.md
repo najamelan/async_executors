@@ -1,7 +1,8 @@
 # TODO:
 
-- add support for async-global-executor. This is what async-std uses, so maybe support that directly and drop support for async-std?
-  the api of async-global-executor is better as well, since async-std JoinHandle detaches on drop, which forces us to use futures::Abortable.
+- should LocalSpawnHandle imply SpawnHandle? If you can spawn a !Send future, normally you can always spawn a Send one.
+  It would mean that API's that take in a LocalSpawnHandle can also use spawn_handle. Eg. nursery can impl Nurse also on
+  an executor that is `impl LocalSpawnHandle<T>`. What does futures do with Spawn and LocalSpawn?
 
 - support smolscale?
 

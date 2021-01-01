@@ -5,8 +5,8 @@ use
 };
 
 
-/// An executor that spawns tasks on async-std. In contrast to the other executors, this one
-/// is not self contained, because async-std does not provide an API that allows that,
+/// An executor that spawns tasks on async-global-executor. In contrast to the other executors, this one
+/// is not self contained, because async-global-executor does not provide an API that allows that,
 /// so the threadpool is global.
 ///
 /// It works on Wasm.
@@ -27,7 +27,7 @@ impl AsyncGlobal
 	}
 
 
-	/// Wrapper around [async_std::task::block_on](::async_std_crate::task::block_on()). This is not available on Wasm
+	/// Wrapper around [async_global_executor::block_on]. This is not available on Wasm
 	/// as Wasm does not have threads and you're not allowed to block the only thread you have.
 	//
 	// TODO: is target_arch = "wasm32"  not a better way to express this?
@@ -49,7 +49,7 @@ impl Spawn for AsyncGlobal
 {
 	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
-		async_global_executor::spawn_local( future );
+		async_global_executor::spawn_local( future ).detach();
 
 		Ok(())
 	}
