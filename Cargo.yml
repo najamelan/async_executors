@@ -108,7 +108,7 @@ dependencies:
   # Public deps
   #
   futures-task        : { version: ^0.3                                         }
-  futures-util        : { version: ^0.3                                         }
+  futures-util        : { version: ^0.3, features: [ channel ]                  }
   futures-executor    : { version: ^0.3, optional: true                         }
   tracing-futures     : { version: ^0.2, optional: true, features: [futures-03] }
 

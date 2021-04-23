@@ -29,6 +29,7 @@ version = "^0.3"
 version = "^0.3"
 
 [dependencies.futures-util]
+features = ["channel"]
 version = "^0.3"
 
 [dependencies.pin-utils]
