@@ -29,6 +29,7 @@ version = "^0.3"
 version = "^0.3"
 
 [dependencies.futures-util]
+features = ["channel"]
 version = "^0.3"
 
 [dependencies.pin-utils]
@@ -117,7 +118,7 @@ license = "Unlicense"
 name = "async_executors"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_executors"
-version = "0.4.0"
+version = "0.4.1"
 
 [package.metadata]
 [package.metadata.docs]

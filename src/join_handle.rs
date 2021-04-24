@@ -1,4 +1,4 @@
-#[ allow(unused_imports) ]
+#[ allow(unused_imports) ] // some imports are conditional on features
 //
 use
 {
