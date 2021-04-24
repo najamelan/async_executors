@@ -1,5 +1,9 @@
 # async_executors - CHANGELOG
 
+## 0.4.1
+
+  - fix a missing feature flag on futures-util.
+
 ## 0.4.0
 
   - add support for async-global-executor v2.
