@@ -40,6 +40,9 @@
 #[ cfg( feature = "async_std") ] mod async_std;
 #[ cfg( feature = "async_std") ] pub use async_std::*;
 
+#[ cfg( feature = "glommio" ) ] mod glommio_ct;
+#[ cfg( feature = "glommio" ) ] pub use glommio_ct::*;
+
 #[ cfg( feature = "bindgen"  ) ] mod bindgen;
 #[ cfg( feature = "bindgen"  ) ] pub use bindgen::*;
 
@@ -58,5 +61,4 @@ mod join_handle        ;
 pub use spawn_handle       ::*;
 pub use local_spawn_handle ::*;
 pub use join_handle        ::*;
-
 
