@@ -1,8 +1,9 @@
 use std::future::Future;
 use glommio_crate::{LocalExecutorBuilder};
 use futures_task::{FutureObj, Spawn, SpawnError, LocalSpawn};
-use crate::{SpawnHandle, JoinHandle, InnerJh, LocalSpawnHandle};
+use crate::{SpawnHandle, JoinHandle, InnerJh, LocalSpawnHandle, SpawnHandleExt};
 use futures_util::future::LocalFutureObj;
+use futures_util::FutureExt;
 
 /// A simple glommio runtime builder
 #[derive(Debug)]
@@ -51,17 +52,8 @@ impl Spawn for GlommioCtBuilder {
 
 impl<Out: Send + 'static> SpawnHandle<Out> for GlommioCtBuilder {
     fn spawn_handle_obj(&self, future: FutureObj<'static, Out>) -> Result<JoinHandle<Out>, SpawnError> {
-        let (tx, rx) = futures::channel::oneshot::channel();
-        let handle = self.get_builder().spawn(move || async move {
-            tx.send(future.await)
-        }).expect("Cannot spawn an OS thread");
+        GlommioCt::new().spawn_handle(future)
 
-        Ok(JoinHandle {
-            inner: InnerJh::Glommio {
-                handle: Some(handle),
-                result: rx,
-            }
-        })
     }
 }
 impl LocalSpawn for GlommioCtBuilder {
@@ -99,14 +91,10 @@ impl LocalSpawn for GlommioCt {
 
 impl<Out: Send + 'static> LocalSpawnHandle<Out> for GlommioCt {
     fn spawn_handle_local_obj(&self, future: LocalFutureObj<'static, Out>) -> Result<JoinHandle<Out>, SpawnError> {
-        let (tx, rx) = futures::channel::oneshot::channel();
-
-        let _task = glommio_crate::Task::local(async { let _ = tx.send(future.await); }).detach();
+        let (remote, remote_handle) = future.remote_handle();
+        let _task = glommio_crate::Task::local(remote).detach();
         Ok(JoinHandle {
-            inner: InnerJh::Glommio {
-                handle: None,
-                result: rx,
-            }
+            inner: InnerJh::RemoteHandle(Some(remote_handle))
         })
     }
 }

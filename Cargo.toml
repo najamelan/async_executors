@@ -53,6 +53,10 @@ version = "^0.2"
 optional = true
 version = "^0.4"
 
+[dependencies.crossbeam]
+version = "*"
+optional = true
+
 [dependencies.glommio_crate]
 version = "*"
 package = "glommio"
@@ -94,8 +98,13 @@ path = "examples/tokio_tp.rs"
 required-features = ["notwasm", "tokio_tp"]
 
 [[example]]
-name = "glommio"
-path = "examples/glommio.rs"
+name = "glommio_ct"
+path = "examples/glommio_ct.rs"
+required-features = ["notwasm", "glommio"]
+
+[[example]]
+name = "glommio_tp"
+path = "examples/glommio_tp.rs"
 required-features = ["notwasm", "glommio"]
 
 [[example]]
@@ -119,7 +128,7 @@ threadpool = ["futures-executor/thread-pool"]
 tokio_ct = ["tokio/rt"]
 tokio_tp = ["tokio/rt-multi-thread"]
 tracing = ["tracing-futures"]
-glommio = ["glommio_crate", "futures"]
+glommio = ["glommio_crate", "futures", "crossbeam"]
 
 [package]
 authors = ["Naja Melan <najamelan@autistici.org>"]

@@ -79,14 +79,6 @@ pub(crate) enum InnerJh<T>
 		a_handle: AbortHandle                            ,
 		detached: AtomicBool                             ,
 	},
-    /// Wrapper around std::thread::JoinHandle. Glommio currently returns it
-    //
-	#[cfg(feature = "glommio")]
-    //
-	Glommio {
-		handle: Option<std::thread::JoinHandle<()>>,
-        result: futures::channel::oneshot::Receiver<T>
-	},
 
 	/// Wrapper around futures RemoteHandle.
 	//
@@ -129,11 +121,6 @@ impl<T> JoinHandle<T>
 			{
 				if let Some(rh) = handle.take() { rh.forget() };
 			}
-            #[cfg(feature = "glommio")]
-
-            InnerJh::Glommio { .. } => {
-                // do nothing because glommio spawns std::thread::Thread
-            }
         }
 	}
 }
@@ -181,18 +168,6 @@ impl<T: 'static> Future for JoinHandle<T>
 
 
 			InnerJh::RemoteHandle( ref mut handle ) => Pin::new( handle ).as_pin_mut().expect( "no polling after detach" ).poll( cx ),
-            #[ cfg( feature = "glommio" ) ]
-            InnerJh::Glommio { handle, result } => {
-				match Pin::new(result).poll(cx) {
-					Poll::Ready(Ok(v)) => {Poll::Ready(v)}
-					Poll::Ready(Err(_cancelled)) => {
-						let handle = handle.take().expect("Cannot join twice");
-						let panic = handle.join().expect_err("Thread not panicked");
-						std::panic::resume_unwind(panic);
-					}
-					Poll::Pending => {Poll::Pending}
-				}
-			}
         }
 	}
 }
@@ -225,7 +200,6 @@ impl<T> Drop for JoinHandle<T>
 
 
 			InnerJh::RemoteHandle( _ ) => {},
-            #[ cfg( feature = "glommio" ) ] InnerJh::Glommio { .. } => {}
         };
 	}
 }
