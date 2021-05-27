@@ -42,6 +42,8 @@
 
 #[ cfg( feature = "glommio" ) ] mod glommio_ct;
 #[ cfg( feature = "glommio" ) ] pub use glommio_ct::*;
+#[ cfg( feature = "glommio" ) ] mod glommio_tp;
+#[ cfg( feature = "glommio" ) ] pub use glommio_tp::*;
 
 #[ cfg( feature = "bindgen"  ) ] mod bindgen;
 #[ cfg( feature = "bindgen"  ) ] pub use bindgen::*;
