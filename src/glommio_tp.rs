@@ -10,8 +10,9 @@ use std::sync::{Arc, Mutex};
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 use futures_util::FutureExt;
-use futures::future::RemoteHandle;
 use std::future::Future;
+use futures_util::future::RemoteHandle;
+use futures_executor::block_on;
 
 /// A simple glommio runtime builder
 #[derive(Debug)]
@@ -228,7 +229,7 @@ impl GlommioTp {
         where Fut: Future<Output=Out> + Send + 'static, Out: Send + 'static {
         let (remote, handle) = future.remote_handle();
         self.global.push(CustomTask { future: FutureObj::new(remote.boxed()), executor_id: None });
-        futures::executor::block_on(handle)
+        block_on(handle)
     }
 }
 

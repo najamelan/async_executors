@@ -21,6 +21,10 @@ optional = true
 package = "async-std"
 version = "^1.6"
 
+[dependencies.crossbeam]
+optional = true
+version = "^0.8"
+
 [dependencies.futures-executor]
 optional = true
 version = "^0.3"
@@ -32,9 +36,10 @@ version = "^0.3"
 features = ["channel"]
 version = "^0.3"
 
-[dependencies.futures]
-version = "^0.3"
+[dependencies.glommio_crate]
 optional = true
+package = "glommio"
+version = "^0.4"
 
 [dependencies.pin-utils]
 optional = true
@@ -52,15 +57,6 @@ version = "^0.2"
 [dependencies.wasm-bindgen-futures]
 optional = true
 version = "^0.4"
-
-[dependencies.crossbeam]
-version = "*"
-optional = true
-
-[dependencies.glommio_crate]
-version = "*"
-package = "glommio"
-optional = true
 
 [dev-dependencies]
 static_assertions = "^1"
@@ -98,16 +94,6 @@ path = "examples/tokio_tp.rs"
 required-features = ["notwasm", "tokio_tp"]
 
 [[example]]
-name = "glommio_ct"
-path = "examples/glommio_ct.rs"
-required-features = ["notwasm", "glommio"]
-
-[[example]]
-name = "glommio_tp"
-path = "examples/glommio_tp.rs"
-required-features = ["notwasm", "glommio"]
-
-[[example]]
 name = "spawn_handle_multi"
 path = "examples/spawn_handle_multi.rs"
 required-features = ["notwasm", "async_std"]
@@ -117,18 +103,28 @@ name = "tracing"
 path = "examples/tracing.rs"
 required-features = ["notwasm", "tracing", "async_std"]
 
+[[example]]
+name = "glommio_ct"
+path = "examples/glommio_ct.rs"
+required-features = ["notwasm", "glommio"]
+
+[[example]]
+name = "glommio_tp"
+path = "examples/glommio_tp.rs"
+required-features = ["notwasm", "glommio"]
+
 [features]
 async_global = ["async-global-executor"]
 async_std = ["async_std_crate"]
 bindgen = ["wasm-bindgen-futures"]
 default = ["notwasm"]
+glommio = ["glommio_crate", "crossbeam", "futures-executor"]
 localpool = ["futures-executor"]
 notwasm = []
 threadpool = ["futures-executor/thread-pool"]
 tokio_ct = ["tokio/rt"]
 tokio_tp = ["tokio/rt-multi-thread"]
 tracing = ["tracing-futures"]
-glommio = ["glommio_crate", "futures", "crossbeam"]
 
 [package]
 authors = ["Naja Melan <najamelan@autistici.org>"]
