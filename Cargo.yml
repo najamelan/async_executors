@@ -75,7 +75,7 @@ features:
 
   # Enabled the glommio executor support. Glommio is a cooperative thread-per-core model. Requires a very
   # new linux kernel(5.8+) This includes a current_thread and a thread_pool(with work-stealing algorithm) implementation
-  glommio   : [ glommio_crate, crossbeam, futures-executor ]
+  glommio   : [ glommio_crate ]
 
   # Add support for the futures LocalPool to SpawnHandle and LocalSpawnHandle
   # only makes sense in conjunction with spawn_handle.
@@ -122,7 +122,6 @@ dependencies:
   async_std_crate       : { version: ^1.6  , optional: true, package: async-std, features: [ unstable ] }
   tokio                 : { version: ^1    , optional: true }
   pin-utils             : { version: ^0.1  , optional: true }
-  crossbeam             : { version: ^0.8  , optional: true }
   glommio_crate         : { version: ^0.4  , optional: true, package: glommio }
   # necessary for the crate to compile for `cargo doc`
   #
