@@ -20,6 +20,12 @@ use async_std_crate::{ task::JoinHandle as AsyncStdJoinHandle };
 //
 use tokio::{ task::JoinHandle as TokioJoinHandle };
 
+#[cfg(feature = "glommio")]
+//
+use glommio_crate::task::JoinHandle as GlommioJoinHandle;
+#[cfg(feature = "glommio")]
+//
+use glommio_crate::Task as GlommioTask;
 /// A framework agnostic JoinHandle type. Cancels the future on dropping the handle.
 /// You can call [`detach`](JoinHandle::detach) to leave the future running when dropping the handle.
 ///
@@ -79,6 +85,15 @@ pub(crate) enum InnerJh<T>
 		a_handle: AbortHandle                            ,
 		detached: AtomicBool                             ,
 	},
+	/// Wrapper around AsyncStd JoinHandle.
+	//
+	#[ cfg( feature = "glommio" ) ]
+	//
+	Glommio
+	{
+		task: Option<GlommioTask<T>>,
+		handle: Option<GlommioJoinHandle<T>>
+	},
 
 	/// Wrapper around futures RemoteHandle.
 	//
@@ -117,11 +132,16 @@ impl<T> JoinHandle<T>
 				detached.store( true, Ordering::Relaxed );
 			}
 
+			#[ cfg( feature = "glommio" ) ] InnerJh::Glommio { task, handle } => {
+				*handle = task.take().map(|x| x.detach());
+			}
+
 			InnerJh::RemoteHandle( handle ) =>
 			{
 				if let Some(rh) = handle.take() { rh.forget() };
 			}
-        }
+
+		}
 	}
 }
 
@@ -167,8 +187,25 @@ impl<T: 'static> Future for JoinHandle<T>
 			}
 
 
+			#[ cfg( feature = "glommio" ) ] InnerJh::Glommio { task, handle } => {
+				if let Some(task) = task {
+					Pin::new(task).poll(cx)
+				} else if let Some(handle) = handle {
+					match Pin::new(handle).poll(cx) {
+						Poll::Ready(Some(x)) => {
+							Poll::Ready(x)
+						}
+						Poll::Pending => Poll::Pending,
+						Poll::Ready(None) => {
+							panic!( "Task has been canceled. " )
+						}
+					}
+				} else {
+					unreachable!("Why would it ever happen?")
+				}
+			}
 			InnerJh::RemoteHandle( ref mut handle ) => Pin::new( handle ).as_pin_mut().expect( "no polling after detach" ).poll( cx ),
-        }
+		}
 	}
 }
 
@@ -198,8 +235,9 @@ impl<T> Drop for JoinHandle<T>
 			//
 			#[ cfg( feature = "async_global" ) ] InnerJh::AsyncGlobal { .. } => {}
 
+			#[ cfg( feature = "glommio" ) ] InnerJh::Glommio { .. } => {}
 
 			InnerJh::RemoteHandle( _ ) => {},
-        };
+		};
 	}
 }

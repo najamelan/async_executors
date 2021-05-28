@@ -108,11 +108,6 @@ name = "glommio_ct"
 path = "examples/glommio_ct.rs"
 required-features = ["notwasm", "glommio"]
 
-[[example]]
-name = "glommio_tp"
-path = "examples/glommio_tp.rs"
-required-features = ["notwasm", "glommio"]
-
 [features]
 async_global = ["async-global-executor"]
 async_std = ["async_std_crate"]

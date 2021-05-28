@@ -194,7 +194,3 @@ example:
   - name             : glommio_ct
     path             : examples/glommio_ct.rs
     required-features: [ notwasm, glommio ]
-
-  - name: glommio_tp
-    path: examples/glommio_tp.rs
-    required-features: [ notwasm, glommio ]

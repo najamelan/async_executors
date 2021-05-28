@@ -39,21 +39,28 @@ impl LocalSpawn for GlommioCt {
 
 
 impl<Out: Send + 'static> LocalSpawnHandle<Out> for GlommioCt {
-    fn spawn_handle_local_obj(&self, future: LocalFutureObj<'static, Out>) -> Result<JoinHandle<Out>, SpawnError> {
-        let (remote, remote_handle) = future.remote_handle();
-        let _task = glommio_crate::Task::local(remote).detach();
+    fn spawn_handle_local_obj(
+        &self,
+        future: LocalFutureObj<'static, Out>,
+    ) -> Result<JoinHandle<Out>, SpawnError> {
+
         Ok(JoinHandle {
             inner: InnerJh::Glommio{ task: Some(glommio_crate::Task::local(future)), handle: None },
         })
     }
 }
+
 impl Spawn for GlommioCt {
     fn spawn_obj(&self, future: FutureObj<'static, ()>) -> Result<(), SpawnError> {
         self.spawn_local_obj(LocalFutureObj::from(future))
     }
 }
+
 impl<Out: Send + 'static> SpawnHandle<Out> for GlommioCt {
     fn spawn_handle_obj(&self, future: FutureObj<'static, Out>) -> Result<JoinHandle<Out>, SpawnError> {
-        self.spawn_handle_local_obj(LocalFutureObj::from(future))
+
+        Ok(JoinHandle {
+            inner: InnerJh::Glommio{ task: Some(glommio_crate::Task::local(future)), handle: None },
+        })
     }
 }
