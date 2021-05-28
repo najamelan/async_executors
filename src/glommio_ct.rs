@@ -38,7 +38,7 @@ impl LocalSpawn for GlommioCt {
 }
 
 
-impl<Out: Send + 'static> LocalSpawnHandle<Out> for GlommioCt {
+impl<Out: 'static> LocalSpawnHandle<Out> for GlommioCt {
     fn spawn_handle_local_obj(
         &self,
         future: LocalFutureObj<'static, Out>,
