@@ -1,85 +1,34 @@
-use std::future::Future;
-use glommio_crate::{LocalExecutorBuilder};
-use futures_task::{FutureObj, Spawn, SpawnError, LocalSpawn};
-use crate::{SpawnHandle, JoinHandle, InnerJh, LocalSpawnHandle, SpawnHandleExt};
+use futures_task::{FutureObj, LocalSpawn, Spawn, SpawnError};
 use futures_util::future::LocalFutureObj;
-use futures_util::FutureExt;
+use glommio_crate::{LocalExecutor, LocalExecutorBuilder};
+use std::future::Future;
+use std::rc::Rc;
+use crate::{LocalSpawnHandle, SpawnHandle, InnerJh, JoinHandle};
 
 /// A simple glommio runtime builder
 #[derive(Debug)]
-pub struct GlommioCtBuilder {
-    binding: Option<usize>,
-    name: String,
+pub struct GlommioCt {
+    executor: Rc<LocalExecutor>,
 }
-
-impl GlommioCtBuilder {
-    /// Create a new builder
-    pub fn new() -> Self {
-        Self { binding: None, name: "unnamed".to_string() }
-    }
-
-    /// Sets the new executor's affinity to the provided CPU.  The largest `cpu`
-    /// value [supported] by libc is 1023.
-    ///
-    /// [supported]: https://man7.org/linux/man-pages/man2/sched_setaffinity.2.html#NOTES
-    pub fn pin_to_cpu(&mut self, cpu: usize) {
-        self.binding = Some(cpu);
-    }
-
-    fn get_builder(&self) -> LocalExecutorBuilder {
-        let mut builder = LocalExecutorBuilder::new().name(&self.name);
-        if let Some(binding) = self.binding {
-            builder = builder.pin_to_cpu(binding);
-        }
-        builder
-    }
-
-    /// block on the given future
-    pub fn block_on<Fut, Out: 'static>(&self, future: Fut) -> Out
-        where Fut: Future<Output=Out>
-    {
-        self.get_builder().make().expect("Cannot make a local executor").run(
-            future
-        )
-    }
-}
-
-impl Spawn for GlommioCtBuilder {
-    fn spawn_obj(&self, future: FutureObj<'static, ()>) -> Result<(), SpawnError> {
-        GlommioCt::new().spawn_obj(future)
-    }
-}
-
-impl<Out: Send + 'static> SpawnHandle<Out> for GlommioCtBuilder {
-    fn spawn_handle_obj(&self, future: FutureObj<'static, Out>) -> Result<JoinHandle<Out>, SpawnError> {
-        GlommioCt::new().spawn_handle(future)
-
-    }
-}
-impl LocalSpawn for GlommioCtBuilder {
-    fn spawn_local_obj(&self, future: LocalFutureObj<'static, ()>) -> Result<(), SpawnError> {
-        GlommioCt::new().spawn_local_obj(future)
-    }
-}
-
-
-impl<Out: Send + 'static> LocalSpawnHandle<Out> for GlommioCtBuilder {
-    fn spawn_handle_local_obj(&self, future: LocalFutureObj<'static, Out>) -> Result<JoinHandle<Out>, SpawnError> {
-        GlommioCt::new().spawn_handle_local_obj(future)
-    }
-}
-
-
-/// Glommio Local Executor
-#[derive(Debug, Copy, Clone)]
-pub struct GlommioCt {}
 
 impl GlommioCt {
     /// new Glommio Local Executor
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(name: &str, cpu_set: Option<usize>) -> Self {
+        let mut builder = LocalExecutorBuilder::new().name(&name);
+        if let Some(binding) = cpu_set {
+            builder = builder.pin_to_cpu(binding);
+        }
+        let executor = builder.make().unwrap();
+        Self {
+            executor: Rc::new(executor),
+        }
+    }
+    /// execute the code until completion
+    pub fn block_on<F: Future>(&self, future: F) -> <F as Future>::Output {
+        self.executor.run(future)
     }
 }
+
 
 impl LocalSpawn for GlommioCt {
     fn spawn_local_obj(&self, future: LocalFutureObj<'static, ()>) -> Result<(), SpawnError> {
@@ -94,7 +43,7 @@ impl<Out: Send + 'static> LocalSpawnHandle<Out> for GlommioCt {
         let (remote, remote_handle) = future.remote_handle();
         let _task = glommio_crate::Task::local(remote).detach();
         Ok(JoinHandle {
-            inner: InnerJh::RemoteHandle(Some(remote_handle))
+            inner: InnerJh::Glommio{ task: Some(glommio_crate::Task::local(future)), handle: None },
         })
     }
 }
