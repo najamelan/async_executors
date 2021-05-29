@@ -1,8 +1,8 @@
 #![ cfg( feature = "glommio" ) ]
 
-// ✔ pass a     ThreadPool  to a function that takes exec: `impl SpawnHandle`
-// ✔ pass a Arc<ThreadPool> to a function that takes exec: `impl SpawnHandle`
-// ✔ pass a    &ThreadPool  to a function that takes exec: `&dyn SpawnHandle`
+// ✔ pass a     GlommioCt  to a function that takes exec: `impl SpawnHandle`
+// ✔ pass a Arc<GlommioCt> to a function that takes exec: `impl SpawnHandle`
+// ✔ pass a    &GlommioCt  to a function that takes exec: `&dyn SpawnHandle`
 //
 // ✔ Joinhandle::detach allows task to keep running.
 //
@@ -13,7 +13,7 @@ use
 	common           :: { *          } ,
 };
 
-// pass a ThreadPool to a function that takes exec: `impl SpawnHandle`
+// pass a GlommioCt to a function that takes exec: `impl SpawnHandle`
 //
 #[ test ]
 //
@@ -26,7 +26,7 @@ fn spawn_handle()
 }
 
 
-// pass an Arc<ThreadPool> to a function that takes exec: `impl SpawnHandle`
+// pass an Arc<GlommioCt> to a function that takes exec: `impl SpawnHandle`
 //
 #[ test ]
 //
@@ -39,7 +39,7 @@ fn spawn_handle_arc()
 }
 
 
-// pass a ThreadPool to a function that takes exec: `&dyn SpawnHandle`
+// pass a GlommioCt to a function that takes exec: `&dyn SpawnHandle`
 //
 #[ test ]
 //
