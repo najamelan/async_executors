@@ -4,6 +4,7 @@ use glommio_crate::{LocalExecutor, LocalExecutorBuilder};
 use std::future::Future;
 use std::rc::Rc;
 use crate::{LocalSpawnHandle, SpawnHandle, InnerJh, JoinHandle};
+use futures_util::FutureExt;
 
 /// A simple glommio runtime builder
 #[derive(Debug)]
@@ -43,9 +44,10 @@ impl<Out: 'static> LocalSpawnHandle<Out> for GlommioCt {
         &self,
         future: LocalFutureObj<'static, Out>,
     ) -> Result<JoinHandle<Out>, SpawnError> {
-
+        let (remote, handle) = future.remote_handle();
+        glommio_crate::Task::local(remote).detach();
         Ok(JoinHandle {
-            inner: InnerJh::Glommio{ task: Some(glommio_crate::Task::local(future)), handle: None },
+            inner: InnerJh::RemoteHandle(Some(handle)),
         })
     }
 }
@@ -58,9 +60,10 @@ impl Spawn for GlommioCt {
 
 impl<Out: Send + 'static> SpawnHandle<Out> for GlommioCt {
     fn spawn_handle_obj(&self, future: FutureObj<'static, Out>) -> Result<JoinHandle<Out>, SpawnError> {
-
+        let (remote, handle) = future.remote_handle();
+        glommio_crate::Task::local(remote).detach();
         Ok(JoinHandle {
-            inner: InnerJh::Glommio{ task: Some(glommio_crate::Task::local(future)), handle: None },
+            inner: InnerJh::RemoteHandle(Some(handle)),
         })
     }
 }
