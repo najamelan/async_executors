@@ -7,7 +7,7 @@ use crate::{LocalSpawnHandle, SpawnHandle, InnerJh, JoinHandle};
 use futures_util::FutureExt;
 
 /// A simple glommio runtime builder
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GlommioCt {
     executor: Rc<LocalExecutor>,
 }
