@@ -21,6 +21,10 @@ optional = true
 package = "async-std"
 version = "^1.6"
 
+[dependencies.crossbeam]
+optional = true
+version = "^0.8"
+
 [dependencies.futures-executor]
 optional = true
 version = "^0.3"
@@ -31,6 +35,11 @@ version = "^0.3"
 [dependencies.futures-util]
 features = ["channel"]
 version = "^0.3"
+
+[dependencies.glommio_crate]
+optional = true
+package = "glommio"
+version = "^0.4"
 
 [dependencies.pin-utils]
 optional = true
@@ -94,11 +103,17 @@ name = "tracing"
 path = "examples/tracing.rs"
 required-features = ["notwasm", "tracing", "async_std"]
 
+[[example]]
+name = "glommio_ct"
+path = "examples/glommio_ct.rs"
+required-features = ["notwasm", "glommio"]
+
 [features]
 async_global = ["async-global-executor"]
 async_std = ["async_std_crate"]
 bindgen = ["wasm-bindgen-futures"]
 default = ["notwasm"]
+glommio = ["glommio_crate", "crossbeam", "futures-executor"]
 localpool = ["futures-executor"]
 notwasm = []
 threadpool = ["futures-executor/thread-pool"]

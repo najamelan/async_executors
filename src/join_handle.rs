@@ -20,7 +20,6 @@ use async_std_crate::{ task::JoinHandle as AsyncStdJoinHandle };
 //
 use tokio::{ task::JoinHandle as TokioJoinHandle };
 
-
 /// A framework agnostic JoinHandle type. Cancels the future on dropping the handle.
 /// You can call [`detach`](JoinHandle::detach) to leave the future running when dropping the handle.
 ///
@@ -80,13 +79,10 @@ pub(crate) enum InnerJh<T>
 		a_handle: AbortHandle                            ,
 		detached: AtomicBool                             ,
 	},
-
 	/// Wrapper around futures RemoteHandle.
 	//
 	RemoteHandle( Option<RemoteHandle<T>> ),
 }
-
-
 
 impl<T> JoinHandle<T>
 {
@@ -124,6 +120,7 @@ impl<T> JoinHandle<T>
 			{
 				if let Some(rh) = handle.take() { rh.forget() };
 			}
+
 		}
 	}
 }
@@ -169,7 +166,6 @@ impl<T: 'static> Future for JoinHandle<T>
 				Pin::new( task.as_mut().unwrap() ).poll( cx )
 			}
 
-
 			InnerJh::RemoteHandle( ref mut handle ) => Pin::new( handle ).as_pin_mut().expect( "no polling after detach" ).poll( cx ),
 		}
 	}
@@ -200,7 +196,6 @@ impl<T> Drop for JoinHandle<T>
 			// Nothing needs to be done, just drop it.
 			//
 			#[ cfg( feature = "async_global" ) ] InnerJh::AsyncGlobal { .. } => {}
-
 
 			InnerJh::RemoteHandle( _ ) => {},
 		};

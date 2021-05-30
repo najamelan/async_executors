@@ -9,7 +9,7 @@ use
 };
 
 
-/// Let's you spawn and get a [JoinHandle] to await the output of a future.
+/// Lets you spawn and get a [JoinHandle] to await the output of a future.
 ///
 /// This trait works much like the [`Spawn`](futures_task::Spawn) trait from the futures library.
 /// It takes a [`FutureObj`] so we can hopefully make it `no_std` compatible when needed. This
