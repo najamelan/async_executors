@@ -115,8 +115,8 @@ dependencies:
   futures-util        : { version: ^0.3, features: [ channel ]                  }
   futures-executor    : { version: ^0.3, optional: true                         }
   tracing-futures     : { version: ^0.2, optional: true, features: [futures-03] }
-  glommio_crate       : { version: ^0.4  , optional: true, package: glommio     }
-  tokio               : { version: ^1    , optional: true                       }
+  glommio_crate       : { version: ^0.4, optional: true, package: glommio       }
+  tokio               : { version: ^1  , optional: true                         }
 
   # Private deps
   #
@@ -136,6 +136,7 @@ dev-dependencies:
   futures-timer     : { version: ^3  , features: [ wasm-bindgen ] }
   tracing-subscriber: { version: ^0.2, default-features: false, features: [ fmt ] }
   tracing_crate     : { version: ^0.1, package: tracing }
+  trait-set         : ^0.2
 
   # pretty_assertions : ^0.6
   # log               : ^0.4
@@ -186,6 +187,10 @@ example:
 
   - name             : spawn_handle_multi
     path             : examples/spawn_handle_multi.rs
+    required-features: [ notwasm, async_std ]
+
+  - name             : trait_set
+    path             : examples/trait_set.rs
     required-features: [ notwasm, async_std ]
 
   - name             : tracing

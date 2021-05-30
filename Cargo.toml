@@ -56,6 +56,7 @@ version = "^0.4"
 
 [dev-dependencies]
 static_assertions = "^1"
+trait-set = "^0.2"
 
 [dev-dependencies.futures]
 features = ["thread-pool"]
@@ -92,6 +93,11 @@ required-features = ["notwasm", "tokio_tp"]
 [[example]]
 name = "spawn_handle_multi"
 path = "examples/spawn_handle_multi.rs"
+required-features = ["notwasm", "async_std"]
+
+[[example]]
+name = "trait_set"
+path = "examples/trait_set.rs"
 required-features = ["notwasm", "async_std"]
 
 [[example]]

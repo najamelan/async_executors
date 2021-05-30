@@ -49,6 +49,7 @@ use
 ///
 /// So to enable several output types you can use the
 /// [following workaround](https://github.com/najamelan/async_executors/tree/master/examples/spawn_handle_multi.rs).
+/// You can also use the [trait-set](https://crates.io/crates/trait-set) crate to make that [more streamlined](https://github.com/najamelan/async_executors/tree/master/examples/trait_set.rs).
 //
 pub trait SpawnHandle<Out: 'static + Send>
 {

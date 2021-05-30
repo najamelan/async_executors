@@ -1,5 +1,5 @@
 //! An example showing how to take an executor in an API that can use SpawnHandle
-//! with multiple output types.
+//! with multiple output types. This one uses the trait-set crate to avoid writing the blanket impl.
 //!
 //! You can also make your object generic over the executor. This shows how you can avoid that.
 //
@@ -7,26 +7,17 @@ use
 {
 	std             :: { sync::Arc                             } ,
 	async_executors :: { AsyncStd, SpawnHandle, SpawnHandleExt } ,
+	trait_set       :: { trait_set                             } ,
 };
 
 
 // We create a custom trait and tell the compiler that it can only ever be implemented
 // when the receiver implements all of the SpawnHandle variants we need.
 //
-// See the trait_set example for a more ergonomic way of doing this.
-//
-pub trait CustomSpawnHandle : SpawnHandle<String> + SpawnHandle<u8> + Send + Sync {}
-
-// A blanket impl for all types that fit our requirements. The compiler actually
-// recognises this as a proof that any dyn CustomSpawnHandle will also implement
-// SpawnHandle<String> and SpawnHandle<u8>, so we can call methods even from
-// SpawnHandleExt on it.
-//
-impl<T> CustomSpawnHandle for T
-
-	where T: SpawnHandle<String> + SpawnHandle<u8> + Send + Sync
-
-{}
+trait_set!
+{
+	pub trait CustomSpawnHandle = SpawnHandle<String> + SpawnHandle<u8> + Send + Sync
+}
 
 
 struct Connection
