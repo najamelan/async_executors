@@ -24,29 +24,16 @@
 )]
 
 
-#[ cfg( feature = "tokio_ct"     ) ] mod tokio_ct;
-#[ cfg( feature = "tokio_ct"     ) ] pub use tokio_ct::*;
-#[ cfg( feature = "tokio_ct"     ) ] mod tokio_ct_builder;
-#[ cfg( feature = "tokio_ct"     ) ] pub use tokio_ct_builder::*;
+/// The executor implementations.
+//
+pub mod exec;
 
-#[ cfg( feature = "tokio_tp"     ) ] mod tokio_tp;
-#[ cfg( feature = "tokio_tp"     ) ] mod tokio_tp_builder;
-#[ cfg( feature = "tokio_tp"     ) ] pub use tokio_tp::*;
-#[ cfg( feature = "tokio_tp"     ) ] pub use tokio_tp_builder::*;
+/// The traits exposed by this crate.
+//
+pub mod iface;
 
-#[ cfg( feature = "async_global" ) ] mod async_global;
-#[ cfg( feature = "async_global" ) ] pub use async_global::*;
-
-#[ cfg( feature = "async_std"    ) ] mod async_std;
-#[ cfg( feature = "async_std"    ) ] pub use async_std::*;
-
-#[ cfg( feature = "glommio"      ) ] mod glommio_ct;
-#[ cfg( feature = "glommio"      ) ] pub use glommio_ct::*;
-
-#[ cfg( feature = "bindgen"      ) ] mod bindgen;
-#[ cfg( feature = "bindgen"      ) ] pub use bindgen::*;
-
-#[ cfg( feature = "tracing"      ) ] mod tracing;
+pub use exec::*;
+pub use iface::*;
 
 // Re-export for convenience.
 //
@@ -54,11 +41,5 @@
 #[ cfg( feature = "localpool"  ) ] pub use futures_executor::LocalSpawner;
 #[ cfg( feature = "threadpool" ) ] pub use futures_executor::ThreadPool;
 
-mod spawn_handle       ;
-mod local_spawn_handle ;
-mod join_handle        ;
 
-pub use spawn_handle       ::*;
-pub use local_spawn_handle ::*;
-pub use join_handle        ::*;
 

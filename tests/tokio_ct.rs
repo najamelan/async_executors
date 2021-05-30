@@ -54,6 +54,7 @@ fn spawn()
 }
 
 
+
 // pass a &TokioCt to a function that takes exec: `&impl Spawn`
 //
 #[ test ]
@@ -72,6 +73,7 @@ fn spawn_ref()
 
 	assert_eq!( 5u8, res );
 }
+
 
 
 // pass a &TokioCt to a function that takes exec: `impl Spawn`
@@ -94,6 +96,7 @@ fn spawn_with_ref()
 }
 
 
+
 // pass a &TokioCt to a function that takes exec: `impl Spawn + Clone`
 //
 #[ test ]
@@ -112,6 +115,7 @@ fn spawn_clone_with_ref()
 
 	assert_eq!( 5u8, res );
 }
+
 
 
 // pass a Arc<TokioCt> to a function that takes exec: `impl Spawn`.
@@ -135,6 +139,7 @@ fn spawn_clone_with_arc()
 }
 
 
+
 // pass a TokioCt to a function that takes exec: `impl SpawnHandle`
 //
 #[ test ]
@@ -147,6 +152,7 @@ fn spawn_handle()
 
 	assert_eq!( 5u8, res );
 }
+
 
 
 // pass an Arc<TokioCt> to a function that takes exec: `impl SpawnHandle`
@@ -206,6 +212,7 @@ fn spawn_handle_many()
 }
 
 
+
 // ------------------ Local
 //
 
@@ -228,6 +235,7 @@ fn spawn_local()
 
 	assert_eq!( 5u8, res );
 }
+
 
 
 // pass a &TokioCt to a function that takes exec: `&impl LocalSpawn`
@@ -270,6 +278,7 @@ fn spawn_with_ref_local()
 }
 
 
+
 // pass a &TokioCt to a function that takes exec: `impl LocalSpawn + Clone`
 //
 #[ test ]
@@ -288,6 +297,7 @@ fn spawn_clone_with_ref_local()
 
 	assert_eq!( 5u8, res );
 }
+
 
 
 // pass a Arc<TokioCt> to a function that takes exec: `impl LocalSpawn`.
@@ -311,6 +321,7 @@ fn spawn_clone_with_rc_local()
 }
 
 
+
 // pass a TokioCt to a function that takes exec: `impl LocalSpawnHandle`
 //
 #[ test ]
@@ -323,6 +334,7 @@ fn spawn_handle_local()
 
 	assert_eq!( 5u8, *res );
 }
+
 
 
 // pass an Rc<TokioCt> to a function that takes exec: `impl LocalSpawnHandle`
@@ -355,7 +367,6 @@ fn spawn_handle_local_os()
 
 
 
-
 // make sure we can spawn without being in a future running on block_on.
 //
 #[ test ]
@@ -363,8 +374,7 @@ fn spawn_handle_local_os()
 fn spawn_outside_block_on()
 {
 	let (mut tx, mut rx) = mpsc::channel( 1 );
-
-	let exec = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec             = TokioCtBuilder::new().build().expect( "create tokio current thread" );
 
 	exec.spawn( async move
 	{
@@ -372,10 +382,12 @@ fn spawn_outside_block_on()
 
 	}).expect( "spawn" );
 
+
 	let result = exec.block_on( async move
 	{
 		rx.next().await.expect( "receive hello" )
 	});
+
 
 	assert_eq!( "hello", result );
 }
@@ -394,7 +406,7 @@ fn join_handle_detach()
 	let (out_tx, out_rx) = oneshot::channel();
 
 
-	let in_join_handle = exec.spawn_handle( async move
+	let handle = exec.spawn_handle( async move
 	{
 		let content = in_rx.await.expect( "receive on in" );
 
@@ -403,7 +415,10 @@ fn join_handle_detach()
 	}).expect( "spawn task" );
 
 
-	in_join_handle.detach();
+	// This moves out handle and drops it.
+	//
+	handle.detach();
+
 
 	exec.block_on( async move
 	{

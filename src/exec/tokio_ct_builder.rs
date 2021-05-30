@@ -3,7 +3,7 @@
 use
 {
 	crate :: { TokioCt                          } ,
-	std   :: { sync::Arc                        } ,
+	std   :: { rc::Rc                           } ,
 	tokio :: { task::LocalSet, runtime::Builder } ,
 };
 
@@ -54,8 +54,8 @@ impl TokioCtBuilder
 
 		Ok( TokioCt
 		{
-			exec : Arc::new( exec            ) ,
-			local: Arc::new( LocalSet::new() ) ,
+			exec : Rc::new( exec            ) ,
+			local: Rc::new( LocalSet::new() ) ,
 		})
 	}
 }

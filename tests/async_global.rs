@@ -18,10 +18,10 @@ mod common;
 
 use
 {
-	common  :: { *                        } ,
-	futures :: { channel::mpsc, StreamExt } ,
-	std             :: { time::Duration   } ,
-	futures_timer   :: { Delay            } ,
+	common        :: { *                        } ,
+	futures       :: { channel::mpsc, StreamExt } ,
+	std           :: { time::Duration           } ,
+	futures_timer :: { Delay                    } ,
 };
 
 

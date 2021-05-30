@@ -18,8 +18,8 @@ mod common;
 
 use
 {
-	common  :: { *                        } ,
-	futures :: { channel::mpsc, StreamExt } ,
+	common          :: { *                        } ,
+	futures         :: { channel::mpsc, StreamExt } ,
 	std             :: { time::Duration           } ,
 	futures_timer   :: { Delay                    } ,
 	async_std_crate as async_std,
