@@ -16,7 +16,7 @@ use async_global_executor::{ Task as AsyncGlobalTask };
 //
 use async_std_crate::{ task::JoinHandle as AsyncStdJoinHandle };
 
-#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
+#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct", feature = "tokio_context" )) ]
 //
 use tokio::{ task::JoinHandle as TokioJoinHandle };
 
@@ -53,7 +53,7 @@ pub(crate) enum InnerJh<T>
 {
 	/// Wrapper around tokio JoinHandle.
 	//
-	#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
+	#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct", feature = "tokio_context" )) ]
 	//
 	Tokio
 	{
@@ -98,7 +98,7 @@ impl<T> JoinHandle<T>
 	{
 		match &mut self.inner
 		{
-			#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
+			#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct", feature = "tokio_context" )) ]
 			//
 			InnerJh::Tokio{ ref detached, .. } =>
 			{
@@ -138,7 +138,7 @@ impl<T: 'static> Future for JoinHandle<T>
 	{
 		match &mut self.get_mut().inner
 		{
-			#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
+			#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct", feature = "tokio_context" )) ]
 			//
 			InnerJh::Tokio{ handle, .. } =>
 			{
@@ -185,7 +185,7 @@ impl<T> Drop for JoinHandle<T>
 	{
 		match &mut self.inner
 		{
-			#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
+			#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct", feature = "tokio_context" )) ]
 			//
 			InnerJh::Tokio{ handle, detached, .. } =>
 
