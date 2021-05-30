@@ -1,5 +1,11 @@
 # TODO:
 
+- Create features and traits for turning on extra executor global side-effects, like GlommioIO, TokioIO, AsyncStdIO, Timer.
+
+- test for JoinHandle being Send when Out is Send. Currently was caught just by an example.
+- test what happens when creating 2 LocalExecutor in one thread.
+- glommio's CPU pinning.
+
 - should LocalSpawnHandle imply SpawnHandle? If you can spawn a !Send future, normally you can always spawn a Send one.
   It would mean that API's that take in a LocalSpawnHandle can also use spawn_handle. Eg. nursery can impl Nurse also on
   an executor that is `impl LocalSpawnHandle<T>`. What does futures do with Spawn and LocalSpawn?

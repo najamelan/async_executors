@@ -22,7 +22,7 @@ The currently supported executors are (file an issue on GitHub if you want to se
 - [async-std](https://docs.rs/async-std) - supports spawning `!Send` futures and works on Wasm (uses async-global-executor and bindgen under the hood).
 - [tokio](https://docs.rs/tokio) CurrentThread - [`tokio::runtime::Runtime`] with basic scheduler and a LocalSet. (supports spawning `!Send` futures)
 - [tokio](https://docs.rs/tokio) ThreadPool - [`tokio::runtime::Runtime`] with threadpool scheduler.
-- [glommio](https://docs.rs/glommio) Glommio is a Cooperative Thread-per-Core crate for Rust & Linux based on io_uring.
+- [glommio](https://docs.rs/glommio). Glommio is a Cooperative Thread-per-Core executor for Linux 5.8+ based on [`io_uring`](https://en.wikipedia.org/wiki/Io_uring). Allows spawning `!Send` futures.
 - [wasm-bindgen-futures](https://docs.rs/wasm-bindgen-futures) (only available on Wasm)
 - the [futures-executor](https://docs.rs/futures-executor) executors - They already implemented `Spawn` and `SpawnLocal`, but we implement the `SpawnHandle` family of traits for them as well. The types `ThreadPool`, `LocalPool` and `LocalSpawner` are re-exported for convenience.
 

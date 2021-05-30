@@ -1,69 +1,125 @@
-use futures_task::{FutureObj, LocalSpawn, Spawn, SpawnError};
-use futures_util::future::LocalFutureObj;
-use glommio_crate::{LocalExecutor, LocalExecutorBuilder};
-use std::future::Future;
-use std::rc::Rc;
-use crate::{LocalSpawnHandle, SpawnHandle, InnerJh, JoinHandle};
-use futures_util::FutureExt;
-
-/// A simple glommio runtime builder
-#[derive(Debug, Clone)]
-pub struct GlommioCt {
-    executor: Rc<LocalExecutor>,
-}
-
-impl GlommioCt {
-    /// new Glommio Local Executor
-    pub fn new(name: &str, cpu_set: Option<usize>) -> Self {
-        let mut builder = LocalExecutorBuilder::new().name(&name);
-        if let Some(binding) = cpu_set {
-            builder = builder.pin_to_cpu(binding);
-        }
-        let executor = builder.make().unwrap();
-        Self {
-            executor: Rc::new(executor),
-        }
-    }
-    /// execute the code until completion
-    pub fn block_on<F: Future>(&self, future: F) -> <F as Future>::Output {
-        self.executor.run(future)
-    }
-}
+use
+{
+	crate         :: { LocalSpawnHandle, SpawnHandle, InnerJh, JoinHandle      } ,
+	std           :: { future::Future, rc::Rc                                  } ,
+	futures_task  :: { FutureObj, LocalSpawn,  Spawn, SpawnError               } ,
+	futures_util  :: { FutureExt, task::LocalSpawnExt, future::LocalFutureObj  } ,
+	glommio_crate :: { LocalExecutor, LocalExecutorBuilder, GlommioError, Task } ,
+};
 
 
-impl LocalSpawn for GlommioCt {
-    fn spawn_local_obj(&self, future: LocalFutureObj<'static, ()>) -> Result<(), SpawnError> {
-        glommio_crate::Task::local(future).detach();
-        Ok(())
-    }
+/// Single threaded [glommio](https://docs.rs/glommio) executor. This executor works
+/// on Linux 5.8+ only.
+///
+/// You will probably need to augment your rlimit_memlock. See glommio documentation
+/// for details.
+///
+/// This always has io_uring enabled and will pull in quite some dependencies including
+/// liburing from C.
+///
+/// # Panics
+///
+/// Calling spawn from outside [block_on] will panic.
+//
+#[ derive(Debug, Clone) ]
+//
+#[ cfg_attr( nightly, doc(cfg( feature = "glommio" )) ) ]
+//
+pub struct GlommioCt
+{
+	exec: Rc<LocalExecutor>,
 }
 
 
-impl<Out: 'static> LocalSpawnHandle<Out> for GlommioCt {
-    fn spawn_handle_local_obj(
-        &self,
-        future: LocalFutureObj<'static, Out>,
-    ) -> Result<JoinHandle<Out>, SpawnError> {
-        let (remote, handle) = future.remote_handle();
-        glommio_crate::Task::local(remote).detach();
-        Ok(JoinHandle {
-            inner: InnerJh::RemoteHandle(Some(handle)),
-        })
-    }
+impl GlommioCt
+{
+	/// Create a executor. Note: in order to spawn you need to run [block_on].
+	//
+	pub fn new( builder: LocalExecutorBuilder ) -> Result< Self, GlommioError<()> >
+	{
+		let exec = Rc::new( builder.make()? );
+
+		Ok( Self{ exec } )
+	}
+
+
+
+	/// Runs the executor until the given future completes.
+	/// This is the entry point of the executor. Calls to spawn will only work from the
+	/// context of the future provided here.
+	//
+	pub fn block_on<F: Future>( &self, future: F ) -> F::Output
+	{
+		self.exec.run( future )
+	}
 }
 
-impl Spawn for GlommioCt {
-    fn spawn_obj(&self, future: FutureObj<'static, ()>) -> Result<(), SpawnError> {
-        self.spawn_local_obj(LocalFutureObj::from(future))
-    }
+
+
+impl LocalSpawn for GlommioCt
+{
+	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), SpawnError>
+	{
+		Task::local( future ).detach();
+		Ok(())
+	}
 }
 
-impl<Out: Send + 'static> SpawnHandle<Out> for GlommioCt {
-    fn spawn_handle_obj(&self, future: FutureObj<'static, Out>) -> Result<JoinHandle<Out>, SpawnError> {
-        let (remote, handle) = future.remote_handle();
-        glommio_crate::Task::local(remote).detach();
-        Ok(JoinHandle {
-            inner: InnerJh::RemoteHandle(Some(handle)),
-        })
-    }
+
+
+impl<Out: 'static> LocalSpawnHandle<Out> for GlommioCt
+{
+	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> )
+
+		-> Result<JoinHandle<Out>, SpawnError>
+	{
+		let (remote, handle) = future.remote_handle();
+
+		Task::local( remote ).detach();
+
+		Ok( JoinHandle
+		{
+			inner: InnerJh::RemoteHandle( Some(handle) )
+		})
+	}
+}
+
+
+
+impl Spawn for GlommioCt
+{
+	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), SpawnError>
+	{
+		self.spawn_local( future )
+	}
+}
+
+
+
+impl<Out: Send + 'static> SpawnHandle<Out> for GlommioCt
+{
+	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
+	{
+		let (remote, handle) = future.remote_handle();
+
+		Task::local( remote ).detach();
+
+		Ok( JoinHandle
+		{
+			inner: InnerJh::RemoteHandle( Some(handle) )
+		})
+	}
+}
+
+
+
+#[ cfg(test) ]
+//
+mod tests
+{
+	use super::*;
+
+	// It's important that this is not Send, as we allow spawning !Send futures on it.
+	//
+	static_assertions::assert_not_impl_any!( GlommioCt: Send, Sync );
 }

@@ -73,8 +73,8 @@ features:
   #
   bindgen   : [ wasm-bindgen-futures ]
 
-  # Enabled the glommio executor support. Glommio is a cooperative thread-per-core model. Requires a very
-  # new linux kernel(5.8+) This includes a current_thread and a thread_pool(with work-stealing algorithm) implementation
+  # Enabled the glommio executor. Linux only. Requires kernel 5.8+.
+  #
   glommio   : [ glommio_crate ]
 
   # Add support for the futures LocalPool to SpawnHandle and LocalSpawnHandle
@@ -115,17 +115,19 @@ dependencies:
   futures-util        : { version: ^0.3, features: [ channel ]                  }
   futures-executor    : { version: ^0.3, optional: true                         }
   tracing-futures     : { version: ^0.2, optional: true, features: [futures-03] }
+  glommio_crate       : { version: ^0.4  , optional: true, package: glommio     }
+  tokio               : { version: ^1    , optional: true                       }
 
   # Private deps
   #
   async-global-executor : { version: ^2    , optional: true, default-features: false }
   async_std_crate       : { version: ^1.6  , optional: true, package: async-std, features: [ unstable ] }
-  tokio                 : { version: ^1    , optional: true }
   pin-utils             : { version: ^0.1  , optional: true }
-  glommio_crate         : { version: ^0.4  , optional: true, package: glommio }
+
   # necessary for the crate to compile for `cargo doc`
   #
   wasm-bindgen-futures: { version: ^0.4, optional: true }
+
 
 dev-dependencies:
 
