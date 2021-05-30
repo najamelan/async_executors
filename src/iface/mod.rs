@@ -7,6 +7,18 @@ pub use local_spawn_handle ::*;
 pub use join_handle        ::*;
 
 
+#[ cfg(any( feature="timer", feature="tokio_timer" )) ]
+//
+pub(crate) mod sleep;
+
+
+#[ cfg(any( feature="timer", feature="tokio_timer" )) ]
+//
+pub use sleep::*;
+
+
+
+
 
 /// Trait indicating that glommio IO can be used with the executor that
 /// implements it. Thus when a library requests a `impl Spawn + GlommioIo` it is
