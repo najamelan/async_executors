@@ -49,6 +49,11 @@ impl TokioTpBuilder
 	//
 	pub fn build( &mut self ) -> Result<TokioTp, std::io::Error>
 	{
+		#[ cfg( feature = "tokio_reactor" ) ]
+		//
+		self.builder.enable_io();
+
+
 		let exec = self.builder.build()?;
 
 		Ok( TokioTp

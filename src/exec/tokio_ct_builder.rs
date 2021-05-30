@@ -50,6 +50,10 @@ impl TokioCtBuilder
 	//
 	pub fn build( &mut self ) -> Result<TokioCt, std::io::Error>
 	{
+		#[ cfg( feature = "tokio_reactor" ) ]
+		//
+		self.builder.enable_io();
+
 		let exec = self.builder.build()?;
 
 		Ok( TokioCt

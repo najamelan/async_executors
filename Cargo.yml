@@ -55,9 +55,22 @@ features:
   #
   default   : [ notwasm ]
 
-  # Enables the async-std task executor. Not available on WASM.
+  # Add support for the executor from async-global-executor.
+  #
+  async_global: [ async-global-executor ]
+
+  # Make sure async-io is enabled on async-global-executor.
+  #
+  async_global_io: [ async-global-executor/async-io ]
+
+  # Enables the async-std task executor.
   #
   async_std : [ async_std_crate ]
+
+  # Make sure async-io is enabled on async-std. Note that for now it seems it's always on
+  # when not on wasm.
+  #
+  async_std_io: [ async_std_crate/async-io ]
 
   # Enables the tokio current_thread executor. Not available on WASM.
   #
@@ -66,6 +79,18 @@ features:
   # Enables the tokio thread_pool executor. Not available on WASM.
   #
   tokio_tp  : [ tokio/rt-multi-thread ]
+
+  # Enable tokio io primitives.
+  #
+  tokio_io: [ tokio/net, tokio/process ]
+
+  # Guarantees the reactor will be enabled on tokio executors.
+  #
+  tokio_reactor : [ tokio/net, tokio/process ]
+
+  # Enable tokio timer functionality.
+  #
+  tokio_timer: [ tokio/time ]
 
   # Enables the wasm-bindgen-futures executor. Only available on WASM. If no other executors are enabled
   # this will be enabled by default. Currently the only executor available on WASM, so it makes no sense
@@ -86,10 +111,6 @@ features:
   # only makes sense in conjunction with spawn_handle.
   #
   threadpool: [ futures-executor/thread-pool ]
-
-  # Add support for the executor from async-global-executor.
-  #
-  async_global: [ async-global-executor ]
 
   # Enable integration with tracing-futures. This implements the SpawnHandle family of traits
   # on wrapped executors Instrumented<T> and WithDispatch<T>.

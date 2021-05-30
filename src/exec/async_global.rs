@@ -42,6 +42,15 @@ impl AsyncGlobal
 }
 
 
+/// Signal io can be used on this executor.
+//
+#[ cfg(all( not(target_arch = "wasm32"), feature = "async_global_io" )) ]
+//
+#[ cfg_attr( nightly, doc(cfg(all( not(target_arch = "wasm32"), feature = "async_global_io" ))) ) ]
+//
+impl crate::AsyncIo for AsyncGlobal {}
+
+
 
 #[ cfg( target_arch = "wasm32" ) ]
 //

@@ -1,6 +1,10 @@
 # TODO:
 
 - Create features and traits for turning on extra executor global side-effects, like GlommioIO, TokioIO, AsyncStdIO, Timer.
+- Test IO traits.
+- Document IO traits usage.
+- check documentation for glommio and new traits.
+- async-global also supports tokio_io
 
 - test for JoinHandle being Send when Out is Send. Currently was caught just by an example.
 - test what happens when creating 2 LocalExecutor in one thread.

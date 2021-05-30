@@ -43,6 +43,18 @@ impl AsyncStd
 
 
 
+
+/// Signal io can be used on this executor.
+//
+#[ cfg(all( not(target_arch = "wasm32"), feature = "async_std_io" )) ]
+//
+#[ cfg_attr( nightly, doc(cfg(all( not(target_arch = "wasm32"), feature = "async_std_io" ))) ) ]
+//
+impl crate::AsyncIo for AsyncStd {}
+
+
+
+
 #[ cfg( target_arch = "wasm32" ) ]
 //
 impl Spawn for AsyncStd
@@ -79,7 +91,7 @@ impl<Out: 'static + Send> SpawnHandle<Out> for AsyncStd
 	{
 		let (fut, a_handle) = abortable( future );
 
-		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::AsyncStd
+		Ok( JoinHandle{ inner: InnerJh::AsyncStd
 		{
 			handle  : async_std_crate::task::spawn( fut ) ,
 			detached: AtomicBool::new( false )            ,
@@ -90,6 +102,8 @@ impl<Out: 'static + Send> SpawnHandle<Out> for AsyncStd
 
 
 
+// async-std only exposes local_spawn on wasm.
+//
 #[ cfg( target_arch = "wasm32" ) ]
 //
 impl<Out: 'static + Send> SpawnHandle<Out> for AsyncStd

@@ -1,6 +1,6 @@
 use
 {
-	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle, iface::join_handle::InnerJh } ,
+	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle, join_handle::InnerJh } ,
 	std          :: { rc::Rc, future::Future, sync::atomic::AtomicBool                } ,
 	tokio        :: { task::LocalSet, runtime::{  Runtime }                           } ,
 	futures_task :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError        } ,
@@ -102,6 +102,14 @@ impl TokioCt
 		self.exec.block_on( self.local.run_until( f ) )
 	}
 }
+
+
+
+#[ cfg( feature = "tokio_reactor" ) ]
+//
+#[ cfg_attr( nightly, doc(cfg( feature = "tokio_reactor" )) ) ]
+//
+impl crate::TokioIo for TokioCt {}
 
 
 impl Spawn for TokioCt

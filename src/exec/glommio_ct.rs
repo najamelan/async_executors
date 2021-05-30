@@ -1,10 +1,10 @@
 use
 {
-	crate         :: { LocalSpawnHandle, SpawnHandle, InnerJh, JoinHandle      } ,
-	std           :: { future::Future, rc::Rc                                  } ,
-	futures_task  :: { FutureObj, LocalSpawn,  Spawn, SpawnError               } ,
-	futures_util  :: { FutureExt, task::LocalSpawnExt, future::LocalFutureObj  } ,
-	glommio_crate :: { LocalExecutor, LocalExecutorBuilder, GlommioError, Task } ,
+	crate         :: { LocalSpawnHandle, SpawnHandle, InnerJh, JoinHandle, GlommioIo } ,
+	std           :: { future::Future, rc::Rc                                        } ,
+	futures_task  :: { FutureObj, LocalSpawn,  Spawn, SpawnError                     } ,
+	futures_util  :: { FutureExt, task::LocalSpawnExt, future::LocalFutureObj        } ,
+	glommio_crate :: { LocalExecutor, LocalExecutorBuilder, GlommioError, Task       } ,
 };
 
 
@@ -53,6 +53,11 @@ impl GlommioCt
 		self.exec.run( future )
 	}
 }
+
+
+/// io_uring is always turned on on glommio.
+//
+impl GlommioIo for GlommioCt {}
 
 
 

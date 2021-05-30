@@ -151,6 +151,13 @@ impl TokioTp
 }
 
 
+#[ cfg( feature = "tokio_reactor" ) ]
+//
+#[ cfg_attr( nightly, doc(cfg( feature = "tokio_reactor" )) ) ]
+//
+impl crate::TokioIo for TokioTp {}
+
+
 impl Spawn for TokioTp
 {
 	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), SpawnError>
