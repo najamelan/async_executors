@@ -42,16 +42,6 @@ impl AsyncGlobal
 }
 
 
-/// Signal io can be used on this executor.
-//
-#[ cfg(all( not(target_arch = "wasm32"), feature = "async_global_io" )) ]
-//
-#[ cfg_attr( nightly, doc(cfg(all( not(target_arch = "wasm32"), feature = "async_global_io" ))) ) ]
-//
-impl crate::AsyncIo for AsyncGlobal {}
-
-
-
 #[ cfg( target_arch = "wasm32" ) ]
 //
 impl Spawn for AsyncGlobal
@@ -141,3 +131,42 @@ impl std::fmt::Debug for AsyncGlobal
 		write!( f, "AsyncGlobal executor" )
 	}
 }
+
+
+
+/// Signal io can be used on this executor.
+//
+#[ cfg(all( not(target_arch = "wasm32"), feature = "async_global_io" )) ]
+//
+#[ cfg_attr( nightly, doc(cfg(all( not(target_arch = "wasm32"), feature = "async_global_io" ))) ) ]
+//
+impl crate::AsyncIo for AsyncGlobal {}
+
+
+/// Signal io can be used on this executor.
+//
+#[ cfg(all( not(target_arch = "wasm32"), feature = "async_global_tokio" )) ]
+//
+#[ cfg_attr( nightly, doc(cfg(all( not(target_arch = "wasm32"), feature = "async_global_tokio" ))) ) ]
+//
+impl crate::TokioIo for AsyncGlobal {}
+
+
+
+#[ cfg( feature = "timer" ) ]
+//
+#[ cfg_attr( nightly, doc(cfg(all( feature = "timer", feature = "async_global" ))) ) ]
+//
+impl crate::Timer for AsyncGlobal
+{
+	type SleepFuture = futures_timer::Delay;
+
+	fn sleep( &self, dur: std::time::Duration ) -> Self::SleepFuture
+	{
+		futures_timer::Delay::new( dur )
+	}
+}
+
+
+
+

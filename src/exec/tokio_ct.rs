@@ -1,9 +1,9 @@
 use
 {
-	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle, join_handle::InnerJh } ,
-	std          :: { rc::Rc, future::Future, sync::atomic::AtomicBool                } ,
-	tokio        :: { task::LocalSet, runtime::{  Runtime }                           } ,
-	futures_task :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError        } ,
+	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle, join_handle::InnerJh  } ,
+	std          :: { rc::Rc, future::Future, sync::atomic::AtomicBool                 } ,
+	tokio        :: { task::LocalSet, runtime::{  Runtime }                            } ,
+	futures_task :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError         } ,
 };
 
 
@@ -166,6 +166,40 @@ impl<Out: 'static> LocalSpawnHandle<Out> for TokioCt
 
 	}
 }
+
+
+
+#[ cfg(all( feature = "timer", not(feature="tokio_timer" )) ) ]
+//
+#[ cfg_attr( nightly, doc(cfg(all( feature = "timer", feature = "tokio_ct" ))) ) ]
+//
+impl crate::Timer for TokioCt
+{
+	type SleepFuture = futures_timer::Delay;
+
+	fn sleep( &self, dur: std::time::Duration ) -> Self::SleepFuture
+	{
+		futures_timer::Delay::new( dur )
+	}
+}
+
+
+
+#[ cfg( feature = "tokio_timer" ) ]
+//
+#[ cfg_attr( nightly, doc(cfg(all( feature = "tokio_timer", feature = "tokio_ct" ))) ) ]
+//
+impl crate::Timer for TokioCt
+{
+	type SleepFuture = tokio::time::Sleep;
+
+	fn sleep( &self, dur: std::time::Duration ) -> Self::SleepFuture
+	{
+		tokio::time::sleep( dur )
+	}
+}
+
+
 
 
 

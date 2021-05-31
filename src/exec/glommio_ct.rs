@@ -1,10 +1,10 @@
 use
 {
-	crate         :: { LocalSpawnHandle, SpawnHandle, InnerJh, JoinHandle, GlommioIo } ,
-	std           :: { future::Future, rc::Rc                                        } ,
-	futures_task  :: { FutureObj, LocalSpawn,  Spawn, SpawnError                     } ,
-	futures_util  :: { FutureExt, task::LocalSpawnExt, future::LocalFutureObj        } ,
-	glommio_crate :: { LocalExecutor, LocalExecutorBuilder, GlommioError, Task       } ,
+	crate         :: { LocalSpawnHandle, SpawnHandle, InnerJh, JoinHandle, GlommioIo         } ,
+	std           :: { future::Future, rc::Rc, time::Duration, pin::Pin                      } ,
+	futures_task  :: { FutureObj, LocalSpawn,  Spawn, SpawnError                             } ,
+	futures_util  :: { FutureExt, task::LocalSpawnExt, future::LocalFutureObj                } ,
+	glommio_crate :: { LocalExecutor, LocalExecutorBuilder, GlommioError, Task, timer::Timer } ,
 };
 
 
@@ -53,11 +53,6 @@ impl GlommioCt
 		self.exec.run( future )
 	}
 }
-
-
-/// io_uring is always turned on on glommio.
-//
-impl GlommioIo for GlommioCt {}
 
 
 
@@ -113,6 +108,28 @@ impl<Out: Send + 'static> SpawnHandle<Out> for GlommioCt
 		{
 			inner: InnerJh::RemoteHandle( Some(handle) )
 		})
+	}
+}
+
+
+/// io_uring is always turned on on glommio.
+//
+impl GlommioIo for GlommioCt {}
+
+
+
+
+impl crate::Timer for GlommioCt
+{
+	type SleepFuture = Pin<Box< dyn Future<Output=()> >>;
+
+	fn sleep( &self, dur: Duration ) -> Self::SleepFuture
+	{
+		async move
+		{
+			Timer::new( dur );
+
+		}.boxed_local()
 	}
 }
 

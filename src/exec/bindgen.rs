@@ -87,3 +87,19 @@ impl std::fmt::Debug for Bindgen
 		write!( f, "WASM Bindgen executor" )
 	}
 }
+
+
+
+#[ cfg( feature = "timer" ) ]
+//
+#[ cfg_attr( nightly, doc(cfg(all( feature = "timer", feature = "bindgen" ))) ) ]
+//
+impl crate::Timer for Bindgen
+{
+	type SleepFuture = futures_timer::Delay;
+
+	fn sleep( &self, dur: std::time::Duration ) -> Self::SleepFuture
+	{
+		futures_timer::Delay::new( dur )
+	}
+}

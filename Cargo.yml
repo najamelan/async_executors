@@ -46,6 +46,7 @@ package:
         targets     : []
 
 
+
 # Please see the readme for details.
 #
 features:
@@ -58,7 +59,7 @@ features:
 
   # Turn on futures-timer. This will provide timer functionality for executors
   # that don't have it built in: AsyncGlobal, Bindgen, LocalPool, ThreadPool.
-  # Will also implement Timer on tokio executors if tokio_timer feature is not enabled.
+  # Will also implement Timer on tokio executors if the tokio_timer feature is not enabled.
   #
   timer : [ futures-timer ]
 
@@ -76,12 +77,12 @@ features:
   async_global: [ async-global-executor ]
 
   # Make sure async-io is enabled on async-global-executor.
-  # This will implement AsyncIo on AsyncGlobal.
+  # This will implement AsyncIo on AsyncGlobal. Not available on Wasm.
   #
   async_global_io: [ async-global-executor/async-io ]
 
   # Make sure async-io is enabled on async-global-executor.
-  # This will implement TokioIo on AsyncGlobal.
+  # This will implement TokioIo on AsyncGlobal. Not available on Wasm.
   #
   async_global_tokio: [ async-global-executor/tokio ]
 
@@ -94,16 +95,17 @@ features:
   async_std : [ async_std_crate ]
 
   # Makes sure the tokio reactor is running. Implements TokioIo for AsyncStd.
+  # Not available on Wasm.
   #
   async_std_tokio : [ async_std_crate/tokio1 ]
 
 
 
-  # Enables the tokio current_thread executor. Not available on WASM.
+  # Enables the tokio current_thread executor. Not available on Wasm.
   #
   tokio_ct  : [ tokio/rt ]
 
-  # Enables the tokio thread_pool executor. Not available on WASM.
+  # Enables the tokio thread_pool executor. Not available on Wasm.
   #
   tokio_tp  : [ tokio/rt-multi-thread ]
 
@@ -119,7 +121,7 @@ features:
 
 
 
-  # Enables the wasm-bindgen-futures executor. Only available on WASM.
+  # Enables the wasm-bindgen-futures executor. Only available on Wasm.
   # If feature timer is enabled, this will implement Timer trait on Bindgen.
   #
   bindgen   : [ wasm-bindgen-futures ]

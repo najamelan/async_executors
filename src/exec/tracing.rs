@@ -1,9 +1,9 @@
 use
 {
-	futures_util    :: { future::{ FutureExt }                     } ,
-	futures_task    :: { SpawnError, LocalFutureObj, FutureObj     } ,
-	crate           :: { JoinHandle, SpawnHandle, LocalSpawnHandle } ,
-	tracing_futures :: { Instrument, Instrumented, WithDispatch    } ,
+	futures_util    :: { future::{ FutureExt }                            } ,
+	futures_task    :: { SpawnError, LocalFutureObj, FutureObj            } ,
+	crate           :: { JoinHandle, SpawnHandle, LocalSpawnHandle, Timer, AsyncIo, TokioIo } ,
+	tracing_futures :: { Instrument, Instrumented, WithDispatch           } ,
 };
 
 
@@ -44,7 +44,6 @@ impl<T, Out> LocalSpawnHandle<Out> for Instrumented<T> where T: LocalSpawnHandle
 
 
 
-
 impl<T, Out> LocalSpawnHandle<Out> for WithDispatch<T> where T: LocalSpawnHandle<Out>, Out: 'static
 {
 	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
@@ -54,3 +53,35 @@ impl<T, Out> LocalSpawnHandle<Out> for WithDispatch<T> where T: LocalSpawnHandle
 		self.inner().spawn_handle_local_obj( LocalFutureObj::new(fut.boxed_local()) )
 	}
 }
+
+
+
+impl<T> Timer for Instrumented<T> where T: Timer
+{
+	type SleepFuture = Instrumented<T::SleepFuture>;
+
+	fn sleep( &self, dur: std::time::Duration ) -> Self::SleepFuture
+	{
+		self.inner().sleep( dur ).instrument( self.span().clone() )
+	}
+}
+
+
+
+impl<T> Timer for WithDispatch<T> where T: Timer
+{
+	type SleepFuture = WithDispatch<T::SleepFuture>;
+
+	fn sleep( &self, dur: std::time::Duration ) -> Self::SleepFuture
+	{
+		self.with_dispatch( self.inner().sleep( dur ) )
+	}
+}
+
+
+
+impl<T> AsyncIo for Instrumented<T> where T: AsyncIo {}
+impl<T> AsyncIo for WithDispatch<T> where T: AsyncIo {}
+
+impl<T> TokioIo for Instrumented<T> where T: TokioIo {}
+impl<T> TokioIo for WithDispatch<T> where T: TokioIo {}

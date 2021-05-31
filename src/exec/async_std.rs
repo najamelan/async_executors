@@ -1,9 +1,9 @@
 use
 {
-	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle, join_handle::InnerJh } ,
-	futures_task :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError        } ,
-	futures_util :: { future::abortable                                               } ,
-	std          :: { sync::atomic::AtomicBool                                        } ,
+	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle, join_handle::InnerJh    } ,
+	futures_task :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError           } ,
+	futures_util :: { future::abortable                                                  } ,
+	std          :: { sync::atomic::AtomicBool, future::Future, pin::Pin, time::Duration } ,
 };
 
 
@@ -35,23 +35,11 @@ impl AsyncStd
 	#[cfg(not(target_os = "unknown"))]
 	#[ cfg_attr( nightly, doc(cfg(not( target_os = "unknown" ))) ) ]
 	//
-	pub fn block_on<F: std::future::Future>(future: F) -> F::Output
+	pub fn block_on<F: Future>(future: F) -> F::Output
 	{
 		async_std_crate::task::block_on( future )
 	}
 }
-
-
-
-
-/// Signal io can be used on this executor.
-//
-#[ cfg(all( not(target_arch = "wasm32"), feature = "async_std_io" )) ]
-//
-#[ cfg_attr( nightly, doc(cfg(all( not(target_arch = "wasm32"), feature = "async_std_io" ))) ) ]
-//
-impl crate::AsyncIo for AsyncStd {}
-
 
 
 
@@ -158,5 +146,37 @@ impl std::fmt::Debug for AsyncStd
 	fn fmt( &self, f: &mut std::fmt::Formatter<'_> ) -> std::fmt::Result
 	{
 		write!( f, "AsyncStd executor" )
+	}
+}
+
+
+
+/// Signal io can be used on this executor.
+//
+#[ cfg( not(target_arch = "wasm32") ) ]
+//
+#[ cfg_attr( nightly, doc(cfg( not(target_arch = "wasm32") )) ) ]
+//
+impl crate::AsyncIo for AsyncStd {}
+
+
+
+/// Signal io can be used on this executor.
+//
+#[ cfg(all( not(target_arch = "wasm32"), feature="async_std_tokio" )) ]
+//
+#[ cfg_attr( nightly, doc(cfg(all( not(target_arch = "wasm32"), feature="async_std_tokio" ))) ) ]
+//
+impl crate::TokioIo for AsyncStd {}
+
+
+
+impl crate::Timer for AsyncStd
+{
+	type SleepFuture = Pin<Box< dyn Future<Output=()> + Send >>;
+
+	fn sleep( &self, dur: Duration ) -> Self::SleepFuture
+	{
+		Box::pin( async_std_crate::task::sleep( dur ) )
 	}
 }

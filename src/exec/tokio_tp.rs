@@ -183,3 +183,35 @@ impl<Out: 'static + Send> SpawnHandle<Out> for TokioTp
 		}})
 	}
 }
+
+
+
+#[ cfg(all( feature = "timer", not(feature="tokio_timer" )) ) ]
+//
+#[ cfg_attr( nightly, doc(cfg( feature = "timer", feature = "tokio_tp" )) ) ]
+//
+impl crate::Timer for TokioTp
+{
+	type SleepFuture = futures_timer::Delay;
+
+	fn sleep( &self, dur: std::time::Duration ) -> Self::SleepFuture
+	{
+		futures_timer::Delay::new( dur )
+	}
+}
+
+
+
+#[ cfg( feature = "tokio_timer" ) ]
+//
+#[ cfg_attr( nightly, doc(cfg(all( feature = "tokio_timer", feature = "tokio_tp" ))) ) ]
+//
+impl crate::Timer for TokioTp
+{
+	type SleepFuture = tokio::time::Sleep;
+
+	fn sleep( &self, dur: std::time::Duration ) -> Self::SleepFuture
+	{
+		tokio::time::sleep( dur )
+	}
+}
