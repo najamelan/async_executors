@@ -6,11 +6,14 @@ use
 	futures_util :: { task::{ LocalSpawnExt }, future::{ FutureExt, abortable }           } ,
 	crate        :: { JoinHandle                                                          } ,
 	std          :: { pin::Pin, future::Future, sync::{ Arc, atomic::AtomicBool }, rc::Rc } ,
+	blanket      :: { blanket                                                             } ,
 };
 
 
 /// This is similar to [`SpawnHandle`](crate::SpawnHandle) except that it allows spawning `!Send` futures. Please see
 /// the docs on [`SpawnHandle`](crate::SpawnHandle).
+//
+#[ blanket(derive( Ref, Mut, Box, Rc )) ]
 //
 pub trait LocalSpawnHandle<Out: 'static>
 {
@@ -43,47 +46,8 @@ impl<T, Out> LocalSpawnHandleExt<Out> for T
 }
 
 
-impl<T: ?Sized, Out> LocalSpawnHandle<Out> for Box<T> where T: LocalSpawnHandle<Out>, Out: 'static
-{
-	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
-	{
-		(**self).spawn_handle_local_obj( future )
-	}
-}
-
-
 
 impl<T: ?Sized, Out> LocalSpawnHandle<Out> for Arc<T> where T: LocalSpawnHandle<Out>, Out: 'static
-{
-	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
-	{
-		(**self).spawn_handle_local_obj( future )
-	}
-}
-
-
-
-impl<T: ?Sized, Out> LocalSpawnHandle<Out> for Rc<T> where T: LocalSpawnHandle<Out>, Out: 'static
-{
-	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
-	{
-		(**self).spawn_handle_local_obj( future )
-	}
-}
-
-
-
-impl<T, Out> LocalSpawnHandle<Out> for &T where T: LocalSpawnHandle<Out>, Out: 'static
-{
-	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
-	{
-		(**self).spawn_handle_local_obj( future )
-	}
-}
-
-
-
-impl<T, Out> LocalSpawnHandle<Out> for &mut T where T: LocalSpawnHandle<Out>, Out: 'static
 {
 	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
