@@ -30,6 +30,10 @@ version = "^0.3"
 [dependencies.futures-task]
 version = "^0.3"
 
+[dependencies.futures-timer]
+optional = true
+version = "^3"
+
 [dependencies.futures-util]
 features = ["channel"]
 version = "^0.3"
@@ -115,17 +119,18 @@ required-features = ["notwasm", "glommio"]
 [features]
 async_global = ["async-global-executor"]
 async_global_io = ["async-global-executor/async-io"]
+async_global_tokio = ["async-global-executor/tokio"]
 async_std = ["async_std_crate"]
-async_std_io = ["async_std_crate/async-io"]
+async_std_tokio = ["async_std_crate/tokio1"]
 bindgen = ["wasm-bindgen-futures"]
 default = ["notwasm"]
 glommio = ["glommio_crate"]
 localpool = ["futures-executor"]
 notwasm = []
 threadpool = ["futures-executor/thread-pool"]
+timer = ["futures-timer"]
 tokio_ct = ["tokio/rt"]
 tokio_io = ["tokio/net", "tokio/process"]
-tokio_reactor = ["tokio/net", "tokio/process"]
 tokio_timer = ["tokio/time"]
 tokio_tp = ["tokio/rt-multi-thread"]
 tracing = ["tracing-futures"]

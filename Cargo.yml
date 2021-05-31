@@ -51,26 +51,53 @@ package:
 features:
 
   # The `notwasm` feature only exists so that cargo test doesn't try to compile the examples when testing
-  # wasm.
+  # wasm. Ignore.
   #
   default   : [ notwasm ]
+
+
+  # Turn on futures-timer. This will provide timer functionality for executors
+  # that don't have it built in: AsyncGlobal, Bindgen, LocalPool, ThreadPool.
+  # Will also implement Timer on tokio executors if tokio_timer feature is not enabled.
+  #
+  timer : [ futures-timer ]
+
+  # Enable integration with tracing-futures. This implements the SpawnHandle,
+  # Io and Timer traits on wrapped executors Instrumented<T> and WithDispatch<T>.
+  #
+  tracing: [ tracing-futures ]
+
+
+  ### Executors ###
+
 
   # Add support for the executor from async-global-executor.
   #
   async_global: [ async-global-executor ]
 
   # Make sure async-io is enabled on async-global-executor.
+  # This will implement AsyncIo on AsyncGlobal.
   #
   async_global_io: [ async-global-executor/async-io ]
 
+  # Make sure async-io is enabled on async-global-executor.
+  # This will implement TokioIo on AsyncGlobal.
+  #
+  async_global_tokio: [ async-global-executor/tokio ]
+
+
+
   # Enables the async-std task executor.
+  # Also implements the AsyncIo and Timer traits. Currently async-io is always loaded when
+  # async-std is. See: https://github.com/async-rs/async-std/issues/975
   #
   async_std : [ async_std_crate ]
 
-  # Make sure async-io is enabled on async-std. Note that for now it seems it's always on
-  # when not on wasm.
+  # Makes sure the tokio reactor is running. Implements TokioIo for AsyncStd.
   #
-  async_std_io: [ async_std_crate/async-io ]
+  async_std_tokio : [ async_std_crate/tokio1 ]
+
+
 
   # Enables the tokio current_thread executor. Not available on WASM.
   #
@@ -80,42 +107,43 @@ features:
   #
   tokio_tp  : [ tokio/rt-multi-thread ]
 
-  # Enable tokio io primitives.
+  # Make sure a tokio reactor is running.
+  # This implements the TokioIo trait on the two tokio executors.
   #
   tokio_io: [ tokio/net, tokio/process ]
 
-  # Guarantees the reactor will be enabled on tokio executors.
-  #
-  tokio_reactor : [ tokio/net, tokio/process ]
-
-  # Enable tokio timer functionality.
+  # Enable tokio timer functionality. Implements the Timer trait
+  # it on tokio executors.
   #
   tokio_timer: [ tokio/time ]
 
-  # Enables the wasm-bindgen-futures executor. Only available on WASM. If no other executors are enabled
-  # this will be enabled by default. Currently the only executor available on WASM, so it makes no sense
-  # for it not to be enabled, and it's providing dependency wasm-bindgen-futures will always be compiled in.
+
+
+  # Enables the wasm-bindgen-futures executor. Only available on WASM.
+  # If feature timer is enabled, this will implement Timer trait on Bindgen.
   #
   bindgen   : [ wasm-bindgen-futures ]
 
+
+
   # Enabled the glommio executor. Linux only. Requires kernel 5.8+.
+  # GlommioCt implements Timer and GlommioIo.
   #
   glommio   : [ glommio_crate ]
 
-  # Add support for the futures LocalPool to SpawnHandle and LocalSpawnHandle
-  # only makes sense in conjunction with spawn_handle.
+
+
+  # Add support for the futures LocalPool to SpawnHandle and LocalSpawnHandle.
+  # LocalPool will implement Timer if the timer feature is enabled.
   #
   localpool: [ futures-executor ]
 
-  # Add support for the futures ThreadPool to SpawnHandle and LocalSpawnHandle
-  # only makes sense in conjunction with spawn_handle.
+  # Add support for the futures ThreadPool to SpawnHandle and LocalSpawnHandle.
+  # ThreadPool will implement Timer if the timer feature is enabled.
   #
   threadpool: [ futures-executor/thread-pool ]
 
-  # Enable integration with tracing-futures. This implements the SpawnHandle family of traits
-  # on wrapped executors Instrumented<T> and WithDispatch<T>.
-  #
-  tracing: [ tracing-futures ]
+
 
   # only used internally, don't use
   #
@@ -135,6 +163,7 @@ dependencies:
   futures-task        : { version: ^0.3                                         }
   futures-util        : { version: ^0.3, features: [ channel ]                  }
   futures-executor    : { version: ^0.3, optional: true                         }
+  futures-timer       : { version: ^3  , optional: true                         }
   tracing-futures     : { version: ^0.2, optional: true, features: [futures-03] }
   glommio_crate       : { version: ^0.4, optional: true, package: glommio       }
   tokio               : { version: ^1  , optional: true                         }
