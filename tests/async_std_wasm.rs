@@ -21,6 +21,8 @@
 // ✔ pass a  Rc<AsyncStd> to a function that takes exec:  `impl LocalSpawnHandle`
 // ✔ pass a    &AsyncStd  to a function that takes exec:  `&dyn LocalSpawnHandle`
 //
+// ✔ pass an AsyncStd to a function that requires a Timer.
+//
 mod common;
 
 use
@@ -345,5 +347,15 @@ fn spawn_handle_os_local()
 	};
 
 	AsyncStd.spawn_local( fut ).expect( "spawn future" );
+}
+
+
+// pass an AsyncStd to a function that requires a Timer.
+//
+#[ wasm_bindgen_test ]
+//
+fn timer_should_wake_local()
+{
+	AsyncStd.spawn_local( timer_should_wake_up_local( AsyncStd ) ).expect( "spawn future" );
 }
 

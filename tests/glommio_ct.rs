@@ -22,6 +22,8 @@
 // ✔ pass a    GlommioCt  to a function that takes exec: `impl LocalSpawnHandle`
 // ✔ pass a Rc<GlommioCt> to a function that takes exec: `impl LocalSpawnHandle`
 // ✔ pass a   &GlommioCt  to a function that takes exec: `&dyn LocalSpawnHandle`
+
+// ✔ pass an GommioCt to a function that requires a Timer.
 //
 // ✔ Joinhandle::detach allows task to keep running.
 // - Test cpu pinning.
@@ -423,4 +425,18 @@ fn join_handle_detach()
 
 			assert_eq!( out_rx.await, Ok(5) );
 	});
+}
+
+
+
+// pass an GommioCt to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn timer_should_wake_local()
+{
+	let exec = GlommioCt::new( LocalExecutorBuilder::new() ).expect( "create exec" );
+	exec.block_on( timer_should_wake_up_local( exec.clone() ) );
 }

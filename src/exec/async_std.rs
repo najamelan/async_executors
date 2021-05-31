@@ -173,6 +173,14 @@ impl crate::TokioIo for AsyncStd {}
 
 impl crate::Timer for AsyncStd
 {
+	/// Future returned by sleep().
+	//
+	#[ cfg( target_arch = "wasm32") ]
+	//
+	type SleepFuture = Pin<Box< dyn Future<Output=()> >>;
+
+	#[ cfg(not( target_arch = "wasm32" )) ]
+	//
 	type SleepFuture = Pin<Box< dyn Future<Output=()> + Send >>;
 
 	fn sleep( &self, dur: Duration ) -> Self::SleepFuture

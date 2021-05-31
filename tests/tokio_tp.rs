@@ -210,3 +210,18 @@ fn join_handle_detach()
 		assert_eq!( out_rx.await, Ok(5) );
 	});
 }
+
+
+
+// pass an TokioTp to a function that requires a Timer.
+//
+#[ cfg(any( feature="timer", feature="tokio_timer" )) ]
+//
+#[ test ]
+//
+fn timer_should_wake()
+{
+	let exec = TokioTpBuilder::new().build().expect( "create tokio current thread" );
+
+	exec.block_on( timer_should_wake_up( exec.clone() ) );
+}

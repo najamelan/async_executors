@@ -1,10 +1,10 @@
 use
 {
-	crate         :: { LocalSpawnHandle, SpawnHandle, InnerJh, JoinHandle, GlommioIo         } ,
-	std           :: { future::Future, rc::Rc, time::Duration, pin::Pin                      } ,
-	futures_task  :: { FutureObj, LocalSpawn,  Spawn, SpawnError                             } ,
-	futures_util  :: { FutureExt, task::LocalSpawnExt, future::LocalFutureObj                } ,
-	glommio_crate :: { LocalExecutor, LocalExecutorBuilder, GlommioError, Task, timer::Timer } ,
+	crate         :: { LocalSpawnHandle, SpawnHandle, InnerJh, JoinHandle, GlommioIo } ,
+	std           :: { future::Future, rc::Rc                                        } ,
+	futures_task  :: { FutureObj, LocalSpawn,  Spawn, SpawnError                     } ,
+	futures_util  :: { FutureExt, task::LocalSpawnExt, future::LocalFutureObj        } ,
+	glommio_crate :: { LocalExecutor, LocalExecutorBuilder, GlommioError, Task       } ,
 };
 
 
@@ -118,18 +118,15 @@ impl GlommioIo for GlommioCt {}
 
 
 
-
+#[ cfg( feature = "timer" ) ]
+//
 impl crate::Timer for GlommioCt
 {
-	type SleepFuture = Pin<Box< dyn Future<Output=()> >>;
+	type SleepFuture = futures_timer::Delay;
 
-	fn sleep( &self, dur: Duration ) -> Self::SleepFuture
+	fn sleep( &self, dur: std::time::Duration ) -> Self::SleepFuture
 	{
-		async move
-		{
-			Timer::new( dur );
-
-		}.boxed_local()
+		futures_timer::Delay::new( dur )
 	}
 }
 

@@ -36,7 +36,8 @@ package:
   keywords      : [ async, executor, futures  ]
   categories    : [ asynchronous, concurrency ]
   license       : Unlicense
-  edition       : "2018"
+  edition       : '2018'
+  resolver      : '2'
   exclude       : [ examples, tests, TODO.md, deny.toml, .travis.yml, CONTRIBUTING.md ]
 
   metadata:
@@ -186,7 +187,6 @@ dev-dependencies:
 
   static_assertions : ^1
   futures           : { version: ^0.3, features: [ thread-pool ] }
-  futures-timer     : { version: ^3  , features: [ wasm-bindgen ] }
   tracing-subscriber: { version: ^0.2, default-features: false, features: [ fmt ] }
   tracing_crate     : { version: ^0.1, package: tracing }
   trait-set         : ^0.2
@@ -212,9 +212,16 @@ target:
 
   'cfg(target_arch = "wasm32")':
 
+
+    dependencies:
+
+      futures-timer: { version: ^3, features: [wasm-bindgen], optional: true }
+
     dev-dependencies:
 
       wasm-bindgen-test: ^0.3
+
+
 
   'cfg(not(target_os = "unknown"))':
 

@@ -21,6 +21,8 @@
 // ✔ pass a  Rc<AsyncGlobal> to a function that takes exec:  `impl LocalSpawnHandle`
 // ✔ pass a    &AsyncGlobal  to a function that takes exec:  `&dyn LocalSpawnHandle`
 //
+// ✔ pass an AsyncGlobal to a function that requires a Timer.
+//
 mod common;
 
 use
@@ -345,5 +347,18 @@ fn spawn_handle_os_local()
 	};
 
 	AsyncGlobal.spawn_local( fut ).expect( "spawn future" );
+}
+
+
+
+// pass an AsyncGlobal to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ wasm_bindgen_test ]
+//
+fn timer_should_wake_local()
+{
+	AsyncGlobal.spawn_local( timer_should_wake_up_local( AsyncGlobal ) ).expect( "spawn" );
 }
 

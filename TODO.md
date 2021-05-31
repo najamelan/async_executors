@@ -5,6 +5,9 @@
 - Document IO traits usage.
 - check documentation for glommio and new traits.
 - async-global also supports tokio_io
+- clarify in docs and cargo.yml that it is LocalSpawner that is the executor and not LocalPool.
+- currently we don't require the Timer::SleepFuture to be Send on wasm. Is this the best approach? SendWrapper is
+  another approach, but that feels wrong too as these days you can have threads with webworkers on wasm too.
 
 - test for JoinHandle being Send when Out is Send. Currently was caught just by an example.
 - test what happens when creating 2 LocalExecutor in one thread.

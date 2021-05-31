@@ -60,7 +60,7 @@ fn spawn_handle_os()
 //
 fn join_handle_detach()
 {
-	let exec   = ThreadPool::new().expect( "create threadpool" );
+	let exec = ThreadPool::new().expect( "create threadpool" );
 
 	let (in_tx , in_rx ) = oneshot::channel();
 	let (out_tx, out_rx) = oneshot::channel();
@@ -83,4 +83,19 @@ fn join_handle_detach()
 
 		assert_eq!( out_rx.await, Ok(5) );
 	});
+}
+
+
+
+// pass an AsyncGlobal to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn timer_should_wake()
+{
+	let exec = ThreadPool::new().expect( "create threadpool" );
+
+	block_on( timer_should_wake_up( exec ) );
 }

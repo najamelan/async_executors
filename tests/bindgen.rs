@@ -374,3 +374,15 @@ fn spawn_handle_os_local()
 	exec.spawn_local( fut ).expect( "spawn future" );
 }
 
+
+
+// pass an Bindgen to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ wasm_bindgen_test ]
+//
+fn timer_should_wake_local()
+{
+	Bindgen.spawn_local( timer_should_wake_up_local( Bindgen ) ).expect( "spawn" );
+}

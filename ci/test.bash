@@ -21,6 +21,8 @@ cargo check --features async_global
 #
 cargo test --all-features
 
+cargo test --features "tokio_ct tokio_tp tokio_timer"
+
 # checking with rustup for when not running on travis.
 #
 if [[ "$TRAVIS_RUST_VERSION" == nightly ]] || [[ $(rustup default) =~ "nightly" ]]

@@ -4,7 +4,7 @@ pub use
 {
 	futures         :: { FutureExt, SinkExt, channel::{ mpsc::Sender, oneshot }, executor::block_on } ,
 	futures::task   :: { LocalSpawnExt, SpawnExt, LocalSpawn, Spawn                                 } ,
-	std             :: { sync::Arc, rc::Rc                                                          } ,
+	std             :: { sync::Arc, rc::Rc, time::Duration                                          } ,
 	async_executors :: { *                                                                          } ,
 };
 
@@ -152,4 +152,67 @@ pub async fn increment_spawn_handle_os( a: u8, exec: &dyn SpawnHandle<u8> ) -> u
 pub async fn increment_spawn_handle_local_os( a: u8, exec: &dyn LocalSpawnHandle<Rc<u8>> )-> Rc<u8>
 {
 	exec.spawn_handle_local( sum_handle_local( a, 1 ).boxed() ).expect( "spawn handle" ).await
+}
+
+
+
+// Verify timers work by making sure a shorter timer ends before the longer one.
+// On top of that this shouldn't hang.
+//
+#[ cfg(not( target_arch = "wasm32" )) ]
+//
+pub async fn timer_should_wake_up( exec: impl SpawnHandle<()> + Clone + Timer + Send + Sync + 'static )
+{
+	let ex2    = exec.clone();
+	let handle = exec.spawn_handle( async move
+	{
+		let fast = ex2.sleep( Duration::from_millis( 1) ).fuse();
+		let slow = ex2.sleep( Duration::from_millis(80) ).fuse();
+
+		futures_util::pin_mut!( fast );
+		futures_util::pin_mut!( slow );
+
+		let res = futures_util::select!
+		{
+			_ = slow => false,
+			_ = fast => true,
+		};
+
+		assert!( res );
+
+	}).expect( "spawn_handle" );
+
+	handle.await;
+}
+
+
+
+// Verify timers work by making sure a shorter timer ends before the longer one.
+// On top of that this shouldn't hang.
+//
+// This one is needed for executors that aren't Send, because we pass the executor into
+// the spawned task and ThreadPools don't implement spawning !Send futures.
+//
+pub async fn timer_should_wake_up_local( exec: impl LocalSpawnHandle<()> + Clone + Timer + 'static )
+{
+	let ex2    = exec.clone();
+	let handle = exec.spawn_handle_local( async move
+	{
+		let fast = ex2.sleep( Duration::from_millis( 1) ).fuse();
+		let slow = ex2.sleep( Duration::from_millis(80) ).fuse();
+
+		futures_util::pin_mut!( fast );
+		futures_util::pin_mut!( slow );
+
+		let res = futures_util::select!
+		{
+			_ = slow => false,
+			_ = fast => true,
+		};
+
+		assert!( res );
+
+	}).expect( "spawn_handle" );
+
+	handle.await;
 }

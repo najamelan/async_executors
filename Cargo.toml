@@ -68,10 +68,6 @@ trait-set = "^0.2"
 features = ["thread-pool"]
 version = "^0.3"
 
-[dev-dependencies.futures-timer]
-features = ["wasm-bindgen"]
-version = "^3"
-
 [dev-dependencies.tracing-subscriber]
 default-features = false
 features = ["fmt"]
@@ -147,6 +143,7 @@ license = "Unlicense"
 name = "async_executors"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_executors"
+resolver = "2"
 version = "0.4.1"
 
 [package.metadata]
@@ -168,5 +165,11 @@ package = "async-std"
 version = "^1"
 
 [target."cfg(target_arch = \"wasm32\")"]
+[target."cfg(target_arch = \"wasm32\")".dependencies]
+[target."cfg(target_arch = \"wasm32\")".dependencies.futures-timer]
+features = ["wasm-bindgen"]
+optional = true
+version = "^3"
+
 [target."cfg(target_arch = \"wasm32\")".dev-dependencies]
 wasm-bindgen-test = "^0.3"

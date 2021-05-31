@@ -53,6 +53,10 @@ impl TokioTpBuilder
 		//
 		self.builder.enable_io();
 
+		#[ cfg( feature = "tokio_timer" ) ]
+		//
+		self.builder.enable_time();
+
 
 		let exec = self.builder.build()?;
 

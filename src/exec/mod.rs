@@ -20,4 +20,10 @@
 #[ cfg( feature = "bindgen"      ) ] mod bindgen;
 #[ cfg( feature = "bindgen"      ) ] pub use bindgen::*;
 
+#[ cfg( feature = "localpool"    ) ] mod localpool;
+#[ cfg( feature = "localpool"    ) ] pub use localpool::*;
+
+#[ cfg( feature = "threadpool"   ) ] mod threadpool;
+#[ cfg( feature = "threadpool"   ) ] pub use threadpool::*;
+
 #[ cfg( feature = "tracing"      ) ] mod tracing;

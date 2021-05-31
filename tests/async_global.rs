@@ -1,5 +1,5 @@
 #![ cfg(all( feature = "async_global", not(target_os = "unknown") )) ]
-
+//
 // Tested:
 //
 // ✔ pass a     AsyncGlobal  to a function that takes exec: `impl Spawn`
@@ -10,6 +10,18 @@
 // ✔ pass a     AsyncGlobal  to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a Arc<AsyncGlobal> to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a    &AsyncGlobal  to a function that takes exec: `&dyn SpawnHandle`
+//
+// ✔ pass a     AsyncGlobal  to a function that takes exec: `impl LocalSpawn`
+// ✔ pass a    &AsyncGlobal  to a function that takes exec: `&impl LocalSpawn`
+// ✔ pass a    &AsyncGlobal  to a function that takes exec: `impl LocalSpawn`
+// ✔ pass a    &AsyncGlobal  to a function that takes exec: `impl LocalSpawn + Clone`
+// ✔ pass a Arc<AsyncGlobal> to a function that takes exec: `impl LocalSpawn`.
+// ✔ pass a     AsyncGlobal  to a function that takes exec: `impl LocalSpawnHandle`
+// ✔ pass an Rc<AsyncGlobal> to a function that takes exec: `impl LocalSpawnHandle`
+// ✔ pass a    &AsyncGlobal  to a function that takes exec: `&dyn LocalSpawnHandle`
+//
+// ✔ pass an AsyncGlobal to a function that requires a Timer.
+// ✔ pass an AsyncGlobal to a function that requires a Timer.
 //
 // ✔ Joinhandle::detach allows task to keep running.
 // ✔ Joinhandle::drop aborts the task.
@@ -373,4 +385,30 @@ fn spawn_handle_local_os()
 	let result = AsyncGlobal::block_on( increment_spawn_handle_os( 4, &AsyncGlobal ) );
 
 	assert_eq!( 5u8, result );
+}
+
+
+
+// pass an AsyncGlobal to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn timer_should_wake()
+{
+	AsyncGlobal::block_on( timer_should_wake_up( AsyncGlobal ) );
+}
+
+
+
+// pass an AsyncGlobal to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn timer_should_wake_local()
+{
+	AsyncGlobal::block_on( timer_should_wake_up_local( AsyncGlobal ) );
 }

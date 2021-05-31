@@ -115,3 +115,16 @@ fn spawn_handle_local_os()
 	assert_eq!( 5u8, result );
 }
 
+
+
+// pass an AsyncGlobal to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn timer_should_wake()
+{
+	AsyncGlobal::block_on( timer_should_wake_up( AsyncGlobal ) );
+}
+

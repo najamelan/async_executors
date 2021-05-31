@@ -20,6 +20,8 @@
 // ✔ pass a Arc<AsyncStd> to a function that takes exec:  `impl LocalSpawnHandle`
 // ✔ pass a    &AsyncStd  to a function that takes exec:  `&dyn LocalSpawnHandle`
 //
+// ✔ pass an AsyncStd to a function that requires a Timer.
+//
 // ✔ Joinhandle::detach allows task to keep running.
 // ✔ Joinhandle::drop aborts the task.
 //
@@ -377,4 +379,26 @@ fn spawn_handle_local_os()
 	let result = AsyncStd::block_on( increment_spawn_handle_os( 4, &AsyncStd ) );
 
 	assert_eq!( 5u8, result );
+}
+
+
+
+// pass an AsyncStd to a function that requires a Timer.
+//
+#[ test ]
+//
+fn timer_should_wake()
+{
+	AsyncStd::block_on( timer_should_wake_up( AsyncStd ) );
+}
+
+
+
+// pass an AsyncStd to a function that requires a Timer.
+//
+#[ test ]
+//
+fn timer_should_wake_local()
+{
+	AsyncStd::block_on( timer_should_wake_up_local( AsyncStd ) );
 }
