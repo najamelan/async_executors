@@ -2,14 +2,23 @@
 
 // Tested:
 //
-// ✔ pass a     AsyncStd  to a function that takes exec: `impl Spawn`
+// ✔ pass a     AsyncStd  to a function that takes exec:  `impl Spawn`
 // ✔ pass a    &AsyncStd  to a function that takes exec: `&impl Spawn`
-// ✔ pass a    &AsyncStd  to a function that takes exec: `impl Spawn`
-// ✔ pass a    &AsyncStd  to a function that takes exec: `impl Spawn + Clone`
-// ✔ pass a Arc<AsyncStd> to a function that takes exec: `impl Spawn`
-// ✔ pass a     AsyncStd  to a function that takes exec: `impl SpawnHandle`
-// ✔ pass a Arc<AsyncStd> to a function that takes exec: `impl SpawnHandle`
-// ✔ pass a    &AsyncStd  to a function that takes exec: `&dyn SpawnHandle`
+// ✔ pass a    &AsyncStd  to a function that takes exec:  `impl Spawn`
+// ✔ pass a    &AsyncStd  to a function that takes exec:  `impl Spawn + Clone`
+// ✔ pass a Arc<AsyncStd> to a function that takes exec:  `impl Spawn`
+// ✔ pass a     AsyncStd  to a function that takes exec:  `impl SpawnHandle`
+// ✔ pass a Arc<AsyncStd> to a function that takes exec:  `impl SpawnHandle`
+// ✔ pass a    &AsyncStd  to a function that takes exec:  `&dyn SpawnHandle`
+//
+// ✔ pass a     AsyncStd  to a function that takes exec:  `impl LocalSpawn`
+// ✔ pass a    &AsyncStd  to a function that takes exec: `&impl LocalSpawn`
+// ✔ pass a    &AsyncStd  to a function that takes exec:  `impl LocalSpawn`
+// ✔ pass a    &AsyncStd  to a function that takes exec:  `impl LocalSpawn + Clone`
+// ✔ pass a Arc<AsyncStd> to a function that takes exec:  `impl LocalSpawn`
+// ✔ pass a     AsyncStd  to a function that takes exec:  `impl LocalSpawnHandle`
+// ✔ pass a Arc<AsyncStd> to a function that takes exec:  `impl LocalSpawnHandle`
+// ✔ pass a    &AsyncStd  to a function that takes exec:  `&dyn LocalSpawnHandle`
 //
 // ✔ Joinhandle::detach allows task to keep running.
 // ✔ Joinhandle::drop aborts the task.

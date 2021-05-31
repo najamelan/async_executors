@@ -1,6 +1,8 @@
 #![ cfg( feature = "glommio" ) ]
-// See also https://github.com/DataDog/glommio/issues/1
-
+//
+// Using glommio requires increasing the rlimit_memlock.
+// See: https://github.com/DataDog/glommio/issues/1
+//
 // Tested:
 //
 // ✔ pass a     GlommioCt  to a function that takes exec: `impl Spawn`

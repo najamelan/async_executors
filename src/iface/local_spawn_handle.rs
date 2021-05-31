@@ -54,19 +54,3 @@ impl<T: ?Sized, Out> LocalSpawnHandle<Out> for Arc<T> where T: LocalSpawnHandle<
 		(**self).spawn_handle_local_obj( future )
 	}
 }
-
-
-
-#[ cfg( feature = "localpool" ) ]
-//
-impl<Out: 'static> LocalSpawnHandle<Out> for crate::LocalSpawner
-{
-	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
-	{
-		let (fut, handle) = future.remote_handle();
-
-		self.spawn_local( fut )?;
-
-		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
-	}
-}

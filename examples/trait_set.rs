@@ -41,21 +41,14 @@ impl Connection
 	//
 	pub async fn run( &self )
 	{
-		let process_request = async
-		{
-			String::from( "Processing request" )
-		};
-
-		let other_request = async
-		{
-			5
-		};
+		let process_request = async { String::from( "Processing request" ) };
+		let other_request   = async { 5                                    };
 
 		let request_handle = self.exec.spawn_handle( process_request ).expect( "spawn process_request" );
 		let other_handle   = self.exec.spawn_handle( other_request   ).expect( "spawn other_request"   );
 
 		println!( "A string from process_request: {}", request_handle.await );
-		println!( "A u8 from other_request: {}"      , other_handle.await   );
+		println!( "A u8 from other_request: {}"      , other_handle  .await );
 	}
 }
 

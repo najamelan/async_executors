@@ -93,36 +93,3 @@ impl<T: ?Sized, Out> SpawnHandle<Out> for Arc<T> where T: SpawnHandle<Out>, Out:
 	}
 }
 
-
-
-#[ cfg( feature = "localpool" ) ]
-//
-impl<Out: 'static + Send> SpawnHandle<Out> for crate::LocalSpawner
-{
-	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
-	{
-		let (fut, handle) = future.remote_handle();
-
-		self.spawn( fut )?;
-
-		Ok( JoinHandle{ inner: super::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
-	}
-}
-
-
-
-#[ cfg( feature = "threadpool" ) ]
-//
-impl<Out: 'static + Send> SpawnHandle<Out> for crate::ThreadPool
-{
-	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
-	{
-		let (fut, handle) = future.remote_handle();
-
-		self.spawn( fut )?;
-
-		Ok( JoinHandle{ inner: super::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
-	}
-}
-
-

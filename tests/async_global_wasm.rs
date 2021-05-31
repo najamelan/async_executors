@@ -196,7 +196,7 @@ fn spawn_handle_os()
 
 
 
-// pass a AsyncGlobal to a function that takes exec: `impl Spawn`
+// pass a AsyncGlobal to a function that takes exec: `impl LocalSpawn`
 //
 #[ wasm_bindgen_test ]
 //
@@ -216,7 +216,7 @@ fn spawn_local()
 }
 
 
-// pass a &AsyncGlobal to a function that takes exec: `&impl Spawn`
+// pass a &AsyncGlobal to a function that takes exec: `&impl LocalSpawn`
 //
 #[ wasm_bindgen_test ]
 //
@@ -236,7 +236,7 @@ fn spawn_ref_local()
 }
 
 
-// pass a &AsyncGlobal to a function that takes exec: `impl Spawn`
+// pass a &AsyncGlobal to a function that takes exec: `impl LocalSpawn`
 //
 #[ wasm_bindgen_test ]
 //
@@ -256,7 +256,7 @@ fn spawn_with_ref_local()
 }
 
 
-// pass a &AsyncGlobal to a function that takes exec: `impl Spawn + Clone`
+// pass a &AsyncGlobal to a function that takes exec: `impl LocalSpawn + Clone`
 //
 #[ wasm_bindgen_test ]
 //
@@ -276,7 +276,7 @@ fn spawn_clone_with_ref_local()
 }
 
 
-// pass a Arc<AsyncGlobal> to a function that takes exec: `impl Spawn`.
+// pass a Arc<AsyncGlobal> to a function that takes exec: `impl LocalSpawn`.
 // Possible since futures 0.3.2.
 //
 #[ wasm_bindgen_test ]
@@ -297,7 +297,7 @@ fn spawn_clone_with_arc_local()
 }
 
 
-// pass a AsyncGlobal to a function that takes exec: `impl SpawnHandle`
+// pass a AsyncGlobal to a function that takes exec: `impl LocalSpawnHandle`
 //
 #[ wasm_bindgen_test ]
 //
@@ -314,7 +314,7 @@ fn spawn_handle_local()
 }
 
 
-// pass an Arc<AsyncGlobal> to a function that takes exec: `impl SpawnHandle`
+// pass an Arc<AsyncGlobal> to a function that takes exec: `impl LocalSpawnHandle`
 //
 #[ wasm_bindgen_test ]
 //
@@ -331,7 +331,7 @@ fn spawn_handle_arc_local()
 }
 
 
-// pass a &AsyncGlobal to a function that takes exec: `&dyn SpawnHandle`
+// pass a &AsyncGlobal to a function that takes exec: `&dyn LocalSpawnHandle`
 //
 #[ wasm_bindgen_test ]
 //
