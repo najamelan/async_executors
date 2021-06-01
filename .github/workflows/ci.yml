@@ -8,6 +8,9 @@ jobs:
     name: Linux Rust Stable
     runs-on: ubuntu-latest
 
+    container:
+      options: "--ulimit memlock=512:512"
+
     steps:
 
       - name: Install latest stable Rust
@@ -29,6 +32,9 @@ jobs:
 
     name: Linux Rust Nightly
     runs-on: ubuntu-latest
+
+    container:
+      options: "--ulimit memlock=512:512"
 
     steps:
 
