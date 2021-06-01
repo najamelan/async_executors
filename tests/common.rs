@@ -9,6 +9,37 @@ pub use
 };
 
 
+pub type DynError = Box<dyn std::error::Error + Send + Sync>;
+
+
+#[ cfg(any( feature = "tokio_io", feature = "async_global_tokio", feature = "async_std_tokio" )) ]
+//
+pub mod tokio_io
+{
+	use
+	{
+		tokio::net::{ TcpListener, TcpStream },
+		super::*,
+	};
+
+	/// Creates a connected pair of sockets.
+	///
+	/// This is similar to UnixStream::socket_pair, but works on windows too.
+	//
+	pub async fn socket_pair() -> Result<(TcpStream, TcpStream), DynError>
+	{
+		// port 0 = let the OS choose
+		//
+		let listener = TcpListener::bind("127.0.0.1:0").await?;
+		let stream1  = TcpStream::connect(listener.local_addr()?).await?;
+		let stream2  = listener.accept().await?.0;
+
+		Ok( (stream1, stream2) )
+	}
+}
+
+
+
 async fn sum( a: u8, b: u8, mut tx: Sender<u8> )
 {
 	let res = tx.send( a + b ).await;

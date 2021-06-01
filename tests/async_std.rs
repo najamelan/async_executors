@@ -402,3 +402,28 @@ fn timer_should_wake_local()
 {
 	AsyncStd::block_on( timer_should_wake_up_local( AsyncStd ) );
 }
+
+
+// Verify tokio_io works.
+//
+#[ cfg( feature = "async_std_tokio" ) ]
+//
+#[ test ]
+//
+fn tokio_io() -> Result<(), DynError >
+{
+	use tokio::io::{ AsyncReadExt, AsyncWriteExt };
+
+	let test = async
+	{
+		let (mut one, mut two) = tokio_io::socket_pair().await.expect( "socket_pair" );
+
+		one.write_u8( 5 ).await.expect( "write tokio io" );
+
+		assert_eq!( 5, two.read_u8().await.expect( "read tokio io" ) );
+	};
+
+	AsyncStd::block_on( test );
+
+	Ok(())
+}

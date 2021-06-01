@@ -119,10 +119,10 @@ required-features = ["notwasm", "async_std", "tokio_ct"]
 
 [features]
 async_global = ["async-global-executor"]
-async_global_io = ["async-global-executor/async-io"]
-async_global_tokio = ["async-global-executor/tokio"]
+async_global_io = ["async_global", "async-global-executor/async-io"]
+async_global_tokio = ["async_global", "async-global-executor/tokio"]
 async_std = ["async_std_crate"]
-async_std_tokio = ["async_std_crate/tokio1"]
+async_std_tokio = ["async_std", "async_std_crate/tokio1"]
 bindgen = ["wasm-bindgen-futures"]
 default = ["notwasm"]
 glommio = ["glommio_crate"]
@@ -164,9 +164,15 @@ codegen-units = 1
 [target]
 [target."cfg(not(target_os = \"unknown\"))"]
 [target."cfg(not(target_os = \"unknown\"))".dev-dependencies]
+futures-timer = "^3"
+
 [target."cfg(not(target_os = \"unknown\"))".dev-dependencies.async_std_crate]
 features = ["attributes", "unstable"]
 package = "async-std"
+version = "^1"
+
+[target."cfg(not(target_os = \"unknown\"))".dev-dependencies.tokio]
+features = ["io-util", "net"]
 version = "^1"
 
 [target."cfg(target_arch = \"wasm32\")"]

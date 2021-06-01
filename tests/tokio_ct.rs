@@ -21,6 +21,11 @@
 // ✔ pass a   &TokioCt  to a function that takes exec: `&dyn LocalSpawnHandle`
 //
 // ✔ we can spawn without being in a future running on block_on.
+//
+// - test Timer.
+// ✔ Verify tokio_io works when the tokio_io feature is enabled.
+// - Verify tokio_io doesn't work when the tokio_io feature is not enabled.
+//
 // ✔ Joinhandle::detach allows task to keep running.
 //
 mod common;
@@ -441,4 +446,32 @@ fn timer_should_wake_local()
 	let exec = TokioCtBuilder::new().build().expect( "create tokio current thread" );
 
 	exec.block_on( timer_should_wake_up_local( exec.clone() ) );
+}
+
+
+
+// Verify tokio_io works.
+//
+#[ cfg( feature = "tokio_io" ) ]
+//
+#[ test ]
+//
+fn tokio_io() -> Result<(), DynError >
+{
+	let exec = TokioCtBuilder::new().build()?;
+
+	use tokio::io::{ AsyncReadExt, AsyncWriteExt };
+
+	let test = async
+	{
+		let (mut one, mut two) = tokio_io::socket_pair().await.expect( "socket_pair" );
+
+		one.write_u8( 5 ).await.expect( "write tokio io" );
+
+		assert_eq!( 5, two.read_u8().await.expect( "read tokio io" ) );
+	};
+
+	exec.block_on( test );
+
+	Ok(())
 }

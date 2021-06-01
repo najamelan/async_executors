@@ -12,14 +12,18 @@
 // ✔ pass a    &TokioTp  to a function that takes exec: `&dyn SpawnHandle`
 // ✔ pass a builder with some config set.
 //
+// - test timer
+// ✔ Verify tokio_io works when the tokio_io feature is enabled.
+// - Verify tokio_io doesn't work when the tokio_io feature is not enabled.
+//
 // ✔ Joinhandle::detach allows task to keep running.
 //
 mod common;
 
 use
 {
-	common          :: { *                                     } ,
-	futures         :: { channel::{ mpsc, oneshot }, StreamExt } ,
+	common  :: { *                                     } ,
+	futures :: { channel::{ mpsc, oneshot }, StreamExt } ,
 };
 
 
@@ -224,4 +228,31 @@ fn timer_should_wake()
 	let exec = TokioTpBuilder::new().build().expect( "create tokio current thread" );
 
 	exec.block_on( timer_should_wake_up( exec.clone() ) );
+}
+
+
+// Verify tokio_io works.
+//
+#[ cfg( feature = "tokio_io" ) ]
+//
+#[ test ]
+//
+fn tokio_io() -> Result<(), DynError >
+{
+	let exec = TokioTpBuilder::new().build()?;
+
+	use tokio::io::{ AsyncReadExt, AsyncWriteExt };
+
+	let test = async
+	{
+		let (mut one, mut two) = tokio_io::socket_pair().await.expect( "socket_pair" );
+
+		one.write_u8( 5 ).await.expect( "write tokio io" );
+
+		assert_eq!( 5, two.read_u8().await.expect( "read tokio io" ) );
+	};
+
+	exec.block_on( test );
+
+	Ok(())
 }

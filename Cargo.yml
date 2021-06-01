@@ -79,12 +79,12 @@ features:
   # Make sure async-io is enabled on async-global-executor.
   # This will implement AsyncIo on AsyncGlobal. Not available on Wasm.
   #
-  async_global_io: [ async-global-executor/async-io ]
+  async_global_io: [ async_global, async-global-executor/async-io ]
 
   # Make sure async-io is enabled on async-global-executor.
   # This will implement TokioIo on AsyncGlobal. Not available on Wasm.
   #
-  async_global_tokio: [ async-global-executor/tokio ]
+  async_global_tokio: [ async_global, async-global-executor/tokio ]
 
 
   # Enables the async-std task executor.
@@ -96,7 +96,7 @@ features:
   # Makes sure the tokio reactor is running. Implements TokioIo for AsyncStd.
   # Not available on Wasm.
   #
-  async_std_tokio : [ async_std_crate/tokio1 ]
+  async_std_tokio : [ async_std, async_std_crate/tokio1 ]
 
 
   # Enables the tokio current_thread executor. Not available on Wasm.
@@ -222,6 +222,8 @@ target:
     dev-dependencies:
 
       async_std_crate: { version: ^1, package: async-std, features: [ attributes, unstable ] }
+      tokio          : { version: ^1, features: [ io-util, net ]                             }
+      futures-timer  : ^3
 
 
 

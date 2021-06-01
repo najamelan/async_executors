@@ -21,7 +21,8 @@
 // ✔ pass a    &AsyncGlobal  to a function that takes exec: `&dyn LocalSpawnHandle`
 //
 // ✔ pass an AsyncGlobal to a function that requires a Timer.
-// ✔ pass an AsyncGlobal to a function that requires a Timer.
+// ✔ Verify tokio_io works when the async_std_tokio feature is enabled.
+// - Verify tokio_io doesn't work when the async_std_tokio feature is not enabled.
 //
 // ✔ Joinhandle::detach allows task to keep running.
 // ✔ Joinhandle::drop aborts the task.
@@ -411,4 +412,29 @@ fn timer_should_wake()
 fn timer_should_wake_local()
 {
 	AsyncGlobal::block_on( timer_should_wake_up_local( AsyncGlobal ) );
+}
+
+
+// Verify tokio_io works.
+//
+#[ cfg( feature = "async_global_tokio" ) ]
+//
+#[ test ]
+//
+fn tokio_io() -> Result<(), DynError >
+{
+	use tokio::io::{ AsyncReadExt, AsyncWriteExt };
+
+	let test = async
+	{
+		let (mut one, mut two) = tokio_io::socket_pair().await.expect( "socket_pair" );
+
+		one.write_u8( 5 ).await.expect( "write tokio io" );
+
+		assert_eq!( 5, two.read_u8().await.expect( "read tokio io" ) );
+	};
+
+	AsyncGlobal::block_on( test );
+
+	Ok(())
 }
