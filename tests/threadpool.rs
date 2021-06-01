@@ -87,7 +87,7 @@ fn join_handle_detach()
 
 
 
-// pass an AsyncGlobal to a function that requires a Timer.
+// pass an ThreadPool to a function that requires a Timer.
 //
 #[ cfg( feature = "timer" ) ]
 //

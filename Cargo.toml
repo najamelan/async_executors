@@ -112,6 +112,11 @@ name = "glommio_ct"
 path = "examples/glommio_ct.rs"
 required-features = ["notwasm", "glommio"]
 
+[[example]]
+name = "timer"
+path = "examples/timer.rs"
+required-features = ["notwasm", "async_std", "tokio_ct"]
+
 [features]
 async_global = ["async-global-executor"]
 async_global_io = ["async-global-executor/async-io"]

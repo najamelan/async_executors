@@ -72,7 +72,6 @@ features:
 
   ### Executors ###
 
-
   # Add support for the executor from async-global-executor.
   #
   async_global: [ async-global-executor ]
@@ -88,7 +87,6 @@ features:
   async_global_tokio: [ async-global-executor/tokio ]
 
 
-
   # Enables the async-std task executor.
   # Also implements the AsyncIo and Timer traits. Currently async-io is always loaded when
   # async-std is. See: https://github.com/async-rs/async-std/issues/975
@@ -99,7 +97,6 @@ features:
   # Not available on Wasm.
   #
   async_std_tokio : [ async_std_crate/tokio1 ]
-
 
 
   # Enables the tokio current_thread executor. Not available on Wasm.
@@ -121,19 +118,16 @@ features:
   tokio_timer: [ tokio/time ]
 
 
-
   # Enables the wasm-bindgen-futures executor. Only available on Wasm.
   # If feature timer is enabled, this will implement Timer trait on Bindgen.
   #
   bindgen   : [ wasm-bindgen-futures ]
 
 
-
   # Enabled the glommio executor. Linux only. Requires kernel 5.8+.
   # GlommioCt implements Timer and GlommioIo.
   #
   glommio   : [ glommio_crate ]
-
 
 
   # Add support for the futures LocalPool to SpawnHandle and LocalSpawnHandle.
@@ -260,3 +254,7 @@ example:
   - name             : glommio_ct
     path             : examples/glommio_ct.rs
     required-features: [ notwasm, glommio ]
+
+  - name             : timer
+    path             : examples/timer.rs
+    required-features: [ notwasm, async_std, tokio_ct ]

@@ -13,7 +13,7 @@ use
 /// This is similar to [`SpawnHandle`](crate::SpawnHandle) except that it allows spawning `!Send` futures. Please see
 /// the docs on [`SpawnHandle`](crate::SpawnHandle).
 //
-#[ blanket(derive( Ref, Mut, Box, Rc )) ]
+#[ blanket(derive( Ref, Mut, Box, Arc, Rc )) ]
 //
 pub trait LocalSpawnHandle<Out: 'static>
 {
@@ -42,15 +42,5 @@ impl<T, Out> LocalSpawnHandleExt<Out> for T
 	fn spawn_handle_local( &self, future: impl Future<Output = Out> + 'static ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		self.spawn_handle_local_obj( LocalFutureObj::new(future.boxed_local()) )
-	}
-}
-
-
-
-impl<T: ?Sized, Out> LocalSpawnHandle<Out> for Arc<T> where T: LocalSpawnHandle<Out>, Out: 'static
-{
-	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
-	{
-		(**self).spawn_handle_local_obj( future )
 	}
 }

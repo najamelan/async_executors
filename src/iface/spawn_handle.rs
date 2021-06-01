@@ -52,7 +52,7 @@ use
 /// [following workaround](https://github.com/najamelan/async_executors/tree/master/examples/spawn_handle_multi.rs).
 /// You can also use the [trait-set](https://crates.io/crates/trait-set) crate to make that [more streamlined](https://github.com/najamelan/async_executors/tree/master/examples/trait_set.rs).
 //
-#[ blanket(derive( Ref, Mut, Box, Rc )) ]
+#[ blanket(derive( Ref, Mut, Box, Arc, Rc )) ]
 //
 pub trait SpawnHandle<Out: 'static + Send>
 {
@@ -82,14 +82,3 @@ impl<T, Out> SpawnHandleExt<Out> for T
 		self.spawn_handle_obj( FutureObj::new(future.boxed()) )
 	}
 }
-
-
-
-impl<T: ?Sized, Out> SpawnHandle<Out> for Arc<T> where T: SpawnHandle<Out>, Out: 'static + Send
-{
-	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
-	{
-		(**self).spawn_handle_obj( future )
-	}
-}
-

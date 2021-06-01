@@ -16,6 +16,8 @@ use
 //  The trait needs to be available inconditionally, as a library must be able
 //  to depend on it without specifying a backend.
 //
+#[ blanket::blanket( derive( Ref, Mut, Rc, Arc, Box ) ) ]
+//
 pub trait Timer
 {
 	/// Future returned by sleep(). On wasm isn't required to be `Send` for now.
