@@ -137,7 +137,9 @@ impl<Out: 'static + Send> SpawnHandle<Out> for TokioCt
 {
 	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		Ok( JoinHandle::tokio(self.exec.spawn( future ) ))
+		let handle = self.exec.spawn( future );
+
+		Ok( JoinHandle::tokio(handle) )
 	}
 }
 
@@ -147,7 +149,9 @@ impl<Out: 'static> LocalSpawnHandle<Out> for TokioCt
 {
 	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		Ok( JoinHandle::tokio(self.local.spawn_local( future ) ))
+		let handle = self.local.spawn_local( future );
+
+		Ok( JoinHandle::tokio(handle) )
 
 	}
 }

@@ -8,6 +8,7 @@ use
 };
 
 
+
 #[ cfg( feature = "async_global" ) ]
 //
 use async_global_executor::{ Task as AsyncGlobalTask };
@@ -19,6 +20,7 @@ use async_std_crate::{ task::JoinHandle as AsyncStdJoinHandle };
 #[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
 //
 use tokio::{ task::JoinHandle as TokioJoinHandle };
+
 
 
 /// A framework agnostic JoinHandle type. Cancels the future on dropping the handle.
@@ -45,38 +47,70 @@ use tokio::{ task::JoinHandle as TokioJoinHandle };
 //
 pub struct JoinHandle<T> { inner: InnerJh<T> }
 
-impl<T> JoinHandle<T> {
-	fn new(inner: InnerJh<T>) -> Self {
-		Self {
-			inner
-		}
+
+
+impl<T> JoinHandle<T>
+{
+	/// Make a wrapper around [`tokio::task::JoinHandle`].
+	//
+	#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
+	//
+	pub fn tokio( handle: TokioJoinHandle<T> ) -> Self
+	{
+		let detached = AtomicBool::new( false );
+		let inner    = InnerJh::Tokio { handle, detached };
+
+		Self{ inner }
 	}
 
-	#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
-	/// Make a tokio_jh
-	pub fn tokio(handle: TokioJoinHandle<T>  ) -> Self {
-		Self::new(InnerJh::Tokio { handle, detached: AtomicBool::new(false) })
-	}
+
+
+	/// Make a wrapper around [`async_global_executor::Task`].
+	//
 	#[ cfg( feature = "async_global" ) ]
-	/// Make a async global handle
-	pub fn async_global(task: AsyncGlobalTask<T>) -> Self {
-		Self::new(InnerJh::AsyncGlobal {task: Some(task)})
+	//
+	pub fn async_global( task: AsyncGlobalTask<T> ) -> Self
+	{
+		let task  = Some( task );
+		let inner = InnerJh::AsyncGlobal{ task };
+
+		Self{ inner }
 	}
+
+
+
+	/// Make a wrapper around [`async_std::task::JoinHandle`].
+	//
 	#[ cfg( feature = "async_std" ) ]
-	/// Make a async_std handle
-	pub fn async_std(handle  : AsyncStdJoinHandle<Result<T, Aborted>> , a_handle: AbortHandle) -> Self {
-		Self::new(InnerJh::AsyncStd {
-			handle,
-			a_handle,
-			detached: AtomicBool::new(false)
-		})
+	//
+	pub fn async_std
+	(
+		handle  : AsyncStdJoinHandle<Result<T, Aborted>> ,
+		a_handle: AbortHandle                            ,
+
+	) -> Self
+	{
+		let detached = AtomicBool::new( false );
+		let inner    = InnerJh::AsyncStd{ handle, a_handle, detached };
+
+		Self{ inner }
 	}
-	/// make a remote handle
-	pub fn remote_handle(handle: RemoteHandle<T>) -> Self {
-		Self::new(InnerJh::RemoteHandle(Some(handle)))
+
+
+	/// Make a wrapper around [`futures_util::future::RemoteHandle`].
+	//
+	pub fn remote_handle( handle: RemoteHandle<T> ) -> Self
+	{
+		let inner = InnerJh::RemoteHandle{ handle: Some(handle) };
+
+		Self{ inner }
 	}
 }
+
+
+
 #[ derive(Debug) ] #[ allow(dead_code) ]
+//
 enum InnerJh<T>
 {
 	/// Wrapper around tokio JoinHandle.
@@ -111,7 +145,10 @@ enum InnerJh<T>
 
 	/// Wrapper around futures RemoteHandle.
 	//
-	RemoteHandle( Option<RemoteHandle<T>> ),
+	RemoteHandle
+	{
+		handle: Option<RemoteHandle<T>>,
+	},
 }
 
 
@@ -148,7 +185,7 @@ impl<T> JoinHandle<T>
 				detached.store( true, Ordering::Relaxed );
 			}
 
-			InnerJh::RemoteHandle( handle ) =>
+			InnerJh::RemoteHandle{ handle } =>
 			{
 				if let Some(rh) = handle.take() { rh.forget() };
 			}
@@ -198,7 +235,7 @@ impl<T: 'static> Future for JoinHandle<T>
 			}
 
 
-			InnerJh::RemoteHandle( ref mut handle ) => Pin::new( handle ).as_pin_mut().expect( "no polling after detach" ).poll( cx ),
+			InnerJh::RemoteHandle{ ref mut handle } => Pin::new( handle ).as_pin_mut().expect( "no polling after detach" ).poll( cx ),
 		}
 	}
 }
@@ -230,7 +267,7 @@ impl<T> Drop for JoinHandle<T>
 			#[ cfg( feature = "async_global" ) ] InnerJh::AsyncGlobal { .. } => {}
 
 
-			InnerJh::RemoteHandle( _ ) => {},
+			InnerJh::RemoteHandle{ .. } => {},
 		};
 	}
 }
