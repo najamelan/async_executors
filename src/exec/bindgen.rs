@@ -1,6 +1,6 @@
 use
 {
-	crate                :: { SpawnHandle, LocalSpawnHandle, JoinHandle, join_handle::InnerJh } ,
+	crate                :: { SpawnHandle, LocalSpawnHandle, JoinHandle                       } ,
 	wasm_bindgen_futures :: { spawn_local                                                     } ,
 	futures_task         :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError        } ,
 	futures_util         :: { FutureExt                                                       } ,
@@ -61,7 +61,7 @@ impl<Out: 'static + Send> SpawnHandle<Out> for Bindgen
 		let (fut, handle) = future.remote_handle();
 		spawn_local(fut);
 
-		Ok( JoinHandle{ inner: InnerJh::RemoteHandle( Some(handle) ) } )
+		Ok( JoinHandle::remote_handle(handle) )
 	}
 }
 
@@ -74,7 +74,7 @@ impl<Out: 'static> LocalSpawnHandle<Out> for Bindgen
 		let (fut, handle) = future.remote_handle();
 		spawn_local(fut);
 
-		Ok( JoinHandle{ inner: InnerJh::RemoteHandle( Some(handle) ) } )
+		Ok( JoinHandle::remote_handle(handle) )
 	}
 }
 

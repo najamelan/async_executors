@@ -8,6 +8,7 @@ use
 };
 
 
+
 #[ cfg( feature = "async_global" ) ]
 //
 use async_global_executor::{ Task as AsyncGlobalTask };
@@ -19,6 +20,7 @@ use async_std_crate::{ task::JoinHandle as AsyncStdJoinHandle };
 #[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
 //
 use tokio::{ task::JoinHandle as TokioJoinHandle };
+
 
 
 /// A framework agnostic JoinHandle type. Cancels the future on dropping the handle.
@@ -43,13 +45,73 @@ use tokio::{ task::JoinHandle as TokioJoinHandle };
 //
 #[ must_use = "JoinHandle will cancel your future when dropped." ]
 //
-pub struct JoinHandle<T> { pub(crate) inner: InnerJh<T> }
+pub struct JoinHandle<T> { inner: InnerJh<T> }
+
+
+
+impl<T> JoinHandle<T>
+{
+	/// Make a wrapper around [`tokio::task::JoinHandle`].
+	//
+	#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
+	//
+	pub fn tokio( handle: TokioJoinHandle<T> ) -> Self
+	{
+		let detached = AtomicBool::new( false );
+		let inner    = InnerJh::Tokio { handle, detached };
+
+		Self{ inner }
+	}
+
+
+
+	/// Make a wrapper around [`async_global_executor::Task`].
+	//
+	#[ cfg( feature = "async_global" ) ]
+	//
+	pub fn async_global( task: AsyncGlobalTask<T> ) -> Self
+	{
+		let task  = Some( task );
+		let inner = InnerJh::AsyncGlobal{ task };
+
+		Self{ inner }
+	}
+
+
+
+	/// Make a wrapper around [`async_std::task::JoinHandle`].
+	//
+	#[ cfg( feature = "async_std" ) ]
+	//
+	pub fn async_std
+	(
+		handle  : AsyncStdJoinHandle<Result<T, Aborted>> ,
+		a_handle: AbortHandle                            ,
+
+	) -> Self
+	{
+		let detached = AtomicBool::new( false );
+		let inner    = InnerJh::AsyncStd{ handle, a_handle, detached };
+
+		Self{ inner }
+	}
+
+
+	/// Make a wrapper around [`futures_util::future::RemoteHandle`].
+	//
+	pub fn remote_handle( handle: RemoteHandle<T> ) -> Self
+	{
+		let inner = InnerJh::RemoteHandle{ handle: Some(handle) };
+
+		Self{ inner }
+	}
+}
 
 
 
 #[ derive(Debug) ] #[ allow(dead_code) ]
 //
-pub(crate) enum InnerJh<T>
+enum InnerJh<T>
 {
 	/// Wrapper around tokio JoinHandle.
 	//
@@ -83,7 +145,10 @@ pub(crate) enum InnerJh<T>
 
 	/// Wrapper around futures RemoteHandle.
 	//
-	RemoteHandle( Option<RemoteHandle<T>> ),
+	RemoteHandle
+	{
+		handle: Option<RemoteHandle<T>>,
+	},
 }
 
 
@@ -120,7 +185,7 @@ impl<T> JoinHandle<T>
 				detached.store( true, Ordering::Relaxed );
 			}
 
-			InnerJh::RemoteHandle( handle ) =>
+			InnerJh::RemoteHandle{ handle } =>
 			{
 				if let Some(rh) = handle.take() { rh.forget() };
 			}
@@ -170,7 +235,7 @@ impl<T: 'static> Future for JoinHandle<T>
 			}
 
 
-			InnerJh::RemoteHandle( ref mut handle ) => Pin::new( handle ).as_pin_mut().expect( "no polling after detach" ).poll( cx ),
+			InnerJh::RemoteHandle{ ref mut handle } => Pin::new( handle ).as_pin_mut().expect( "no polling after detach" ).poll( cx ),
 		}
 	}
 }
@@ -202,7 +267,7 @@ impl<T> Drop for JoinHandle<T>
 			#[ cfg( feature = "async_global" ) ] InnerJh::AsyncGlobal { .. } => {}
 
 
-			InnerJh::RemoteHandle( _ ) => {},
+			InnerJh::RemoteHandle{ .. } => {},
 		};
 	}
 }

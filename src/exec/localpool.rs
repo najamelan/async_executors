@@ -1,6 +1,6 @@
 use
 {
-	crate            :: { JoinHandle, InnerJh, SpawnHandle, LocalSpawnHandle       } ,
+	crate            :: { JoinHandle, SpawnHandle, LocalSpawnHandle                } ,
 	futures_task     :: { SpawnError, FutureObj, LocalFutureObj                    } ,
 	futures_util     :: { future::{ FutureExt }, task::{ SpawnExt, LocalSpawnExt } } ,
 	futures_executor :: { LocalSpawner                                             } ,
@@ -16,7 +16,7 @@ impl<Out: 'static + Send> SpawnHandle<Out> for LocalSpawner
 
 		self.spawn( fut )?;
 
-		Ok( JoinHandle{ inner: InnerJh::RemoteHandle( Some(handle) ) } )
+		Ok( JoinHandle::remote_handle(handle))
 	}
 }
 
@@ -30,7 +30,7 @@ impl<Out: 'static> LocalSpawnHandle<Out> for LocalSpawner
 
 		self.spawn_local( fut )?;
 
-		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::RemoteHandle( Some(handle) ) } )
+		Ok( JoinHandle::remote_handle(handle) )
 	}
 }
 

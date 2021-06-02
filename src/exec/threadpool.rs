@@ -1,6 +1,6 @@
 use
 {
-	crate            :: { JoinHandle, InnerJh, SpawnHandle      } ,
+	crate            :: { JoinHandle, SpawnHandle               } ,
 	futures_task     :: { SpawnError, FutureObj                 } ,
 	futures_util     :: { future::{ FutureExt }, task::SpawnExt } ,
 	futures_executor :: { ThreadPool                            } ,
@@ -16,7 +16,7 @@ impl<Out: 'static + Send> SpawnHandle<Out> for ThreadPool
 
 		self.spawn( fut )?;
 
-		Ok( JoinHandle{ inner: InnerJh::RemoteHandle( Some(handle) ) } )
+		Ok( JoinHandle::remote_handle(handle) )
 	}
 }
 

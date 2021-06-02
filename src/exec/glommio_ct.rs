@@ -1,6 +1,6 @@
 use
 {
-	crate         :: { LocalSpawnHandle, SpawnHandle, InnerJh, JoinHandle, GlommioIo } ,
+	crate         :: { LocalSpawnHandle, SpawnHandle, JoinHandle, GlommioIo          } ,
 	std           :: { future::Future, rc::Rc                                        } ,
 	futures_task  :: { FutureObj, LocalSpawn,  Spawn, SpawnError                     } ,
 	futures_util  :: { FutureExt, task::LocalSpawnExt, future::LocalFutureObj        } ,
@@ -77,10 +77,7 @@ impl<Out: 'static> LocalSpawnHandle<Out> for GlommioCt
 
 		Task::local( remote ).detach();
 
-		Ok( JoinHandle
-		{
-			inner: InnerJh::RemoteHandle( Some(handle) )
-		})
+		Ok( JoinHandle::remote_handle(handle) )
 	}
 }
 
@@ -104,10 +101,7 @@ impl<Out: Send + 'static> SpawnHandle<Out> for GlommioCt
 
 		Task::local( remote ).detach();
 
-		Ok( JoinHandle
-		{
-			inner: InnerJh::RemoteHandle( Some(handle) )
-		})
+		Ok( JoinHandle::remote_handle(handle) )
 	}
 }
 
