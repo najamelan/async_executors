@@ -117,6 +117,11 @@ name = "timer"
 path = "examples/timer.rs"
 required-features = ["notwasm", "async_std", "tokio_ct", "tokio_timer"]
 
+[[example]]
+name = "tokio_io"
+path = "examples/tokio_io.rs"
+required-features = ["notwasm", "async_global_tokio", "async_std_tokio", "tokio_ct", "tokio_io"]
+
 [features]
 async_global = ["async-global-executor"]
 async_global_io = ["async_global", "async-global-executor/async-io"]

@@ -1,16 +1,16 @@
-//! This example demonstrates how to use a you can have an agnostic timer.
-//! When you specify the timer trait, the client must give you an Executor
+//! This example demonstrates how to use an agnostic timer.
+//! When you specify the Timer trait, the client must give you an executor
 //! that supports timer operations.
 //!
 //! In this example, async-std draws it's timer from async-io and when not
 //! on wasm there currently is no way to turn it off.
 //!
 //! TokioCt can get it's timer from tokio with the tokio_timer feature, or
-//! from futures-timer if the timer feature is enabled. You will have to enable
-//! one or the other to run this example:
+//! from futures-timer if the timer feature is enabled. As we need to specify
+//! the required features for examples in Cargo.toml, you'll have to enable both.
+//! In reality you only need to choose one.
 //!
-//! - cargo run --example timer --features "notwasm tokio_timer async_std tokio_ct"
-//! - cargo run --example timer --features "notwasm timer async_std tokio_ct"
+//! cargo run --example timer --features "notwasm tokio_timer timer async_std tokio_ct"
 //!
 //! See the API docs for detailed explanation of how the features interact.
 //!
@@ -34,10 +34,12 @@ use
 	std             :: { time::Duration                               } ,
 };
 
+pub type DynResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync> >;
+
 
 trait_set!
 {
-	pub trait LibExec = SpawnHandle<()> + Timer
+	pub trait LibExec = SpawnHandle<()> + Timer;
 }
 
 
@@ -47,13 +49,11 @@ async fn lib_function( exec_name: &str, exec: impl LibExec )
 	{
 		exec.sleep( Duration::from_secs(1) ).await;
 		println!( "{}: running for {}s.", exec_name, i );
-
 	}
-
 }
 
 
-fn main() -> Result< (), Box<dyn std::error::Error> >
+fn main() -> DynResult<()>
 {
 	AsyncStd::block_on( lib_function( "async-std", AsyncStd ) );
 

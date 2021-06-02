@@ -261,6 +261,10 @@ example:
     path             : examples/timer.rs
     required-features: [ notwasm, async_std, tokio_ct, tokio_timer ]
 
+  - name             : tokio_io
+    path             : examples/tokio_io.rs
+    required-features: [ notwasm, async_global_tokio, async_std_tokio, tokio_ct, tokio_io ]
+
 
 patch:
 
