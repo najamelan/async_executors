@@ -445,7 +445,7 @@ fn tokio_io() -> Result<(), DynError >
 
 // Verify tokio_io doesn't work when the async_std_tokio feature is not enabled.
 //
-#[ cfg(all( not(target_arch = "wasm32"), feature = "async_global_tokio" )) ]
+#[ cfg(all( not(target_arch = "wasm32"), not(feature = "async_global_tokio") )) ]
 //
 #[ test ] #[ should_panic ]
 //

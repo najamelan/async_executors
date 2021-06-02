@@ -188,7 +188,7 @@ impl<Out: 'static + Send> SpawnHandle<Out> for TokioTp
 
 #[ cfg(all( feature = "timer", not(feature="tokio_timer" )) ) ]
 //
-#[ cfg_attr( nightly, doc(cfg( feature = "timer", feature = "tokio_tp" )) ) ]
+#[ cfg_attr( nightly, doc(cfg(all( feature = "timer", feature = "tokio_tp" ))) ) ]
 //
 impl crate::Timer for TokioTp
 {
