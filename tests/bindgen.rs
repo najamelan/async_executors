@@ -20,6 +20,9 @@
 // ✔ pass a  Rc<Bindgen> to a function that takes exec:  `impl LocalSpawnHandle`
 // ✔ pass a    &Bindgen  to a function that takes exec:  `&dyn LocalSpawnHandle`
 //
+// ✔ pass an Bindgen to a function that requires a Timer.
+// ✔ Verify Bindgen does not implement Timer when feature is not enabled.
+//
 mod common;
 
 use
@@ -385,4 +388,17 @@ fn spawn_handle_os_local()
 fn timer_should_wake_local()
 {
 	Bindgen.spawn_local( timer_should_wake_up_local( Bindgen ) ).expect( "spawn" );
+}
+
+
+
+// Verify Bindgen does not implement Timer when feature is not enabled.
+//
+#[ cfg(not( feature = "timer" )) ]
+//
+#[ test ]
+//
+fn no_feature_no_timer()
+{
+	static_assertions::assert_not_impl_any!( BindGen: Timer );
 }

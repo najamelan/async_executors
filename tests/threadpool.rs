@@ -1,10 +1,13 @@
 #![ cfg( feature = "threadpool" ) ]
-
+//
 // ✔ pass a     ThreadPool  to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a Arc<ThreadPool> to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a    &ThreadPool  to a function that takes exec: `&dyn SpawnHandle`
 //
 // ✔ Joinhandle::detach allows task to keep running.
+//
+// ✔ pass an ThreadPool to a function that requires a Timer.
+// ✔ Verify ThreadPool does not implement Timer when feature is not enabled.
 //
 mod common;
 
@@ -98,4 +101,17 @@ fn timer_should_wake()
 	let exec = ThreadPool::new().expect( "create threadpool" );
 
 	block_on( timer_should_wake_up( exec ) );
+}
+
+
+
+// Verify ThreadPool does not implement Timer when feature is not enabled.
+//
+#[ cfg(not( feature = "timer" )) ]
+//
+#[ test ]
+//
+fn no_feature_no_timer()
+{
+	static_assertions::assert_not_impl_any!( ThreadPool: Timer );
 }

@@ -1,5 +1,5 @@
 #![ cfg( feature = "localpool" ) ]
-
+//
 // Tested:
 //
 // ✔ pass a     LocalSpawner  to a function that takes exec: `impl SpawnHandle`
@@ -10,13 +10,17 @@
 // ✔ pass a Rc<LocalSpawner> to a function that takes exec: `impl LocalSpawnHandle`
 // ✔ pass a   &LocalSpawner  to a function that takes exec: `&dyn LocalSpawnHandle`
 //
+// ✔ pass an LocalPool to a function that requires a Timer.
+// ✔ Verify LocalPool    does not implement Timer when feature is not enabled.
+// ✔ Verify LocalSpawner does not implement Timer when feature is not enabled.
+//
 mod common;
 
 use
 {
-	common           :: * ,
-	futures_executor :: { LocalPool                    } ,
-	std              :: { rc::Rc                       } ,
+	common           :: { *         } ,
+	futures_executor :: { LocalPool } ,
+	std              :: { rc::Rc    } ,
 };
 
 
@@ -117,7 +121,7 @@ fn spawn_handle_local_os()
 
 
 
-// pass an AsyncGlobal to a function that requires a Timer.
+// pass an LocalPool to a function that requires a Timer.
 //
 #[ cfg( feature = "timer" ) ]
 //
@@ -125,6 +129,23 @@ fn spawn_handle_local_os()
 //
 fn timer_should_wake()
 {
-	AsyncGlobal::block_on( timer_should_wake_up( AsyncGlobal ) );
+	let mut wrap = LocalPool::new();
+	let     exec = wrap.spawner();
+
+	wrap.run_until( timer_should_wake_up_local( exec ) );
+}
+
+
+
+// Verify LocalPool does not implement Timer when feature is not enabled.
+//
+#[ cfg(not( feature = "timer" )) ]
+//
+#[ test ]
+//
+fn no_feature_no_timer()
+{
+	static_assertions::assert_not_impl_any!( LocalPool   : Timer );
+	static_assertions::assert_not_impl_any!( LocalSpawner: Timer );
 }
 

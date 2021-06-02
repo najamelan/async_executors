@@ -21,6 +21,8 @@
 // ✔ pass a    &AsyncStd  to a function that takes exec:  `&dyn LocalSpawnHandle`
 //
 // ✔ pass an AsyncStd to a function that requires a Timer.
+// ✔ Verify tokio_io works when the async_std_tokio feature is enabled.
+// ✔ Verify tokio_io doesn't work when the async_std_tokio feature is not enabled.
 //
 // ✔ Joinhandle::detach allows task to keep running.
 // ✔ Joinhandle::drop aborts the task.
@@ -398,13 +400,13 @@ fn timer_should_wake()
 //
 #[ test ]
 //
-fn timer_should_wake_local()
+fn no_feature_no_timer()
 {
 	AsyncStd::block_on( timer_should_wake_up_local( AsyncStd ) );
 }
 
 
-// Verify tokio_io works.
+// Verify tokio_io works when the async_std_tokio feature is enabled.
 //
 #[ cfg( feature = "async_std_tokio" ) ]
 //
@@ -426,4 +428,21 @@ fn tokio_io() -> Result<(), DynError >
 	AsyncStd::block_on( test );
 
 	Ok(())
+}
+
+
+// Verify tokio_io doesn't work when the async_std_tokio feature is not enabled.
+//
+#[ cfg(not( feature = "async_std_tokio" )) ]
+//
+#[ test ] #[ should_panic ]
+//
+fn no_tokio_io()
+{
+	let test = async
+	{
+		let _ = tokio_io::socket_pair().await.expect( "socket_pair" );
+	};
+
+	AsyncStd::block_on( test );
 }

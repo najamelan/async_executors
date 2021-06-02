@@ -12,9 +12,10 @@
 // ✔ pass a    &TokioTp  to a function that takes exec: `&dyn SpawnHandle`
 // ✔ pass a builder with some config set.
 //
-// - test timer
-// ✔ Verify tokio_io works when the tokio_io feature is enabled.
-// - Verify tokio_io doesn't work when the tokio_io feature is not enabled.
+// ✔ pass an TokioTp to a function that requires a Timer.
+// ✔ Verify TokioTp does not implement Timer when feature is not enabled.
+// ✔ Verify tokio_io         works when the tokio_io feature is     enabled.
+// ✔ Verify tokio_io doesn't work  when the tokio_io feature is not enabled.
 //
 // ✔ Joinhandle::detach allows task to keep running.
 //
@@ -231,7 +232,21 @@ fn timer_should_wake()
 }
 
 
-// Verify tokio_io works.
+
+// Verify TokioTp does not implement Timer when feature is not enabled.
+//
+#[ cfg(not(any( feature="timer", feature="tokio_timer" ))) ]
+//
+#[ test ]
+//
+fn no_feature_no_timer()
+{
+	static_assertions::assert_not_impl_any!( TokioTp: Timer );
+}
+
+
+
+// Verify tokio_io works when the tokio_io feature is enabled.
 //
 #[ cfg( feature = "tokio_io" ) ]
 //
@@ -255,4 +270,23 @@ fn tokio_io() -> Result<(), DynError >
 	exec.block_on( test );
 
 	Ok(())
+}
+
+
+// Verify tokio_io doesn't work when the tokio_io feature is not enabled.
+//
+#[ cfg(not( feature = "tokio_io" )) ]
+//
+#[ test ] #[ should_panic ]
+//
+fn no_tokio_io()
+{
+	let exec = TokioTpBuilder::new().build().expect( "create tokio threadpool" );
+
+	let test = async
+	{
+		let _ = tokio_io::socket_pair().await.expect( "socket_pair" );
+	};
+
+	exec.block_on( test );
 }

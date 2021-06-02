@@ -12,8 +12,6 @@ pub use
 pub type DynError = Box<dyn std::error::Error + Send + Sync>;
 
 
-#[ cfg(any( feature = "tokio_io", feature = "async_global_tokio", feature = "async_std_tokio" )) ]
-//
 pub mod tokio_io
 {
 	use

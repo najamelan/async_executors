@@ -21,8 +21,9 @@
 // ✔ pass a    &AsyncGlobal  to a function that takes exec: `&dyn LocalSpawnHandle`
 //
 // ✔ pass an AsyncGlobal to a function that requires a Timer.
+// ✔ Verify AsyncGlobal does not implement Timer when feature is not enabled.
 // ✔ Verify tokio_io works when the async_std_tokio feature is enabled.
-// - Verify tokio_io doesn't work when the async_std_tokio feature is not enabled.
+// ✔ Verify tokio_io doesn't work when the async_std_tokio feature is not enabled.
 //
 // ✔ Joinhandle::detach allows task to keep running.
 // ✔ Joinhandle::drop aborts the task.
@@ -415,7 +416,21 @@ fn timer_should_wake_local()
 }
 
 
-// Verify tokio_io works.
+
+// Verify AsyncGlobal does not implement Timer when feature is not enabled.
+//
+#[ cfg(not( feature = "timer" )) ]
+//
+#[ test ]
+//
+fn no_feature_no_timer()
+{
+	static_assertions::assert_not_impl_any!( AsyncGlobal: Timer );
+}
+
+
+
+// Verify tokio_io works when the async_std_tokio feature is enabled.
 //
 #[ cfg( feature = "async_global_tokio" ) ]
 //
@@ -437,4 +452,21 @@ fn tokio_io() -> Result<(), DynError >
 	AsyncGlobal::block_on( test );
 
 	Ok(())
+}
+
+
+// Verify tokio_io doesn't work when the async_std_tokio feature is not enabled.
+//
+#[ cfg(not( feature = "async_global_tokio" )) ]
+//
+#[ test ] #[ should_panic ]
+//
+fn no_tokio_io()
+{
+	let test = async
+	{
+		let _ = tokio_io::socket_pair().await.expect( "socket_pair" );
+	};
+
+	AsyncGlobal::block_on( test );
 }

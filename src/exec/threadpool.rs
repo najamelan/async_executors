@@ -1,10 +1,9 @@
 use
 {
-	crate :: { JoinHandle, InnerJh, SpawnHandle } ,
-	futures_task :: { SpawnError, FutureObj } ,
-	futures_util :: { future::{ FutureExt }, task::SpawnExt                    } ,
-	std :: { time::Duration } ,
-	futures_executor :: { ThreadPool } ,
+	crate            :: { JoinHandle, InnerJh, SpawnHandle      } ,
+	futures_task     :: { SpawnError, FutureObj                 } ,
+	futures_util     :: { future::{ FutureExt }, task::SpawnExt } ,
+	futures_executor :: { ThreadPool                            } ,
 
 };
 
@@ -30,7 +29,7 @@ impl crate::Timer for ThreadPool
 {
 	type SleepFuture = futures_timer::Delay;
 
-	fn sleep( &self, dur: Duration ) -> Self::SleepFuture
+	fn sleep( &self, dur: std::time::Duration ) -> Self::SleepFuture
 	{
 		futures_timer::Delay::new( dur )
 	}

@@ -22,9 +22,10 @@
 //
 // ✔ we can spawn without being in a future running on block_on.
 //
-// - test Timer.
+// ✔ pass a TokioCt to a function that requires a Timer.
+// ✔ Verify TokioCt does not implement Timer when feature is not enabled.
 // ✔ Verify tokio_io works when the tokio_io feature is enabled.
-// - Verify tokio_io doesn't work when the tokio_io feature is not enabled.
+// ✔ Verify tokio_io doesn't work when the tokio_io feature is not enabled.
 //
 // ✔ Joinhandle::detach allows task to keep running.
 //
@@ -32,9 +33,9 @@ mod common;
 
 use
 {
-	common          :: * ,
-	futures         :: { channel::{ mpsc }, StreamExt } ,
-	std             :: { rc::Rc                       } ,
+	common  :: { *                            } ,
+	futures :: { channel::{ mpsc }, StreamExt } ,
+	std     :: { rc::Rc                       } ,
 };
 
 
@@ -450,7 +451,20 @@ fn timer_should_wake_local()
 
 
 
-// Verify tokio_io works.
+// Verify TokioCt does not implement Timer when feature is not enabled.
+//
+#[ cfg(not(any( feature="timer", feature="tokio_timer" ))) ]
+//
+#[ test ]
+//
+fn no_feature_no_timer()
+{
+	static_assertions::assert_not_impl_any!( TokioCt: Timer );
+}
+
+
+
+// Verify tokio_io works when the tokio_io feature is enabled.
 //
 #[ cfg( feature = "tokio_io" ) ]
 //
@@ -474,4 +488,24 @@ fn tokio_io() -> Result<(), DynError >
 	exec.block_on( test );
 
 	Ok(())
+}
+
+
+
+// Verify tokio_io doesn't work when the tokio_io feature is not enabled.
+//
+#[ cfg(not( feature = "tokio_io" )) ]
+//
+#[ test ] #[ should_panic ]
+//
+fn no_tokio_io()
+{
+	let exec = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+
+	let test = async
+	{
+		let _ = tokio_io::socket_pair().await.expect( "socket_pair" );
+	};
+
+	exec.block_on( test );
 }

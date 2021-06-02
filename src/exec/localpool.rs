@@ -1,10 +1,9 @@
 use
 {
-	crate :: { JoinHandle, InnerJh, SpawnHandle, LocalSpawnHandle } ,
-	futures_task :: { SpawnError, FutureObj, LocalFutureObj } ,
-	futures_util :: { future::{ FutureExt }, task::{ SpawnExt, LocalSpawnExt } } ,
-	std :: { time::Duration } ,
-	futures_executor :: { LocalSpawner } ,
+	crate            :: { JoinHandle, InnerJh, SpawnHandle, LocalSpawnHandle       } ,
+	futures_task     :: { SpawnError, FutureObj, LocalFutureObj                    } ,
+	futures_util     :: { future::{ FutureExt }, task::{ SpawnExt, LocalSpawnExt } } ,
+	futures_executor :: { LocalSpawner                                             } ,
 
 };
 
@@ -44,7 +43,7 @@ impl crate::Timer for LocalSpawner
 {
 	type SleepFuture = futures_timer::Delay;
 
-	fn sleep( &self, dur: Duration ) -> Self::SleepFuture
+	fn sleep( &self, dur: std::time::Duration ) -> Self::SleepFuture
 	{
 		futures_timer::Delay::new( dur )
 	}

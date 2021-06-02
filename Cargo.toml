@@ -115,7 +115,7 @@ required-features = ["notwasm", "glommio"]
 [[example]]
 name = "timer"
 path = "examples/timer.rs"
-required-features = ["notwasm", "async_std", "tokio_ct"]
+required-features = ["notwasm", "async_std", "tokio_ct", "tokio_timer"]
 
 [features]
 async_global = ["async-global-executor"]
