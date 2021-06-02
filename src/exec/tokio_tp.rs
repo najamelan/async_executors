@@ -151,9 +151,9 @@ impl TokioTp
 }
 
 
-#[ cfg( feature = "tokio_reactor" ) ]
+#[ cfg( feature = "tokio_io" ) ]
 //
-#[ cfg_attr( nightly, doc(cfg( feature = "tokio_reactor" )) ) ]
+#[ cfg_attr( nightly, doc(cfg( feature = "tokio_io" )) ) ]
 //
 impl crate::TokioIo for TokioTp {}
 

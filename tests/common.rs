@@ -5,6 +5,7 @@ pub use
 	futures         :: { FutureExt, SinkExt, channel::{ mpsc::Sender, oneshot }, executor::block_on } ,
 	futures::task   :: { LocalSpawnExt, SpawnExt, LocalSpawn, Spawn                                 } ,
 	std             :: { sync::Arc, rc::Rc, time::Duration                                          } ,
+	tokio::io       :: { AsyncReadExt, AsyncWriteExt                                                } ,
 	async_executors :: { *                                                                          } ,
 };
 
@@ -21,8 +22,7 @@ pub mod tokio_io
 	};
 
 	/// Creates a connected pair of sockets.
-	///
-	/// This is similar to UnixStream::socket_pair, but works on windows too.
+	/// Uses tokio tcp stream. This will only work if the reactor is running.
 	//
 	pub async fn socket_pair() -> Result<(TcpStream, TcpStream), DynError>
 	{
@@ -34,6 +34,23 @@ pub mod tokio_io
 
 		Ok( (stream1, stream2) )
 	}
+}
+
+
+pub async fn tokio_tcp( exec: impl SpawnHandle< Result<(), DynError> > + TokioIo ) -> Result<(), DynError>
+{
+	let test = async
+	{
+		let (mut one, mut two) = tokio_io::socket_pair().await?;
+
+		one.write_u8( 5 ).await?;
+
+		assert_eq!( 5, two.read_u8().await? );
+
+		Ok(())
+	};
+
+	exec.spawn_handle( test )?.await
 }
 
 

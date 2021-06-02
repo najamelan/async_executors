@@ -414,20 +414,7 @@ fn no_feature_no_timer()
 //
 fn tokio_io() -> Result<(), DynError >
 {
-	use tokio::io::{ AsyncReadExt, AsyncWriteExt };
-
-	let test = async
-	{
-		let (mut one, mut two) = tokio_io::socket_pair().await.expect( "socket_pair" );
-
-		one.write_u8( 5 ).await.expect( "write tokio io" );
-
-		assert_eq!( 5, two.read_u8().await.expect( "read tokio io" ) );
-	};
-
-	AsyncStd::block_on( test );
-
-	Ok(())
+	AsyncStd::block_on( tokio_tcp( AsyncStd ) )
 }
 
 

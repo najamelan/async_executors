@@ -105,13 +105,6 @@ impl TokioCt
 
 
 
-#[ cfg( feature = "tokio_reactor" ) ]
-//
-#[ cfg_attr( nightly, doc(cfg( feature = "tokio_reactor" )) ) ]
-//
-impl crate::TokioIo for TokioCt {}
-
-
 impl Spawn for TokioCt
 {
 	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), SpawnError>
@@ -198,6 +191,14 @@ impl crate::Timer for TokioCt
 		tokio::time::sleep( dur )
 	}
 }
+
+
+
+#[ cfg( feature = "tokio_io" ) ]
+//
+#[ cfg_attr( nightly, doc(cfg( feature = "tokio_io" )) ) ]
+//
+impl crate::TokioIo for TokioCt {}
 
 
 
