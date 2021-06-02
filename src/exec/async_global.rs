@@ -76,10 +76,7 @@ impl<Out: 'static + Send> SpawnHandle<Out> for AsyncGlobal
 {
 	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::AsyncGlobal
-		{
-			task: Some( async_global_executor::spawn(future) ),
-		}})
+		Ok( JoinHandle::async_global(async_global_executor::spawn(future)) )
 	}
 }
 
@@ -91,10 +88,7 @@ impl<Out: 'static + Send> SpawnHandle<Out> for AsyncGlobal
 {
 	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::AsyncGlobal
-		{
-			task: Some( async_global_executor::spawn_local(future) ),
-		}})
+		Ok( JoinHandle::async_global( async_global_executor::spawn_local(future)) )
 	}
 }
 
@@ -104,10 +98,7 @@ impl<Out: 'static> LocalSpawnHandle<Out> for AsyncGlobal
 {
 	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::AsyncGlobal
-		{
-			task: Some( async_global_executor::spawn_local(future) ),
-		}})
+		Ok( JoinHandle::async_global(async_global_executor::spawn_local(future) ))
 	}
 }
 

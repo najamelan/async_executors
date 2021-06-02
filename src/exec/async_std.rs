@@ -1,9 +1,9 @@
 use
 {
-	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle, join_handle::InnerJh    } ,
+	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle                          } ,
 	futures_task :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError           } ,
 	futures_util :: { future::abortable                                                  } ,
-	std          :: { sync::atomic::AtomicBool, future::Future, pin::Pin, time::Duration } ,
+	std          :: { future::Future, pin::Pin, time::Duration                           } ,
 };
 
 
@@ -79,12 +79,7 @@ impl<Out: 'static + Send> SpawnHandle<Out> for AsyncStd
 	{
 		let (fut, a_handle) = abortable( future );
 
-		Ok( JoinHandle{ inner: InnerJh::AsyncStd
-		{
-			handle  : async_std_crate::task::spawn( fut ) ,
-			detached: AtomicBool::new( false )            ,
-			a_handle                                      ,
-		}})
+		Ok( JoinHandle::async_std(async_std_crate::task::spawn( fut ), a_handle))
 	}
 }
 
@@ -100,12 +95,8 @@ impl<Out: 'static + Send> SpawnHandle<Out> for AsyncStd
 	{
 		let (fut, a_handle) = abortable( future );
 
-		Ok( JoinHandle{ inner: InnerJh::AsyncStd
-		{
-			handle  : async_std_crate::task::spawn_local( fut ) ,
-			detached: AtomicBool::new( false )                  ,
-			a_handle                                            ,
-		}})
+		Ok( JoinHandle::async_std(async_std_crate::task::spawn_local( fut ), a_handle))
+
 	}
 }
 
@@ -116,13 +107,7 @@ impl<Out: 'static> LocalSpawnHandle<Out> for AsyncStd
 	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		let (fut, a_handle) = abortable( future );
-
-		Ok( JoinHandle{ inner: InnerJh::AsyncStd
-		{
-			handle  : async_std_crate::task::spawn_local( fut ) ,
-			detached: AtomicBool::new( false )            ,
-			a_handle                                      ,
-		}})
+		Ok( JoinHandle::async_std(async_std_crate::task::spawn_local( fut ), a_handle))
 	}
 }
 

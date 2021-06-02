@@ -2,8 +2,8 @@
 //
 use
 {
-	crate          :: { SpawnHandle, JoinHandle, join_handle::InnerJh     } ,
-	std            :: { sync::{ Arc, atomic::AtomicBool }, future::Future } ,
+	crate          :: { SpawnHandle, JoinHandle                           } ,
+	std            :: { sync::{ Arc                     }, future::Future } ,
 	futures_task   :: { FutureObj, Spawn, SpawnError                      } ,
 	tokio::runtime :: { Runtime                                           } ,
 };
@@ -176,11 +176,7 @@ impl<Out: 'static + Send> SpawnHandle<Out> for TokioTp
 {
 	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		Ok( JoinHandle{ inner: InnerJh::Tokio
-		{
-			handle  : self.exec.as_ref().unwrap().spawn( future ) ,
-			detached: AtomicBool::new( false  ) ,
-		}})
+		Ok( JoinHandle::tokio(self.exec.as_ref().unwrap().spawn( future )))
 	}
 }
 

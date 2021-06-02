@@ -43,13 +43,41 @@ use tokio::{ task::JoinHandle as TokioJoinHandle };
 //
 #[ must_use = "JoinHandle will cancel your future when dropped." ]
 //
-pub struct JoinHandle<T> { pub(crate) inner: InnerJh<T> }
+pub struct JoinHandle<T> { inner: InnerJh<T> }
 
+impl<T> JoinHandle<T> {
+	fn new(inner: InnerJh<T>) -> Self {
+		Self {
+			inner
+		}
+	}
 
-
+	#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
+	/// Make a tokio_jh
+	pub fn tokio(handle: TokioJoinHandle<T>  ) -> Self {
+		Self::new(InnerJh::Tokio { handle, detached: AtomicBool::new(false) })
+	}
+	#[ cfg( feature = "async_global" ) ]
+	/// Make a async global handle
+	pub fn async_global(task: AsyncGlobalTask<T>) -> Self {
+		Self::new(InnerJh::AsyncGlobal {task: Some(task)})
+	}
+	#[ cfg( feature = "async_std" ) ]
+	/// Make a async_std handle
+	pub fn async_std(handle  : AsyncStdJoinHandle<Result<T, Aborted>> , a_handle: AbortHandle) -> Self {
+		Self::new(InnerJh::AsyncStd {
+			handle,
+			a_handle,
+			detached: AtomicBool::new(false)
+		})
+	}
+	/// make a remote handle
+	pub fn remote_handle(handle: RemoteHandle<T>) -> Self {
+		Self::new(InnerJh::RemoteHandle(Some(handle)))
+	}
+}
 #[ derive(Debug) ] #[ allow(dead_code) ]
-//
-pub(crate) enum InnerJh<T>
+enum InnerJh<T>
 {
 	/// Wrapper around tokio JoinHandle.
 	//

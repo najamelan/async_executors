@@ -1,7 +1,7 @@
 use
 {
-	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle, join_handle::InnerJh  } ,
-	std          :: { rc::Rc, future::Future, sync::atomic::AtomicBool                 } ,
+	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle  } ,
+	std          :: { rc::Rc, future::Future                 } ,
 	tokio        :: { task::LocalSet, runtime::{  Runtime }                            } ,
 	futures_task :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError         } ,
 };
@@ -137,11 +137,7 @@ impl<Out: 'static + Send> SpawnHandle<Out> for TokioCt
 {
 	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		Ok( JoinHandle{ inner: InnerJh::Tokio
-		{
-			handle  : self.exec.spawn( future ) ,
-			detached: AtomicBool::new( false  ) ,
-		}})
+		Ok( JoinHandle::tokio(self.exec.spawn( future ) ))
 	}
 }
 
@@ -151,11 +147,7 @@ impl<Out: 'static> LocalSpawnHandle<Out> for TokioCt
 {
 	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		Ok( JoinHandle{ inner: InnerJh::Tokio
-		{
-			handle  : self.local.spawn_local( future ) ,
-			detached: AtomicBool::new( false )         ,
-		}})
+		Ok( JoinHandle::tokio(self.local.spawn_local( future ) ))
 
 	}
 }
