@@ -19,11 +19,11 @@ cargo check --features tokio_ct
 cargo check --features localpool
 cargo check --features threadpool
 
+
 # Currently doc tests in readme will fail without all features, because we have no way of turning on
 # the features for the doctest.
 #
 cargo test --all-features
-
 
 cargo test --features "async_global async_std localpool threadpool tokio_ct tokio_tp glommio"
 cargo test --features "timer async_global async_std localpool threadpool tokio_ct tokio_tp glommio"
