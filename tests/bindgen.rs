@@ -191,11 +191,10 @@ fn spawn_handle_arc()
 fn spawn_handle_os()
 {
 	let exec = Bindgen::default();
-	let ex2  = exec.clone();
 
 	let fut = async move
 	{
-		let result = increment_spawn_handle_os( 4, &ex2 ).await;
+		let result = increment_spawn_handle_os( 4, &exec ).await;
 
 		assert_eq!( 5u8, result );
 	};
@@ -365,11 +364,10 @@ fn spawn_handle_arc_local()
 fn spawn_handle_os_local()
 {
 	let exec = Bindgen::default();
-	let ex2  = exec.clone();
 
 	let fut = async move
 	{
-		let result = increment_spawn_handle_local_os( 4, &ex2 ).await;
+		let result = increment_spawn_handle_local_os( 4, &exec ).await;
 
 		assert_eq!( 5u8, *result );
 	};

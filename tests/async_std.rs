@@ -408,19 +408,19 @@ fn no_feature_no_timer()
 
 // Verify tokio_io works when the async_std_tokio feature is enabled.
 //
-#[ cfg( feature = "async_std_tokio" ) ]
+#[ cfg(all( not(target_arch = "wasm32"), feature = "async_std_tokio" )) ]
 //
 #[ test ]
 //
 fn tokio_io() -> Result<(), DynError >
 {
-	AsyncStd::block_on( tokio_tcp( AsyncStd ) )
+	AsyncStd::block_on( tokio_io::tcp( AsyncStd ) )
 }
 
 
 // Verify tokio_io doesn't work when the async_std_tokio feature is not enabled.
 //
-#[ cfg(not( feature = "async_std_tokio" )) ]
+#[ cfg(all( not(target_arch = "wasm32"), feature = "async_std_tokio" )) ]
 //
 #[ test ] #[ should_panic ]
 //

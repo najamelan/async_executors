@@ -1,5 +1,5 @@
-#![ cfg( feature = "tokio_tp" ) ]
-
+#![ cfg(all( not(target_arch = "wasm32"), feature = "tokio_tp" )) ]
+//
 // Tested:
 //
 // ✔ pass a     TokioTp  to a function that takes exec: `impl Spawn`
@@ -256,7 +256,7 @@ fn tokio_io() -> Result<(), DynError >
 {
 	let exec = TokioTpBuilder::new().build()?;
 
-	exec.block_on( tokio_tcp( exec.clone() ) )
+	exec.block_on( tokio_io::tcp( exec.clone() ) )
 }
 
 

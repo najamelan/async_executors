@@ -5,7 +5,6 @@ pub use
 	futures         :: { FutureExt, SinkExt, channel::{ mpsc::Sender, oneshot }, executor::block_on } ,
 	futures::task   :: { LocalSpawnExt, SpawnExt, LocalSpawn, Spawn                                 } ,
 	std             :: { sync::Arc, rc::Rc, time::Duration                                          } ,
-	tokio::io       :: { AsyncReadExt, AsyncWriteExt                                                } ,
 	async_executors :: { *                                                                          } ,
 };
 
@@ -13,11 +12,15 @@ pub use
 pub type DynError = Box<dyn std::error::Error + Send + Sync>;
 
 
+#[ cfg(not( target_arch = "wasm32" )) ]
+//
 pub mod tokio_io
 {
 	use
 	{
-		tokio::net::{ TcpListener, TcpStream },
+		tokio::net :: { TcpListener, TcpStream      } ,
+		tokio::io  :: { AsyncReadExt, AsyncWriteExt } ,
+
 		super::*,
 	};
 
@@ -34,23 +37,23 @@ pub mod tokio_io
 
 		Ok( (stream1, stream2) )
 	}
-}
 
 
-pub async fn tokio_tcp( exec: impl SpawnHandle< Result<(), DynError> > + TokioIo ) -> Result<(), DynError>
-{
-	let test = async
+	pub async fn tcp( exec: impl SpawnHandle< Result<(), DynError> > + TokioIo ) -> Result<(), DynError>
 	{
-		let (mut one, mut two) = tokio_io::socket_pair().await?;
+		let test = async
+		{
+			let (mut one, mut two) = tokio_io::socket_pair().await?;
 
-		one.write_u8( 5 ).await?;
+			one.write_u8( 5 ).await?;
 
-		assert_eq!( 5, two.read_u8().await? );
+			assert_eq!( 5, two.read_u8().await? );
 
-		Ok(())
-	};
+			Ok(())
+		};
 
-	exec.spawn_handle( test )?.await
+		exec.spawn_handle( test )?.await
+	}
 }
 
 
