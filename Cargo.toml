@@ -157,6 +157,13 @@ version = "0.4.1"
 all-features = true
 targets = []
 
+[patch]
+[patch.crates-io]
+[patch.crates-io.blanket]
+git = "https://github.com/najamelan/blanket"
+rev = "411eee2"
+version = "^0.1"
+
 [profile]
 [profile.release]
 codegen-units = 1

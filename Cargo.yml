@@ -259,4 +259,11 @@ example:
 
   - name             : timer
     path             : examples/timer.rs
-    required-features: [ notwasm, async_std, tokio_ct ]
+    required-features: [ notwasm, async_std, tokio_ct, tokio_timer ]
+
+
+patch:
+
+  crates-io:
+
+    blanket: { version: ^0.1, git: "https://github.com/najamelan/blanket", rev: 411eee2 }
