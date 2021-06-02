@@ -79,7 +79,7 @@ features:
   # Make sure async-io is enabled on async-global-executor.
   # This will implement AsyncIo on AsyncGlobal. Not available on Wasm.
   #
-  async_global_io: [ async_global, async-global-executor/async-io ]
+  async_global_async_io: [ async_global, async-global-executor/async-io ]
 
   # Make sure async-io is enabled on async-global-executor.
   # This will implement TokioIo on AsyncGlobal. Not available on Wasm.

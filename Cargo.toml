@@ -124,7 +124,7 @@ required-features = ["notwasm", "async_global_tokio", "async_std_tokio", "tokio_
 
 [features]
 async_global = ["async-global-executor"]
-async_global_io = ["async_global", "async-global-executor/async-io"]
+async_global_async_io = ["async_global", "async-global-executor/async-io"]
 async_global_tokio = ["async_global", "async-global-executor/tokio"]
 async_std = ["async_std_crate"]
 async_std_tokio = ["async_std", "async_std_crate/tokio1"]
