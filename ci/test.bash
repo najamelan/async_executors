@@ -24,6 +24,7 @@ cargo check --features threadpool
 #
 cargo test --all-features
 
+
 cargo test --features "async_global async_std localpool threadpool tokio_ct tokio_tp glommio"
 cargo test --features "timer async_global async_std localpool threadpool tokio_ct tokio_tp glommio"
 cargo test --features "tokio_io async_global async_std tokio_ct tokio_tp"
