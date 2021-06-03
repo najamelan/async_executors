@@ -2,10 +2,10 @@
 //
 pub use
 {
-	futures         :: { FutureExt, SinkExt, channel::{ mpsc::Sender, oneshot }, executor::block_on } ,
-	futures::task   :: { LocalSpawnExt, SpawnExt, LocalSpawn, Spawn                                 } ,
-	std             :: { sync::Arc, rc::Rc, time::Duration                                          } ,
-	async_executors :: { *                                                                          } ,
+	futures         :: { FutureExt, SinkExt, channel::{ mpsc::Sender, oneshot }, executor::block_on      } ,
+	futures::task   :: { LocalSpawnExt, SpawnExt, LocalSpawn, Spawn                                      } ,
+	std             :: { sync::{ Arc, atomic::{ AtomicBool, Ordering::SeqCst } }, rc::Rc, time::Duration } ,
+	async_executors :: { *                                                                               } ,
 };
 
 
@@ -174,16 +174,6 @@ pub async fn increment_spawn_handle( a: u8, exec: impl SpawnHandle<u8> ) -> u8
 }
 
 
-// A function that takes a generic executor and spawns a task.
-//
-#[ allow(dead_code) ] // gives warning when testing all executors at once.
-//
-pub async fn increment_spawn_handle_local( a: u8, exec: impl LocalSpawnHandle<Rc<u8>> ) -> Rc<u8>
-{
-	exec.spawn_handle_local( sum_handle_local( a, 1 ) ).expect( "spawn handle" ).await
-}
-
-
 // A function that takes a trait object and spawns a task.
 //
 #[ allow(dead_code) ]
@@ -194,6 +184,16 @@ pub async fn increment_spawn_handle_os( a: u8, exec: &dyn SpawnHandle<u8> ) -> u
 }
 
 
+
+// A function that takes a generic executor and spawns a task.
+//
+#[ allow(dead_code) ] // gives warning when testing all executors at once.
+//
+pub async fn increment_spawn_handle_local( a: u8, exec: impl LocalSpawnHandle<Rc<u8>> ) -> Rc<u8>
+{
+	exec.spawn_handle_local( sum_handle_local( a, 1 ) ).expect( "spawn handle" ).await
+}
+
 // A function that takes a trait object and spawns a task.
 //
 #[ allow(dead_code) ] // gives warning when testing all executors at once.
@@ -202,6 +202,7 @@ pub async fn increment_spawn_handle_local_os( a: u8, exec: &dyn LocalSpawnHandle
 {
 	exec.spawn_handle_local( sum_handle_local( a, 1 ).boxed() ).expect( "spawn handle" ).await
 }
+
 
 
 
@@ -264,4 +265,56 @@ pub async fn timer_should_wake_up_local( exec: impl LocalSpawnHandle<()> + Clone
 	}).expect( "spawn_handle" );
 
 	handle.await;
+}
+
+
+
+// Use same exec to run this function as you pass in.
+//
+pub async fn try_yield_now( exec: impl SpawnHandle<()> + YieldNow ) -> DynResult<()>
+{
+	let flag  = Arc::new( AtomicBool::new( false ) );
+	let flag2 = flag.clone();
+
+	let task = async move
+	{
+		flag2.store( true, SeqCst );
+	};
+
+	let handle = exec.spawn_handle( task )?;
+
+	exec.yield_now().await;
+
+	// by now task should have run because of the yield_now.
+	//
+	assert!( flag.load(SeqCst) );
+
+	handle.await;
+
+	Ok(())
+}
+
+
+
+// Use same exec to run this function as you pass in.
+//
+pub async fn without_yield_now( exec: impl SpawnHandle<()> + YieldNow ) -> DynResult<()>
+{
+	let flag  = Arc::new( AtomicBool::new( false ) );
+	let flag2 = flag.clone();
+
+	let task = async move
+	{
+		flag2.store( true, SeqCst );
+	};
+
+	let handle = exec.spawn_handle( task )?;
+
+	// by now task should have run because of the yield_now.
+	//
+	assert!( !flag.load(SeqCst) );
+
+	handle.await;
+
+	Ok(())
 }

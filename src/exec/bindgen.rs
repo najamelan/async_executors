@@ -1,9 +1,9 @@
 use
 {
-	crate                :: { SpawnHandle, LocalSpawnHandle, JoinHandle                       } ,
-	wasm_bindgen_futures :: { spawn_local                                                     } ,
-	futures_task         :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError        } ,
-	futures_util         :: { FutureExt                                                       } ,
+	crate                :: { SpawnHandle, LocalSpawnHandle, JoinHandle, YieldNow      } ,
+	wasm_bindgen_futures :: { spawn_local                                              } ,
+	futures_task         :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError } ,
+	futures_util         :: { FutureExt                                                } ,
 };
 
 
@@ -77,6 +77,10 @@ impl<Out: 'static> LocalSpawnHandle<Out> for Bindgen
 		Ok( JoinHandle::remote_handle(handle) )
 	}
 }
+
+
+
+impl YieldNow for Bindgen {}
 
 
 

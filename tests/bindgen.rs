@@ -324,7 +324,7 @@ fn spawn_clone_with_arc_local()
 //
 fn spawn_handle_local()
 {
-	let exec         = Bindgen::default();
+	let exec = Bindgen::default();
 
 	let fut = async move
 	{
@@ -343,7 +343,7 @@ fn spawn_handle_local()
 //
 fn spawn_handle_arc_local()
 {
-	let exec         = Bindgen::default();
+	let exec = Bindgen::default();
 
 
 	let fut = async move
@@ -377,6 +377,33 @@ fn spawn_handle_os_local()
 
 
 
+// pass a Bindgen to a function that requires a YieldNow.
+//
+#[ wasm_bindgen_test ]
+//
+fn yield_run_subtask_first()
+{
+	let task = async{ try_yield_now( Bindgen ).await.expect( "yield_now" ); };
+
+	Bindgen.spawn_local( task ).expect( "spawn" );
+}
+
+
+
+// pass a Bindgen to a function that requires a YieldNow.
+//
+#[ wasm_bindgen_test ]
+//
+fn yield_run_subtask_last()
+{
+	let task = async{ without_yield_now( Bindgen ).await.expect( "yield_now" ); };
+
+	Bindgen.spawn_local( task ).expect( "spawn" );
+}
+
+
+
+
 // pass an Bindgen to a function that requires a Timer.
 //
 #[ cfg( feature = "timer" ) ]
@@ -398,5 +425,5 @@ fn timer_should_wake_local()
 //
 fn no_feature_no_timer()
 {
-	static_assertions::assert_not_impl_any!( BindGen: Timer );
+	static_assertions::assert_not_impl_any!( Bindgen: Timer );
 }

@@ -1,10 +1,10 @@
 use
 {
-	crate         :: { LocalSpawnHandle, SpawnHandle, JoinHandle, GlommioIo          } ,
-	std           :: { future::Future, rc::Rc                                        } ,
-	futures_task  :: { FutureObj, LocalSpawn,  Spawn, SpawnError                     } ,
-	futures_util  :: { FutureExt, task::LocalSpawnExt, future::LocalFutureObj        } ,
-	glommio_crate :: { LocalExecutor, LocalExecutorBuilder, GlommioError, Task       } ,
+	crate         :: { LocalSpawnHandle, SpawnHandle, JoinHandle, GlommioIo, YieldNow } ,
+	std           :: { future::Future, rc::Rc                                         } ,
+	futures_task  :: { FutureObj, LocalSpawn,  Spawn, SpawnError                      } ,
+	futures_util  :: { FutureExt, task::LocalSpawnExt, future::LocalFutureObj         } ,
+	glommio_crate :: { LocalExecutor, LocalExecutorBuilder, GlommioError, Task        } ,
 };
 
 
@@ -33,7 +33,7 @@ pub struct GlommioCt
 
 impl GlommioCt
 {
-	/// Create a executor. Note: in order to spawn you need to run [block_on].
+	/// Create an executor. Note: in order to spawn you need to run [block_on].
 	//
 	pub fn new( builder: LocalExecutorBuilder ) -> Result< Self, GlommioError<()> >
 	{
@@ -123,6 +123,9 @@ impl crate::Timer for GlommioCt
 		futures_timer::Delay::new( dur )
 	}
 }
+
+
+impl YieldNow for GlommioCt {}
 
 
 

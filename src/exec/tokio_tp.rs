@@ -184,6 +184,11 @@ impl<Out: 'static + Send> SpawnHandle<Out> for TokioTp
 
 
 
+impl crate::YieldNow for TokioTp {}
+
+
+
+
 #[ cfg(all( feature = "timer", not(feature="tokio_timer" )) ) ]
 //
 #[ cfg_attr( nightly, doc(cfg(all( feature = "timer", feature = "tokio_tp" ))) ) ]

@@ -124,6 +124,9 @@ impl LocalSpawn for AsyncGlobal
 }
 
 
+impl crate::YieldNow for AsyncGlobal {}
+
+
 impl std::fmt::Debug for AsyncGlobal
 {
 	fn fmt( &self, f: &mut std::fmt::Formatter<'_> ) -> std::fmt::Result

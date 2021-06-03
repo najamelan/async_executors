@@ -21,6 +21,10 @@ impl<Out: 'static + Send> SpawnHandle<Out> for ThreadPool
 }
 
 
+impl crate::YieldNow for ThreadPool {}
+
+
+
 #[ cfg( feature = "timer" ) ]
 //
 #[ cfg_attr( nightly, doc(cfg(all( feature = "timer", feature = "async_global" ))) ) ]

@@ -121,6 +121,34 @@ fn spawn_handle_local_os()
 
 
 
+// pass a LocalSpawner to a function that requires a YieldNow.
+//
+#[ test ]
+//
+fn yield_run_subtask_first() -> DynResult<()>
+{
+	let mut wrap = LocalPool::new();
+	let     exec = wrap.spawner();
+
+	wrap.run_until( try_yield_now( exec ) )
+}
+
+
+
+// pass a LocalSpawner to a function that requires a YieldNow.
+//
+#[ test ]
+//
+fn yield_run_subtask_last() -> DynResult<()>
+{
+	let mut wrap = LocalPool::new();
+	let     exec = wrap.spawner();
+
+	wrap.run_until( without_yield_now( exec ) )
+}
+
+
+
 // pass an LocalPool to a function that requires a Timer.
 //
 #[ cfg( feature = "timer" ) ]

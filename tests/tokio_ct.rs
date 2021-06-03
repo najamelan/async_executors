@@ -437,6 +437,32 @@ fn join_handle_detach()
 
 
 
+// pass a TokioCt to a function that requires a YieldNow.
+//
+#[ test ]
+//
+fn yield_run_subtask_first() -> DynResult<()>
+{
+	let exec = &TokioCtBuilder::new().build().expect( "create tokio threadpool" );
+
+	exec.block_on( try_yield_now( exec ) )
+}
+
+
+
+// pass a TokioCt to a function that requires a YieldNow.
+//
+#[ test ]
+//
+fn yield_run_subtask_last() -> DynResult<()>
+{
+	let exec = &TokioCtBuilder::new().build().expect( "create tokio threadpool" );
+
+	exec.block_on( without_yield_now( exec ) )
+}
+
+
+
 // pass an TokioCt to a function that requires a Timer.
 //
 #[ cfg(any( feature="timer", feature="tokio_timer" )) ]

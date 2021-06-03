@@ -429,6 +429,34 @@ fn join_handle_detach()
 
 
 
+// pass a GlommioCt to a function that requires a YieldNow.
+//
+#[ test ]
+//
+fn yield_run_subtask_first() -> DynResult<()>
+{
+	let builder = LocalExecutorBuilder::new();
+	let exec    = &GlommioCt::new( builder )?;
+
+	exec.block_on( try_yield_now( exec ) )
+}
+
+
+
+// pass a GlommioCt to a function that requires a YieldNow.
+//
+#[ test ]
+//
+fn yield_run_subtask_last() -> DynResult<()>
+{
+	let builder = LocalExecutorBuilder::new();
+	let exec    = &GlommioCt::new( builder )?;
+
+	exec.block_on( without_yield_now( exec ) )
+}
+
+
+
 // pass an GommioCt to a function that requires a Timer.
 //
 #[ cfg( feature = "timer" ) ]

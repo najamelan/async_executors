@@ -1,6 +1,6 @@
 use
 {
-	crate            :: { JoinHandle, SpawnHandle, LocalSpawnHandle                } ,
+	crate            :: { JoinHandle, SpawnHandle, LocalSpawnHandle, YieldNow      } ,
 	futures_task     :: { SpawnError, FutureObj, LocalFutureObj                    } ,
 	futures_util     :: { future::{ FutureExt }, task::{ SpawnExt, LocalSpawnExt } } ,
 	futures_executor :: { LocalSpawner                                             } ,
@@ -48,3 +48,6 @@ impl crate::Timer for LocalSpawner
 		futures_timer::Delay::new( dur )
 	}
 }
+
+
+impl YieldNow for LocalSpawner {}

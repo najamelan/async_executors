@@ -132,6 +132,11 @@ impl LocalSpawn for AsyncStd
 }
 
 
+
+impl crate::YieldNow for AsyncStd {}
+
+
+
 impl std::fmt::Debug for AsyncStd
 {
 	fn fmt( &self, f: &mut std::fmt::Formatter<'_> ) -> std::fmt::Result
@@ -169,3 +174,6 @@ impl crate::Timer for AsyncStd
 		Box::pin( async_std::task::sleep( dur ) )
 	}
 }
+
+
+

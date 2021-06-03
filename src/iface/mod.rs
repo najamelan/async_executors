@@ -1,14 +1,16 @@
 pub(crate) mod spawn_handle       ;
 pub(crate) mod local_spawn_handle ;
 pub(crate) mod join_handle        ;
+pub(crate) mod yield_now          ;
 
 pub use spawn_handle       ::*;
 pub use local_spawn_handle ::*;
 pub use join_handle        ::*;
-
+pub use yield_now          ::*;
 
 pub(crate) mod timer;
 pub use timer::*;
+
 
 /// Trait indicating that glommio IO can be used with the executor that
 /// implements it. Thus when a library requests a `impl Spawn + GlommioIo` it is

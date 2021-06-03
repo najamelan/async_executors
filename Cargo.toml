@@ -122,6 +122,11 @@ name = "tokio_io"
 path = "examples/tokio_io.rs"
 required-features = ["notwasm", "async_global_tokio", "async_std_tokio", "tokio_ct", "tokio_io"]
 
+[[example]]
+name = "yield_now"
+path = "examples/yield_now.rs"
+required-features = ["notwasm", "tokio_ct"]
+
 [features]
 async_global = ["async-global-executor"]
 async_global_tokio = ["async_global", "async-global-executor/tokio"]

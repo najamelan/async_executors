@@ -197,6 +197,7 @@ impl crate::Timer for TokioCt
 impl crate::TokioIo for TokioCt {}
 
 
+impl crate::YieldNow for TokioCt {}
 
 
 
