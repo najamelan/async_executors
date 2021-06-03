@@ -15,6 +15,8 @@ use
 //
 #[ derive(Debug) ]
 //
+#[ cfg_attr( nightly, doc(cfg( feature = "tokio_ct" )) ) ]
+//
 pub struct TokioCtBuilder
 {
 	builder: Builder,

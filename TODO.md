@@ -1,18 +1,13 @@
 # TODO:
 
-- Create features and traits for turning on extra executor global side-effects, like GlommioIO, TokioIO, AsyncStdIO, Timer.
-- Test IO traits.
-- Document IO traits usage.
-- check documentation for glommio and new traits.
-- async-global also supports tokio_io
 - clarify in docs and cargo.yml that it is LocalSpawner that is the executor and not LocalPool.
 - currently we don't require the Timer::SleepFuture to be Send on wasm. Is this the best approach? SendWrapper is
   another approach, but that feels wrong too as these days you can have threads with webworkers on wasm too.
 - async-io also provides a timer. So maybe in async-global-executor if async-io is already enabled, we should use
   that instead of futures-timer.
-- clarify in docs how to avoid adding +SpawnHandle<SomeOut> become a breaking change in your API. That it is better to take a trait alias.
 - consistency of block_on fn, vs run_until. Probably add block_on to local spawner.
 - verify unwind safety of all our public types and make sure the traits are correctly implemented or not.
+- Add a timeout future.
 
 - test for JoinHandle being Send when Out is Send. Currently was caught just by an example.
 - test what happens when creating 2 LocalExecutor in one thread.

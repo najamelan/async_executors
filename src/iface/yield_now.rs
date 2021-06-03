@@ -24,6 +24,8 @@ pub trait YieldNow
 
 /// Future returned by [`YieldNow::yield_now`].
 //
+#[must_use = "YieldNowFut doesn't do anything unless polled or awaited."]
+//
 #[ derive( Debug, Copy, Clone ) ]
 //
 pub struct YieldNowFut

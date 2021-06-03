@@ -30,20 +30,20 @@ use tokio::{ task::JoinHandle as TokioJoinHandle };
 /// [RemoteHandle](futures_util::future::RemoteHandle) where possible.
 ///
 /// It does wrap futures in [Abortable](futures_util::future::Abortable) where needed as
-/// [tokio] and [async-std](async_std_crate) don't support canceling out of the box.
+/// [_async-std_](async_std_crate)'s canceling is asynchronous, which we can't call during drop.
 ///
 /// # Panics
 ///
 /// There is an inconsistency between executors when it comes to a panicking task.
 /// Generally we unwind the thread on which the handle is awaited when a task panics,
-/// but async-std will also let the executor thread unwind. No `catch_unwind` was added to
+/// but async-std will also let the executor working thread unwind. No `catch_unwind` was added to
 /// bring async-std in line with the other executors here.
 ///
 /// Awaiting the JoinHandle can also panic if you drop the executor before it completes.
 //
 #[ derive( Debug ) ]
 //
-#[ must_use = "JoinHandle will cancel your future when dropped." ]
+#[ must_use = "JoinHandle will cancel your future when dropped unless you await it." ]
 //
 pub struct JoinHandle<T> { inner: InnerJh<T> }
 
@@ -79,7 +79,8 @@ impl<T> JoinHandle<T>
 
 
 
-	/// Make a wrapper around [`async_std::task::JoinHandle`].
+	/// Make a wrapper around [`async_std::task::JoinHandle`](async_std_crate::task::JoinHandle). The task needs to
+	/// be wrapped in an abortable so we can cancel it on drop.
 	//
 	#[ cfg( feature = "async_std" ) ]
 	//

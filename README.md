@@ -8,25 +8,11 @@
 
 > Abstract over different executors.
 
-The aim of _async_executors_ is to provide a uniform interface to the main async executors available in Rust. We provide wrapper types that always implement the [`Spawn`](futures_util::task::Spawn) and/or [`LocalSpawn`](futures_util::task::LocalSpawn) traits from _futures_, making it easy to pass any supported executor to an API which requires `exec: impl Spawn` or `exec: impl LocalSpawn`.
+_async_executors_ aims to help you write executor agnostic libraries. We express common executor functionality in traits and implement it for the most used executors. This way libraries can require the exact functionality they need and client code can use any executor they choose as long as it can provide the required functionality.
 
-A problem with these traits is that they do not provide an API for getting a `JoinHandle` to await completion of the task. The current trend in async is to favor joining tasks and thus certain executors now return `JoinHandle`s from their spawn function. It's also a fundamental building block for [structured concurrency](https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/). _Async_executors_ provides an executor agnostic [`JoinHandle`] that wraps the framework native JoinHandle types.
+Available traits are grouped in the [`iface`] module. We also implement [`Spawn`](futures_util::task::Spawn) and/or [`LocalSpawn`](futures_util::task::LocalSpawn) traits from _futures_.
 
-`SpawnHandle` traits are also provided so API's can express you need to pass them an executor which allows spawning whilst returning a `JoinHandle`. Note that this was already provided by the _futures_ in [`SpawnExt::spawn_with_handle`](futures_util::task::SpawnExt::spawn_with_handle), but this uses [`RemoteHandle`](futures_util::future::RemoteHandle) which incurs a performance overhead. By wrapping the native JoinHandle types, we can avoid some of that overhead while still being executor agnostic.
-
-The traits provided by this crate are also implemented for the [`Instrumented`](tracing_futures::Instrumented) and [`WithDispatch`](tracing_futures::WithDispatch) wrappers from _tracing-futures_ when the `tracing` feature is enabled. So you can pass an instrumented executor to an API requiring `exec: impl SpawnHandle<SomeOutput>`.
-
-The currently supported executors are (file an issue on GitHub if you want to see another one supported):
-
-- [async-global-executor](https://docs.rs/async-global-executor) - supports spawning `!Send` futures and works on Wasm.
-- [async-std](https://docs.rs/async-std) - supports spawning `!Send` futures and works on Wasm (uses async-global-executor and bindgen under the hood).
-- [tokio](https://docs.rs/tokio) CurrentThread - [`tokio::runtime::Runtime`] with basic scheduler and a LocalSet. (supports spawning `!Send` futures)
-- [tokio](https://docs.rs/tokio) ThreadPool - [`tokio::runtime::Runtime`] with threadpool scheduler.
-- [glommio](https://docs.rs/glommio). Glommio is a Cooperative Thread-per-Core executor for Linux 5.8+ based on [`io_uring`](https://en.wikipedia.org/wiki/Io_uring). Allows spawning `!Send` futures.
-- [wasm-bindgen-futures](https://docs.rs/wasm-bindgen-futures) (only available on Wasm)
-- the [futures-executor](https://docs.rs/futures-executor) executors - They already implemented `Spawn` and `SpawnLocal`, but we implement the `SpawnHandle` family of traits for them as well. The types `ThreadPool`, `LocalPool` and `LocalSpawner` are re-exported for convenience.
-
-All executors are behind feature flags: `async_std`, `async_global`, `tokio_ct`, `tokio_tp`, `glommio`, `bindgen`, `localpool`, `threadpool`.
+All supported executors are turned on with features, see below.
 
 
 ## Table of Contents
@@ -35,6 +21,9 @@ All executors are behind feature flags: `async_std`, `async_global`, `tokio_ct`,
    - [Upgrade](#upgrade)
    - [Dependencies](#dependencies)
    - [Security](#security)
+- [Features](#features)
+   - [General Features](#general-features)
+   - [Executor Specific](#executor-specific)
 - [Usage](#usage)
    - [Basic Example](#basic-example)
    - [API](#api)
@@ -73,6 +62,31 @@ This crate has few dependencies. Cargo will automatically handle it's dependenci
 
 The only hard dependencies are `futures-task` and `futures-util`. The rest are the optional dependencies to turn on support for each executor.
 
+## Features
+
+This crate has a lot of features. Lets go over them:
+
+### General features
+- `tracing`: when enabled, all traits are re-implemented for [`tracing-futures::Instrumented`] and [`tracing-futures::WithDispatch`].
+- `timer`  : Provides executor's with timer support. For executors that don't have built in timers, the _future-timer_ crate is used.
+
+### Executor specific:
+- `async_global`      : Turns on the executor from [_async-global-executor_](https://docs.rs/async-global-executor).
+   Supports Wasm, `!Send` tasks.
+- `async_global_tokio`: Makes sure a tokio reactor is running for tasks spawned on [`AsyncGlobal`].
+- `async_std`         : Turns on the executor from the [_async-std_](https://docs.rs/async-std) crate. Supports Wasm and `!Send` tasks.
+- `async_std_tokio`   : Makes sure a tokio reactor is running for tasks spawned on [`AsyncStd`].
+- `glommio`           : Turns on the executor from the [_glommio_](https://docs.rs/glommio) crate. Single threaded, Linux 5.8+ only. Supports `!Send` tasks.
+- `tokio_ct`          : Tokio Current thread, enables a single threaded runtime from the [_tokio_](https://docs.rs/tokio) crate. Supports `!Send` tasks.
+- `tokio_tp`          : Tokio threadpool, enables a threadpool runtime from the [_tokio_](https://docs.rs/tokio) crate.
+- `tokio_timer`       : Will enable the `time` feature on _tokio_ and call `enable_time()` on any tokio runtimes you create. For tokio runtimes, this takes precedence over the `timer` feature.
+- `tokio_io`          : Will enable the `net` and `process` features on _tokio_ and call `enable_reactor()` on any tokio runtimes you create.
+- `localpool`         : Enables the single threaded executor from [_futures-executor_](http://docs.rs/futures-executor). Supports `!Send` tasks. `LocalPool` and `LocalSpawner` will be re-exported from this crate and have our traits implemented.
+- `threadpool`        : Enables the treadpool executor from [_futures-executor_](http://docs.rs/futures-executor). `ThreadPool` will be re-exported from this crate and have our traits implemented.
+- `bindgen`           : Enables the single threaded executor from [_wasm-bindgen-futures_](https://docs.rs/wasm-bindgen-futures). Wasm only. Supports `!Send` tasks.
+
+
+
 ## Security
 
 The crate itself uses `#[ forbid(unsafe_code) ]`.
@@ -96,7 +110,6 @@ Existing benchmarks for all executors can be found in [executor_benchmarks](http
 
 These are some features that aren't provided yet but that are on the todo list:
 
-- an agnostic timeout mechanism.
 - an agnostic interface for `spawn_blocking`.
 
 
@@ -108,11 +121,11 @@ When writing a library that needs to spawn, you probably shouldn't lock your cli
 
 In order to get round this you can take an executor in as a parameter from client code and spawn your futures on the provided executor. Currently the only two traits that are kind of widely available for this are `Spawn` and `LocalSpawn` from the _futures_ library. Unfortunately, other executor providers do not implement these traits. So by publishing an API that relies on these traits, you would have been restricting the clients to use the executors from _futures_, or start implementing their own wrappers that implement the traits.
 
-_Async_executors_ has wrappers providing impls on various executors, namely _tokio_, _async_std_, _wasm_bindgen_. As such you can just use the trait bounds and refer your users to this crate if they want to use any of the supported executors.
+_Async_executors_ has wrappers providing impls on various executors, namely _tokio_, _async_std_, _wasm_bindgen_, ... As such you can just use the trait bounds and refer your users to this crate if they want to use any of the supported executors.
 
 All wrappers also implement `Clone`, `Debug` and the zero sized ones also `Copy`. You can express you will need to clone in your API: `impl Spawn + Clone`.
 
-Note that you should never use `block_on` inside async contexts. Some backends we use like _tokio_ and `RemoteHandle` from _futures_ use `catch_unwind`, so try to keep futures unwind safe.
+Note that you should never use `block_on` inside async contexts. Depending on the executor, this might hang or panic. Some backends we use like _tokio_ and `RemoteHandle` from _futures_ use `catch_unwind`, so try to keep futures unwind safe.
 
 #### Spawning with handles
 
@@ -168,6 +181,22 @@ fn main()
 }
 ```
 
+As you can see from the above example, the output of the future is a type parameter on `SpawnHandle`. This is necessary because putting it on the method would make the trait no longer object safe, which means it couldn't be stored unless as a type parameter.
+
+The best way to define a combination of abilities you need is by making your own trait alias:
+
+```rust, ignore
+trait_set!
+{
+   pub trait LibExec = SpawnHandle<()> + SpawnHandle<u8> + Timer + YieldNow + Clone;
+}
+
+pub fn lib_function( exec: impl LibExec ) { ... }
+
+```
+
+All implementers of `SpawnHandle` must support any output type. Thus adding more `SpawnHandle` bounds to `LibExec` should not be a breaking change.
+
 
 ### For API consumers
 
@@ -177,6 +206,9 @@ You can basically pass the wrapper types provided in _async_executors_ to API's 
   - `impl LocalSpawn`
   - `impl SpawnHandle<T>`
   - `impl LocalSpawnHandle<T>`
+  - `impl YieldNow`
+  - `impl Timer`
+  - `impl TokioIo`
 
 All wrappers also implement `Clone`, `Debug` and the zero sized ones also `Copy`.
 
@@ -197,6 +229,9 @@ fn needs_exec( exec: impl SpawnHandle<()> + SpawnHandle<String> ){};
 //
 needs_exec( AsyncStd );
 
+// We need a builder type for tokio, as we guarantee by the type of TokioTp that it
+// will be a threadpool.
+//
 let tp = TokioTpBuilder::new().build().expect( "build threadpool" );
 
 needs_exec( tp );

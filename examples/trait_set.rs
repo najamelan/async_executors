@@ -16,7 +16,7 @@ use
 //
 trait_set!
 {
-	pub trait CustomSpawnHandle = SpawnHandle<String> + SpawnHandle<u8> + Send + Sync
+	pub trait CustomSpawnHandle = SpawnHandle<String> + SpawnHandle<u8> + Send + Sync;
 }
 
 

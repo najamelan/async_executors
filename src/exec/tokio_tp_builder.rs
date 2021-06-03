@@ -15,6 +15,8 @@ use
 //
 #[ derive(Debug) ]
 //
+#[ cfg_attr( nightly, doc(cfg( feature = "tokio_tp" )) ) ]
+//
 pub struct TokioTpBuilder
 {
 	builder: Builder,

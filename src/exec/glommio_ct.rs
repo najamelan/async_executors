@@ -19,7 +19,7 @@ use
 ///
 /// # Panics
 ///
-/// Calling spawn from outside [block_on] will panic.
+/// Calling spawn from outside [`block_on`](GlommioCt::block_on) will panic.
 //
 #[ derive(Debug, Clone) ]
 //
@@ -33,7 +33,7 @@ pub struct GlommioCt
 
 impl GlommioCt
 {
-	/// Create an executor. Note: in order to spawn you need to run [block_on].
+	/// Create an executor. Note: in order to spawn you need to run [`block_on`](Self::block_on).
 	//
 	pub fn new( builder: LocalExecutorBuilder ) -> Result< Self, GlommioError<()> >
 	{

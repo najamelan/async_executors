@@ -1,3 +1,5 @@
+#![ cfg_attr( nightly, doc(cfg( feature = "tracing" )) ) ]
+//
 use
 {
 	futures_util    :: { future::{ FutureExt }                                               } ,

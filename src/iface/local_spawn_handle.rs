@@ -23,7 +23,7 @@ pub trait LocalSpawnHandle<Out: 'static>
 }
 
 
-/// Lets you spawn a !Send future and get a [JoinHandle] to await the output of a future.
+/// Lets you spawn a `!Send` future and get a [`JoinHandle`] to await the output of a future.
 //
 pub trait LocalSpawnHandleExt<Out: 'static> : LocalSpawnHandle<Out>
 {

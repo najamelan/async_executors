@@ -39,18 +39,3 @@ pub trait Timer
 	//
 	fn sleep( &self, dur: Duration ) -> Self::SleepFuture;
 }
-
-
-/// Helper functions for timers. This is automatically implemented on all executors
-/// that implement [Timer].
-//
-pub trait TimerExt
-{
-
-}
-
-
-impl<T> TimerExt for T where T: Timer
-{
-
-}

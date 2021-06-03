@@ -13,11 +13,9 @@ pub use timer::*;
 
 
 /// Trait indicating that tokio IO can be used with the executor that
-/// implements it. Thus when a library requests a `impl Spawn + TokioIo` it is
-/// not executor agnostic but it will still benefit from the `Spawn` implementation.
+/// implements it. Currently this can be enabled through features on [`TokioCt`](crate::TokioCt),
+/// [`TokioTp`](crate::TokioTp), [`AsyncGlobal`](crate::AsyncGlobal) and [`AsyncStd`](crate::AsyncStd).
 ///
-/// This means that the network types from tokio (eg. `TcpStream`) will work.
-/// This crate turns on both the `net` and `process` features of tokio when
-/// the `tokio_reactor` feature is enabled.
+/// This means a tokio reactor will be running and that the network types from tokio (eg. `TcpStream`) will work.
 //
 pub trait TokioIo {}
