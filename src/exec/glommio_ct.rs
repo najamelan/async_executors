@@ -1,10 +1,10 @@
 use
 {
-	crate         :: { LocalSpawnHandle, SpawnHandle, JoinHandle, GlommioIo, YieldNow } ,
-	std           :: { future::Future, rc::Rc                                         } ,
-	futures_task  :: { FutureObj, LocalSpawn,  Spawn, SpawnError                      } ,
-	futures_util  :: { FutureExt, task::LocalSpawnExt, future::LocalFutureObj         } ,
-	glommio_crate :: { LocalExecutor, LocalExecutorBuilder, GlommioError, Task        } ,
+	crate         :: { LocalSpawnHandle, SpawnHandle, JoinHandle, YieldNow     } ,
+	std           :: { future::Future, rc::Rc                                  } ,
+	futures_task  :: { FutureObj, LocalSpawn,  Spawn, SpawnError               } ,
+	futures_util  :: { FutureExt, task::LocalSpawnExt, future::LocalFutureObj  } ,
+	glommio_crate :: { LocalExecutor, LocalExecutorBuilder, GlommioError, Task } ,
 };
 
 
@@ -104,11 +104,6 @@ impl<Out: Send + 'static> SpawnHandle<Out> for GlommioCt
 		Ok( JoinHandle::remote_handle(handle) )
 	}
 }
-
-
-/// io_uring is always turned on on glommio.
-//
-impl GlommioIo for GlommioCt {}
 
 
 
