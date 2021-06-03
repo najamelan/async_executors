@@ -8,6 +8,8 @@ set -e
 #
 set -x
 
+export RUSTFLAGS="-D warnings"
+
 # only works on nightly because of features like doc_cfg and external_doc
 #
 cargo doc --all-features --no-deps
