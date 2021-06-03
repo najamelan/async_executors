@@ -24,7 +24,8 @@
 //
 // ✔ pass a TokioCt to a function that requires a Timer.
 // ✔ Verify TokioCt does not implement Timer when feature is not enabled.
-// ✔ Verify tokio_io works when the tokio_io feature is enabled.
+//
+// ✔ Verify tokio_io works        when the tokio_io feature is     enabled.
 // ✔ Verify tokio_io doesn't work when the tokio_io feature is not enabled.
 //
 // ✔ Joinhandle::detach allows task to keep running.
@@ -470,7 +471,7 @@ fn no_feature_no_timer()
 //
 #[ test ]
 //
-fn tokio_io() -> Result<(), DynError >
+fn tokio_io() -> DynResult<()>
 {
 	let exec = TokioCtBuilder::new().build()?;
 

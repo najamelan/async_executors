@@ -42,7 +42,7 @@ else # CI
 
 	# all features without glommio:
 	#
-	cargo test --features "async_global async_global_async_io async_global_tokio async_std async_std_tokio localpool threadpool tokio_ct tokio_tp tokio_io tokio_timer timer tracing bindgen notwasm"
+	cargo test --features "async_global async_global_tokio async_std async_std_tokio localpool threadpool tokio_ct tokio_tp tokio_io tokio_timer timer tracing bindgen notwasm"
 
 	cargo test --features "async_global async_std bindgen localpool threadpool tokio_ct tokio_tp"
 	cargo test --features "timer async_global async_std localpool threadpool tokio_ct tokio_tp"

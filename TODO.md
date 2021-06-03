@@ -12,6 +12,7 @@
   that instead of futures-timer.
 - clarify in docs how to avoid adding +SpawnHandle<SomeOut> become a breaking change in your API. That it is better to take a trait alias.
 - consistency of block_on fn, vs run_until. Probably add block_on to local spawner.
+- verify unwind safety of all our public types and make sure the traits are correctly implemented or not.
 
 - test for JoinHandle being Send when Out is Send. Currently was caught just by an example.
 - test what happens when creating 2 LocalExecutor in one thread.

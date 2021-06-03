@@ -144,16 +144,6 @@ impl std::fmt::Debug for AsyncStd
 
 /// Signal io can be used on this executor.
 //
-#[ cfg( not(target_arch = "wasm32") ) ]
-//
-#[ cfg_attr( nightly, doc(cfg( not(target_arch = "wasm32") )) ) ]
-//
-impl crate::AsyncIo for AsyncStd {}
-
-
-
-/// Signal io can be used on this executor.
-//
 #[ cfg(all( not(target_arch = "wasm32"), feature="async_std_tokio" )) ]
 //
 #[ cfg_attr( nightly, doc(cfg(all( not(target_arch = "wasm32"), feature="async_std_tokio" ))) ) ]

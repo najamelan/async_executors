@@ -35,7 +35,6 @@ use
 	futures         :: { channel::mpsc, StreamExt } ,
 	std             :: { time::Duration           } ,
 	futures_timer   :: { Delay                    } ,
-	async_std_crate as async_std,
 };
 
 
@@ -182,14 +181,13 @@ impl Drop for DropNotify
 // Make sure that a task that is currently waiting for it's waker to be woken up
 // get's dropped when JoinHandle is dropped.
 //
-#[ async_std::test ]
+#[ test ]
 //
-async fn join_handle_abort()
+fn join_handle_abort()
 {
-	let exec      = AsyncStd::default();
 	let (tx , rx) = oneshot::channel::<()>();
 
-	let join_handle = exec.spawn_handle( async move
+	let join_handle = AsyncStd.spawn_handle( async move
 	{
 		let _notify = DropNotify{ tx: Some(tx) };
 
@@ -200,29 +198,32 @@ async fn join_handle_abort()
 
 	}).expect( "spawn task" );
 
-	// Don't drop the handle before the task is scheduled by the executor.
-	//
-	Delay::new( Duration::from_millis(10) ).await;
 
-	drop( join_handle );
+	AsyncStd::block_on( async
+	{
+		// Don't drop the handle before the task is scheduled by the executor.
+		//
+		Delay::new( Duration::from_millis(10) ).await;
 
-	// This should not deadlock.
-	//
-	assert!( rx.await.is_ok() );
+		drop( join_handle );
+
+		// This should not deadlock.
+		//
+		assert!( rx.await.is_ok() );
+	})
 }
 
 
 // Joinhandle::detach does not aborts the task.
 //
-#[ async_std::test ]
+#[ test ]
 //
-async fn join_handle_detach()
+fn join_handle_detach()
 {
-	let exec              = AsyncStd::default();
 	let (out_tx , out_rx) = oneshot::channel::<()>();
 	let (in_tx  , in_rx ) = oneshot::channel::<()>();
 
-	let join_handle = exec.spawn_handle( async move
+	let join_handle = AsyncStd.spawn_handle( async move
 	{
 		in_rx.await.expect( "receive in" );
 
@@ -241,7 +242,7 @@ async fn join_handle_detach()
 
 	// This should not deadlock.
 	//
-	assert!( out_rx.await.is_ok() );
+	assert!( AsyncStd::block_on(out_rx).is_ok() );
 }
 
 
@@ -412,7 +413,7 @@ fn no_feature_no_timer()
 //
 #[ test ]
 //
-fn tokio_io() -> Result<(), DynError >
+fn tokio_io() -> DynResult<()>
 {
 	AsyncStd::block_on( tokio_io::tcp( AsyncStd ) )
 }

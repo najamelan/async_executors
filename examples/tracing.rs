@@ -3,7 +3,6 @@ use
 	async_executors :: { AsyncStd, SpawnHandle, SpawnHandleExt } ,
 	tracing_futures :: { Instrument                            } ,
 	tracing_crate   as tracing                                   ,
-	async_std_crate as async_std                                 ,
 };
 
 
@@ -17,9 +16,8 @@ async fn lib_function( exec: impl SpawnHandle<()> )
 }
 
 
-#[ async_std::main ]
-//
-async fn main()
+
+fn main()
 {
 	tracing_subscriber::fmt::Subscriber::builder()
 
@@ -29,7 +27,7 @@ async fn main()
 
 	let exec = AsyncStd.instrument( tracing::info_span!( "tracing-example" ) );
 
-	lib_function( exec ).await;
+	AsyncStd::block_on( lib_function(exec) );
 
 	tracing::info!( "end of main, not instrumented." );
 }

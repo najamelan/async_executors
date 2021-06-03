@@ -9,7 +9,7 @@ pub use
 };
 
 
-pub type DynError = Box<dyn std::error::Error + Send + Sync>;
+pub type DynResult<T> = Result< T, Box<dyn std::error::Error + Send + Sync> >;
 
 
 #[ cfg(not( target_arch = "wasm32" )) ]
@@ -27,7 +27,7 @@ pub mod tokio_io
 	/// Creates a connected pair of sockets.
 	/// Uses tokio tcp stream. This will only work if the reactor is running.
 	//
-	pub async fn socket_pair() -> Result<(TcpStream, TcpStream), DynError>
+	pub async fn socket_pair() -> DynResult< (TcpStream, TcpStream) >
 	{
 		// port 0 = let the OS choose
 		//
@@ -39,11 +39,11 @@ pub mod tokio_io
 	}
 
 
-	pub async fn tcp( exec: impl SpawnHandle< Result<(), DynError> > + TokioIo ) -> Result<(), DynError>
+	pub async fn tcp( exec: impl SpawnHandle< DynResult<()> > + TokioIo ) -> DynResult<()>
 	{
 		let test = async
 		{
-			let (mut one, mut two) = tokio_io::socket_pair().await?;
+			let (mut one, mut two) = socket_pair().await?;
 
 			one.write_u8( 5 ).await?;
 

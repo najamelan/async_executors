@@ -1,9 +1,9 @@
 use
 {
-	futures_util    :: { future::{ FutureExt }                            } ,
-	futures_task    :: { SpawnError, LocalFutureObj, FutureObj            } ,
-	crate           :: { JoinHandle, SpawnHandle, LocalSpawnHandle, Timer, AsyncIo, TokioIo } ,
-	tracing_futures :: { Instrument, Instrumented, WithDispatch           } ,
+	futures_util    :: { future::{ FutureExt }                                     } ,
+	futures_task    :: { SpawnError, LocalFutureObj, FutureObj                     } ,
+	crate           :: { JoinHandle, SpawnHandle, LocalSpawnHandle, Timer, TokioIo } ,
+	tracing_futures :: { Instrument, Instrumented, WithDispatch                    } ,
 };
 
 
@@ -78,10 +78,6 @@ impl<T> Timer for WithDispatch<T> where T: Timer
 	}
 }
 
-
-
-impl<T> AsyncIo for Instrumented<T> where T: AsyncIo {}
-impl<T> AsyncIo for WithDispatch<T> where T: AsyncIo {}
 
 impl<T> TokioIo for Instrumented<T> where T: TokioIo {}
 impl<T> TokioIo for WithDispatch<T> where T: TokioIo {}

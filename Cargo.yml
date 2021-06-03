@@ -77,11 +77,6 @@ features:
   async_global: [ async-global-executor ]
 
   # Make sure async-io is enabled on async-global-executor.
-  # This will implement AsyncIo on AsyncGlobal. Not available on Wasm.
-  #
-  async_global_async_io: [ async_global, async-global-executor/async-io ]
-
-  # Make sure async-io is enabled on async-global-executor.
   # This will implement TokioIo on AsyncGlobal. Not available on Wasm.
   #
   async_global_tokio: [ async_global, async-global-executor/tokio ]
@@ -185,10 +180,6 @@ dev-dependencies:
   tracing_crate     : { version: ^0.1, package: tracing }
   trait-set         : ^0.2
 
-  # pretty_assertions : ^0.6
-  # log               : ^0.4
-  # flexi_logger      : ^0.11
-
 
 build-dependencies:
 
@@ -221,8 +212,7 @@ target:
 
     dev-dependencies:
 
-      async_std_crate: { version: ^1, package: async-std, features: [ attributes, unstable ] }
-      tokio          : { version: ^1, features: [ io-util, net ]                             }
+      tokio          : { version: ^1, features: [ io-util, net ] }
       futures-timer  : ^3
 
 
