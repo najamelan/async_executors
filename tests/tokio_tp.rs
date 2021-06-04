@@ -12,8 +12,10 @@
 // ✔ pass a    &TokioTp  to a function that takes exec: `&dyn SpawnHandle`
 // ✔ pass a builder with some config set.
 //
+// ✔ pass an AsyncGlobal to a function that requires a SpawnBlocking.
 // ✔ pass an TokioTp to a function that requires a Timer.
 // ✔ Verify TokioTp does not implement Timer when feature is not enabled.
+// ✔ Verify Timeout future.
 //
 // ✔ Verify tokio_io         works when the tokio_io feature is     enabled.
 // ✔ Verify tokio_io doesn't work  when the tokio_io feature is not enabled.
@@ -230,6 +232,36 @@ fn timer_should_wake()
 	let exec = TokioTpBuilder::new().build().expect( "create tokio current thread" );
 
 	exec.block_on( timer_should_wake_up( exec.clone() ) );
+}
+
+
+
+// pass an TokioTp to a function that requires a Timer.
+//
+#[ cfg(any( feature="timer", feature="tokio_timer" )) ]
+//
+#[ test ]
+//
+fn run_timeout()
+{
+	let exec = &TokioTpBuilder::new().build().expect( "create tokio current thread" );
+
+	exec.block_on( timeout( exec ) );
+}
+
+
+
+// pass an TokioTp to a function that requires a Timer.
+//
+#[ cfg(any( feature="timer", feature="tokio_timer" )) ]
+//
+#[ test ]
+//
+fn run_dont_timeout()
+{
+	let exec = &TokioTpBuilder::new().build().expect( "create tokio current thread" );
+
+	exec.block_on( dont_timeout( exec ) );
 }
 
 

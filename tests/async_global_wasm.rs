@@ -22,6 +22,7 @@
 // ✔ pass a    &AsyncGlobal  to a function that takes exec:  `&dyn LocalSpawnHandle`
 //
 // ✔ pass an AsyncGlobal to a function that requires a Timer.
+// ✔ Verify Timeout future.
 //
 mod common;
 
@@ -360,5 +361,31 @@ fn spawn_handle_os_local()
 fn timer_should_wake_local()
 {
 	AsyncGlobal.spawn_local( timer_should_wake_up_local( AsyncGlobal ) ).expect( "spawn" );
+}
+
+
+
+// pass an AsyncGlobal to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ wasm_bindgen_test ]
+//
+fn run_timeout()
+{
+	AsyncGlobal.spawn_local( timeout( AsyncGlobal ) ).expect( "spawn" );
+}
+
+
+
+// pass an AsyncGlobal to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ wasm_bindgen_test ]
+//
+fn run_dont_timeout()
+{
+	AsyncGlobal.spawn_local( dont_timeout( AsyncGlobal ) ).expect( "spawn" );
 }
 

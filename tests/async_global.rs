@@ -20,8 +20,11 @@
 // ✔ pass an Rc<AsyncGlobal> to a function that takes exec: `impl LocalSpawnHandle`
 // ✔ pass a    &AsyncGlobal  to a function that takes exec: `&dyn LocalSpawnHandle`
 //
+// ✔ pass an AsyncGlobal to a function that requires a SpawnBlocking.
 // ✔ pass an AsyncGlobal to a function that requires a Timer.
 // ✔ Verify AsyncGlobal does not implement Timer when feature is not enabled.
+// ✔ Verify Timeout future.
+//
 // ✔ Verify tokio_io works        when the async_global_tokio feature is enabled.
 // ✔ Verify tokio_io doesn't work when the async_global_tokio feature is not enabled.
 //
@@ -404,6 +407,17 @@ fn timer_should_wake()
 
 
 
+// pass an AsyncGlobal to a function that requires a SpawnBlocking.
+//
+#[ test ]
+//
+fn spawn_blocking() -> DynResult<()>
+{
+	AsyncGlobal::block_on( blocking( AsyncGlobal ) )
+}
+
+
+
 // pass an AsyncGlobal to a function that requires a Timer.
 //
 #[ cfg( feature = "timer" ) ]
@@ -419,11 +433,26 @@ fn timer_should_wake_local()
 
 // pass an AsyncGlobal to a function that requires a Timer.
 //
+#[ cfg( feature = "timer" ) ]
+//
 #[ test ]
 //
-fn spawn_blocking() -> DynResult<()>
+fn run_timeout()
 {
-	AsyncGlobal::block_on( blocking( AsyncGlobal ) )
+	AsyncGlobal::block_on( timeout( AsyncGlobal ) );
+}
+
+
+
+// pass an AsyncGlobal to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn run_dont_timeout()
+{
+	AsyncGlobal::block_on( dont_timeout( AsyncGlobal ) );
 }
 
 

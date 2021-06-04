@@ -269,6 +269,30 @@ pub async fn timer_should_wake_up_local( exec: impl LocalSpawnHandle<()> + Clone
 
 
 
+
+// Use timeout.
+//
+pub async fn timeout( exec: impl Timer )
+{
+	let fut = exec.sleep  ( Duration::from_millis(80)      );
+	let fut = exec.timeout( Duration::from_millis(20), fut );
+
+	assert!( fut.await.is_err() );
+}
+
+
+// Use timeout.
+//
+pub async fn dont_timeout( exec: impl Timer )
+{
+	let fut = exec.sleep  ( Duration::from_millis(20)      );
+	let fut = exec.timeout( Duration::from_millis(80), fut );
+
+	assert!( fut.await.is_ok() );
+}
+
+
+
 // Use same exec to run this function as you pass in.
 //
 pub async fn try_yield_now( exec: impl SpawnHandle<()> + YieldNow ) -> DynResult<()>

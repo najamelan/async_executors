@@ -8,6 +8,7 @@
 //
 // ✔ pass an ThreadPool to a function that requires a Timer.
 // ✔ Verify ThreadPool does not implement Timer when feature is not enabled.
+// ✔ Verify Timeout future.
 //
 mod common;
 
@@ -101,6 +102,36 @@ fn timer_should_wake()
 	let exec = ThreadPool::new().expect( "create threadpool" );
 
 	block_on( timer_should_wake_up( exec ) );
+}
+
+
+
+// pass an ThreadPool to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn run_timeout()
+{
+	let exec = ThreadPool::new().expect( "create threadpool" );
+
+	block_on( timeout( exec ) );
+}
+
+
+
+// pass an ThreadPool to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn run_dont_timeout()
+{
+	let exec = ThreadPool::new().expect( "create threadpool" );
+
+	block_on( dont_timeout( exec ) );
 }
 
 

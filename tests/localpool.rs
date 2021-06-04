@@ -13,6 +13,7 @@
 // ✔ pass an LocalPool to a function that requires a Timer.
 // ✔ Verify LocalPool    does not implement Timer when feature is not enabled.
 // ✔ Verify LocalSpawner does not implement Timer when feature is not enabled.
+// ✔ Verify Timeout future.
 //
 mod common;
 
@@ -161,6 +162,38 @@ fn timer_should_wake()
 	let     exec = wrap.spawner();
 
 	wrap.run_until( timer_should_wake_up_local( exec ) );
+}
+
+
+
+// pass an LocalSpawner to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn run_timeout()
+{
+	let mut wrap = LocalPool::new();
+	let     exec = wrap.spawner();
+
+	wrap.run_until( timeout( exec ) );
+}
+
+
+
+// pass an LocalSpawner to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn run_dont_timeout()
+{
+	let mut wrap = LocalPool::new();
+	let     exec = wrap.spawner();
+
+	wrap.run_until( dont_timeout( exec ) );
 }
 
 

@@ -24,6 +24,7 @@
 // ✔ pass a   &GlommioCt  to a function that takes exec: `&dyn LocalSpawnHandle`
 
 // ✔ pass an GommioCt to a function that requires a Timer.
+// ✔ Verify Timeout future.
 //
 // ✔ Joinhandle::detach allows task to keep running.
 // - Test cpu pinning.
@@ -467,4 +468,34 @@ fn timer_should_wake_local()
 {
 	let exec = GlommioCt::new( LocalExecutorBuilder::new() ).expect( "create exec" );
 	exec.block_on( timer_should_wake_up_local( exec.clone() ) );
+}
+
+
+
+// pass an GlommioCt to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn run_timeout()
+{
+	let exec = &GlommioCt::new( LocalExecutorBuilder::new() ).expect( "create exec" );
+
+	exec.block_on( timeout( exec ) );
+}
+
+
+
+// pass an GlommioCt to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn run_dont_timeout()
+{
+	let exec = &GlommioCt::new( LocalExecutorBuilder::new() ).expect( "create exec" );
+
+	exec.block_on( dont_timeout( exec ) );
 }

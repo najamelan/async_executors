@@ -22,6 +22,7 @@
 //
 // ✔ pass an Bindgen to a function that requires a Timer.
 // ✔ Verify Bindgen does not implement Timer when feature is not enabled.
+// ✔ Verify Timeout future.
 //
 mod common;
 

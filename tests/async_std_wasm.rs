@@ -22,6 +22,7 @@
 // ✔ pass a    &AsyncStd  to a function that takes exec:  `&dyn LocalSpawnHandle`
 //
 // ✔ pass an AsyncStd to a function that requires a Timer.
+// ✔ Verify Timeout future.
 //
 mod common;
 
@@ -358,4 +359,28 @@ fn timer_should_wake_local()
 {
 	AsyncStd.spawn_local( timer_should_wake_up_local( AsyncStd ) ).expect( "spawn future" );
 }
+
+
+
+// pass an AsyncStd to a function that requires a Timer.
+//
+#[ wasm_bindgen_test ]
+//
+fn run_timeout()
+{
+	AsyncStd.spawn_local( timeout( AsyncStd ) ).expect( "spawn" );
+}
+
+
+
+// pass an AsyncStd to a function that requires a Timer.
+//
+#[ wasm_bindgen_test ]
+//
+fn run_dont_timeout()
+{
+	AsyncStd.spawn_local( dont_timeout( AsyncStd ) ).expect( "spawn" );
+}
+
+
 

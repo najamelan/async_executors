@@ -11,6 +11,7 @@ rustc_version = "^0.3"
 
 [dependencies]
 blanket = "^0.1"
+pin-project = "^1"
 
 [dependencies.async-global-executor]
 default-features = false
@@ -42,10 +43,6 @@ version = "^0.3"
 optional = true
 package = "glommio"
 version = "^0.4"
-
-[dependencies.pin-utils]
-optional = true
-version = "^0.1"
 
 [dependencies.tokio]
 optional = true
