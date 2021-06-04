@@ -38,7 +38,7 @@ fn unpin_handle()
 	let join_handle = exec.spawn_handle( async { Boon } ).expect( "spawn" );
 
 	assert_unpin( &join_handle );
-	let t = AsyncStd::block_on( join_handle );
+	let t = block_on( join_handle );
 
 	assert_eq!( Boon, t );
 }
