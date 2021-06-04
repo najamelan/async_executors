@@ -170,7 +170,7 @@ targets = []
 [patch.crates-io]
 [patch.crates-io.blanket]
 git = "https://github.com/najamelan/blanket"
-rev = "411eee2"
+rev = "46cb0"
 version = "^0.1"
 
 [profile]

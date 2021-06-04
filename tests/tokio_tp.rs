@@ -247,6 +247,20 @@ fn no_feature_no_timer()
 
 
 
+
+// pass an TokioTp to a function that requires a Timer.
+//
+#[ test ]
+//
+fn spawn_blocking() -> DynResult<()>
+{
+	let exec = &TokioTpBuilder::new().build()?;
+
+	exec.block_on( blocking( exec ) )
+}
+
+
+
 // Verify tokio_io works when the tokio_io feature is enabled.
 //
 #[ cfg( feature = "tokio_io" ) ]

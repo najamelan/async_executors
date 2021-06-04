@@ -417,6 +417,17 @@ fn timer_should_wake_local()
 
 
 
+// pass an AsyncGlobal to a function that requires a Timer.
+//
+#[ test ]
+//
+fn spawn_blocking() -> DynResult<()>
+{
+	AsyncGlobal::block_on( blocking( AsyncGlobal ) )
+}
+
+
+
 // Verify AsyncGlobal does not implement Timer when feature is not enabled.
 //
 #[ cfg(not( feature = "timer" )) ]

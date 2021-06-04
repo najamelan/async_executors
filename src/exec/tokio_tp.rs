@@ -2,10 +2,10 @@
 //
 use
 {
-	crate          :: { SpawnHandle, JoinHandle      } ,
-	std            :: { sync::Arc, future::Future    } ,
-	futures_task   :: { FutureObj, Spawn, SpawnError } ,
-	tokio::runtime :: { Runtime                      } ,
+	crate          :: { SpawnHandle, JoinHandle, BlockingHandle } ,
+	std            :: { sync::Arc, future::Future               } ,
+	futures_task   :: { FutureObj, Spawn, SpawnError            } ,
+	tokio::runtime :: { Runtime                                 } ,
 };
 
 
@@ -185,6 +185,21 @@ impl<Out: 'static + Send> SpawnHandle<Out> for TokioTp
 
 
 impl crate::YieldNow for TokioTp {}
+
+
+
+impl crate::SpawnBlocking for TokioTp
+{
+	fn spawn_blocking<F, R>( &self, f: F ) -> BlockingHandle<R>
+
+		where F: FnOnce() -> R + Send + 'static ,
+	         R: Send + 'static                 ,
+	{
+		let handle = self.exec.as_ref().unwrap().spawn_blocking( f );
+
+		BlockingHandle::tokio( handle )
+	}
+}
 
 
 

@@ -8,6 +8,7 @@
 - consistency of block_on fn, vs run_until. Probably add block_on to local spawner.
 - verify unwind safety of all our public types and make sure the traits are correctly implemented or not.
 - Add a timeout future.
+- pass on traits to Nursery in async_nursery where possible.
 
 - test for JoinHandle being Send when Out is Send. Currently was caught just by an example.
 - test what happens when creating 2 LocalExecutor in one thread.

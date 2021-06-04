@@ -5,21 +5,9 @@ use
 	std         :: { future::Future, sync::atomic::{ AtomicBool, Ordering } } ,
 	std         :: { task::{ Poll, Context }, pin::Pin                      } ,
 	futures_util:: { future::{ AbortHandle, Aborted, RemoteHandle }, ready  } ,
+	super :: *,
 };
 
-
-
-#[ cfg( feature = "async_global" ) ]
-//
-use async_global_executor::{ Task as AsyncGlobalTask };
-
-#[ cfg( feature = "async_std" ) ]
-//
-use async_std_crate::{ task::JoinHandle as AsyncStdJoinHandle };
-
-#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
-//
-use tokio::{ task::JoinHandle as TokioJoinHandle };
 
 
 
@@ -214,7 +202,7 @@ impl<T: 'static> Future for JoinHandle<T>
 
 					Err(e) =>
 					{
-						panic!( "Task has been canceled. Are you dropping the executor to early? Error: {}", e );
+						panic!( "Task has been canceled or it has panicked. Are you dropping the executor to early? Error: {}", e );
 					}
 				}
 			}

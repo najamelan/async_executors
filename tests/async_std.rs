@@ -408,6 +408,17 @@ fn no_feature_no_timer()
 
 
 
+// pass an AsyncStd to a function that requires a Timer.
+//
+#[ test ]
+//
+fn spawn_blocking() -> DynResult<()>
+{
+	AsyncStd::block_on( blocking( AsyncStd ) )
+}
+
+
+
 // Verify tokio_io works when the async_std_tokio feature is enabled.
 //
 #[ cfg(all( not(target_arch = "wasm32"), feature = "async_std_tokio" )) ]

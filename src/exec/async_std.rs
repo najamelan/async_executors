@@ -1,6 +1,6 @@
 use
 {
-	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle                } ,
+	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle,               } ,
 	futures_task :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError } ,
 	futures_util :: { future::abortable                                        } ,
 	std          :: { future::Future, pin::Pin, time::Duration                 } ,
@@ -134,6 +134,23 @@ impl LocalSpawn for AsyncStd
 
 
 impl crate::YieldNow for AsyncStd {}
+
+
+
+#[ cfg( not(target_arch = "wasm32") ) ]
+//
+impl crate::SpawnBlocking for AsyncStd
+{
+	fn spawn_blocking<F, R>( &self, f: F ) -> crate::BlockingHandle<R>
+
+		where F: FnOnce() -> R + Send + 'static ,
+	         R: Send + 'static                 ,
+	{
+		let handle = async_std::task::spawn_blocking( f );
+
+		crate::BlockingHandle::async_std( handle )
+	}
+}
 
 
 

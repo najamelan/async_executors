@@ -264,4 +264,4 @@ patch:
 
   crates-io:
 
-    blanket: { version: ^0.1, git: "https://github.com/najamelan/blanket", rev: 411eee2 }
+    blanket: { version: ^0.1, git: "https://github.com/najamelan/blanket", rev: 46cb0 }

@@ -127,6 +127,25 @@ impl LocalSpawn for AsyncGlobal
 impl crate::YieldNow for AsyncGlobal {}
 
 
+
+#[ cfg( not(target_arch = "wasm32") ) ]
+//
+impl crate::SpawnBlocking for AsyncGlobal
+{
+	fn spawn_blocking<F, R>( &self, f: F ) -> crate::BlockingHandle<R>
+
+		where F: FnOnce() -> R + Send + 'static ,
+	         R: Send + 'static                 ,
+	{
+		let handle = async_global::spawn_blocking( f );
+
+		crate::BlockingHandle::async_global( Box::pin( handle ) )
+	}
+}
+
+
+
+
 impl std::fmt::Debug for AsyncGlobal
 {
 	fn fmt( &self, f: &mut std::fmt::Formatter<'_> ) -> std::fmt::Result
