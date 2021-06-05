@@ -20,7 +20,8 @@
 // ✔ pass a  Rc<Bindgen> to a function that takes exec:  `impl LocalSpawnHandle`
 // ✔ pass a    &Bindgen  to a function that takes exec:  `&dyn LocalSpawnHandle`
 //
-// ✔ pass an Bindgen to a function that requires a Timer.
+// ✔ pass a Bindgen to a function that requires a YieldNow.
+// ✔ pass a Bindgen to a function that requires a Timer.
 // ✔ Verify Bindgen does not implement Timer when feature is not enabled.
 // ✔ Verify Timeout future.
 //
@@ -414,6 +415,32 @@ fn yield_run_subtask_last()
 fn timer_should_wake_local()
 {
 	Bindgen.spawn_local( timer_should_wake_up_local( Bindgen ) ).expect( "spawn" );
+}
+
+
+
+// Verify timeout future.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ wasm_bindgen_test ]
+//
+fn run_timeout()
+{
+	Bindgen.spawn_local( timeout( Bindgen ) ).expect( "spawn" );
+}
+
+
+
+// Verify timeout future.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ wasm_bindgen_test ]
+//
+fn run_dont_timeout()
+{
+	Bindgen.spawn_local( dont_timeout( Bindgen ) ).expect( "spawn" );
 }
 
 

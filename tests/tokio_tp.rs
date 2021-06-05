@@ -12,8 +12,8 @@
 // ✔ pass a    &TokioTp  to a function that takes exec: `&dyn SpawnHandle`
 // ✔ pass a builder with some config set.
 //
-// ✔ pass an AsyncGlobal to a function that requires a SpawnBlocking.
-// ✔ pass an TokioTp to a function that requires a Timer.
+// ✔ pass a TokioTp to a function that requires a SpawnBlocking.
+// ✔ pass a TokioTp to a function that requires a Timer.
 // ✔ Verify TokioTp does not implement Timer when feature is not enabled.
 // ✔ Verify Timeout future.
 //
@@ -280,7 +280,7 @@ fn no_feature_no_timer()
 
 
 
-// pass an TokioTp to a function that requires a Timer.
+// pass a TokioTp to a function that requires SpawnBlocking.
 //
 #[ test ]
 //

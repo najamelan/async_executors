@@ -22,6 +22,7 @@
 //
 // ✔ we can spawn without being in a future running on block_on.
 //
+// ✔ pass a TokioCt to a function that requires a YieldNow.
 // ✔ pass a TokioCt to a function that requires a SpawnBlocking.
 // ✔ pass a TokioCt to a function that requires a Timer.
 // ✔ Verify TokioCt does not implement Timer when feature is not enabled.

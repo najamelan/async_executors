@@ -21,6 +21,7 @@
 // ✔ pass a  Rc<AsyncGlobal> to a function that takes exec:  `impl LocalSpawnHandle`
 // ✔ pass a    &AsyncGlobal  to a function that takes exec:  `&dyn LocalSpawnHandle`
 //
+// ✔ pass an AsyncGlobal to a function that requires a YieldNow.
 // ✔ pass an AsyncGlobal to a function that requires a Timer.
 // ✔ Verify Timeout future.
 //
@@ -352,6 +353,32 @@ fn spawn_handle_os_local()
 
 
 
+// pass a AsyncGlobal to a function that requires a YieldNow.
+//
+#[ wasm_bindgen_test ]
+//
+fn yield_run_subtask_first()
+{
+	let task = async{ try_yield_now( AsyncGlobal ).await.expect( "yield_now" ); };
+
+	AsyncGlobal.spawn_local( task ).expect( "spawn" );
+}
+
+
+
+// pass a AsyncGlobal to a function that requires a YieldNow.
+//
+#[ wasm_bindgen_test ]
+//
+fn yield_run_subtask_last()
+{
+	let task = async{ without_yield_now( AsyncGlobal ).await.expect( "yield_now" ); };
+
+	AsyncGlobal.spawn_local( task ).expect( "spawn" );
+}
+
+
+
 // pass an AsyncGlobal to a function that requires a Timer.
 //
 #[ cfg( feature = "timer" ) ]
@@ -365,7 +392,7 @@ fn timer_should_wake_local()
 
 
 
-// pass an AsyncGlobal to a function that requires a Timer.
+// Verify timeout future.
 //
 #[ cfg( feature = "timer" ) ]
 //
@@ -378,7 +405,7 @@ fn run_timeout()
 
 
 
-// pass an AsyncGlobal to a function that requires a Timer.
+// Verify timeout future.
 //
 #[ cfg( feature = "timer" ) ]
 //
