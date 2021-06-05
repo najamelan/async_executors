@@ -22,6 +22,7 @@
 //
 // ✔ we can spawn without being in a future running on block_on.
 //
+// ✔ pass a TokioCt to a function that requires a SpawnBlocking.
 // ✔ pass a TokioCt to a function that requires a Timer.
 // ✔ Verify TokioCt does not implement Timer when feature is not enabled.
 // ✔ Verify Timeout future.
@@ -460,6 +461,20 @@ fn yield_run_subtask_last() -> DynResult<()>
 	let exec = &TokioCtBuilder::new().build().expect( "create tokio threadpool" );
 
 	exec.block_on( without_yield_now( exec ) )
+}
+
+
+
+
+// pass a TokioCt to a function that requires a SpawnBlocking.
+//
+#[ test ]
+//
+fn spawn_blocking() -> DynResult<()>
+{
+	let exec = &TokioCtBuilder::new().build()?;
+
+	exec.block_on( blocking( exec ) )
 }
 
 
