@@ -10,7 +10,7 @@ repository = "najamelan/async_executors"
 rustc_version = "^0.3"
 
 [dependencies]
-blanket = "^0.1"
+blanket = "^0.2"
 pin-project = "^1"
 
 [dependencies.async-global-executor]
@@ -162,13 +162,6 @@ version = "0.4.1"
 [package.metadata.docs.rs]
 all-features = true
 targets = []
-
-[patch]
-[patch.crates-io]
-[patch.crates-io.blanket]
-git = "https://github.com/najamelan/blanket"
-rev = "46cb0"
-version = "^0.1"
 
 [profile]
 [profile.release]

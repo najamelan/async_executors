@@ -159,13 +159,13 @@ dependencies:
   tracing-futures     : { version: ^0.2, optional: true, features: [futures-03] }
   glommio_crate       : { version: ^0.4, optional: true, package: glommio       }
   tokio               : { version: ^1  , optional: true                         }
-  blanket             : ^0.1
 
   # Private deps
   #
   async-global-executor : { version: ^2    , optional: true, default-features: false }
   async_std_crate       : { version: ^1.6  , optional: true, package: async-std, features: [ unstable ] }
   pin-project           : ^1
+  blanket               : ^0.2
 
   # necessary for the crate to compile for `cargo doc`
   #
@@ -258,10 +258,3 @@ example:
   - name             : yield_now
     path             : examples/yield_now.rs
     required-features: [ notwasm, tokio_ct ]
-
-
-patch:
-
-  crates-io:
-
-    blanket: { version: ^0.1, git: "https://github.com/najamelan/blanket", rev: 46cb0 }
