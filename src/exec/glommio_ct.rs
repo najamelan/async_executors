@@ -120,7 +120,27 @@ impl crate::Timer for GlommioCt
 }
 
 
-impl YieldNow for GlommioCt {}
+impl YieldNow for GlommioCt
+{
+	/// Await this future in order to yield to the executor.
+	//
+	fn yield_now( &self ) -> crate::YieldNowFut
+	{
+		// only yield if any other tasks are waiting.
+		//
+		if glommio_crate::Local::need_preempt()
+		{
+			crate::YieldNowFut{ done: false }
+		}
+
+		else
+		{
+			// This will return Ready immediately.
+			//
+			crate::YieldNowFut{ done: true }
+		}
+	}
+}
 
 
 

@@ -436,8 +436,12 @@ fn join_handle_detach()
 //
 fn yield_run_subtask_first() -> DynResult<()>
 {
-	let builder = LocalExecutorBuilder::new();
-	let exec    = &GlommioCt::new( builder )?;
+	let builder = LocalExecutorBuilder::new()
+
+		.preempt_timer( std::time::Duration::from_millis(20) )
+	;
+
+	let exec = &GlommioCt::new( builder )?;
 
 	exec.block_on( try_yield_now( exec ) )
 }
@@ -450,8 +454,12 @@ fn yield_run_subtask_first() -> DynResult<()>
 //
 fn yield_run_subtask_last() -> DynResult<()>
 {
-	let builder = LocalExecutorBuilder::new();
-	let exec    = &GlommioCt::new( builder )?;
+	let builder = LocalExecutorBuilder::new()
+
+		.preempt_timer( std::time::Duration::from_millis(20) )
+	;
+
+	let exec = &GlommioCt::new( builder )?;
 
 	exec.block_on( without_yield_now( exec ) )
 }

@@ -30,7 +30,7 @@ pub trait YieldNow
 //
 pub struct YieldNowFut
 {
-	done: bool,
+	pub(crate) done: bool,
 }
 
 
