@@ -20,8 +20,6 @@ type BoxedFut<T> = Pin<Box< dyn Future<Output=T> + Send >>;
 //
 #[ derive( Debug ) ]
 //
-#[ must_use = "BlockingHandle will cancel your future when dropped unless you await it." ]
-//
 pub struct BlockingHandle<T>( InnerBh<T> );
 
 
