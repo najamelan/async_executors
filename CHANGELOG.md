@@ -3,16 +3,22 @@
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/najamelan/async_executors/compare/0.4.1...dev
+[Unreleased]: https://github.com/najamelan/async_executors/compare/0.4.2...dev
+
+
+## [0.4.2] - 2021-06-10
+
+[0.4.2]: https://github.com/najamelan/async_executors/compare/0.4.1...0.4.2
 
 ### Fixed
   - feature `external_doc` is removed in rustdoc 1.54.
 
 ### Added
-  - support for Glommio current thread executor.
+  - support for Glommio current thread executor. Thanks to @qiujiangkun.
   - `YieldNow` trait.
   - `SpawnBlocking` trait and `BlockingHandle`.
-  - `Timer` trait for agnostic sleep and timeout.
+  - `Timer` trait for agnostic sleep and timeout. Thanks to @nmathewson for sharing
+    their work on tor-rtcompat.
   - `TokioIo` trait.
 
 
