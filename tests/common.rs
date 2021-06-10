@@ -309,7 +309,11 @@ pub async fn try_yield_now( exec: impl SpawnHandle<()> + YieldNow ) -> DynResult
 
 	// glommio will only yield if we have been running sufficiently long.
 	//
+	#[ cfg( feature = "glommio" ) ]
+	//
 	std::thread::sleep( Duration::from_millis( 20 ) );
+
+
 	exec.yield_now().await;
 
 	// by now task should have run because of the yield_now.
