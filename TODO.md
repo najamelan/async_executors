@@ -1,14 +1,9 @@
 # TODO:
 
-- Timer HAS ASSOC TYPE. I think this will cause problems for object safety. Users now have to specify the associated type in order to store an executor.
 - clarify in docs and cargo.yml that it is LocalSpawner that is the executor and not LocalPool.
-- currently we don't require the Timer::SleepFuture to be Send on wasm. Is this the best approach? SendWrapper is
-  another approach, but that feels wrong too as these days you can have threads with webworkers on wasm too.
 - async-io also provides a timer. So maybe in async-global-executor if async-io is already enabled, we should use
   that instead of futures-timer.
-- consistency of block_on fn, vs run_until. Probably add block_on to local spawner.
 - verify unwind safety of all our public types and make sure the traits are correctly implemented or not.
-- Add a timeout future.
 - pass on traits to Nursery in async_nursery where possible.
 
 - test for JoinHandle being Send when Out is Send. Currently was caught just by an example.
@@ -19,16 +14,8 @@
   It would mean that API's that take in a LocalSpawnHandle can also use spawn_handle. Eg. nursery can impl Nurse also on
   an executor that is `impl LocalSpawnHandle<T>`. What does futures do with Spawn and LocalSpawn?
 
-- support smolscale?
-
 - wrapping the executors of the futures library would make it easier to interop with TokioCt if they were wrapped and we put block_on on the wrapper for consistent api. For running entire test suits on different executors for example. That is because with tokio ct you have to call block_on.
 
-- think about timers and timeout.
-
-- spawn_blocking? This is provided by tokio and async_std, but does not take a future, rather a closure.
-  However it still returns a joinhandle that must be awaited. So if we wrap that in our joinhandle type,
-  we now have inconsistent behavior, as both frameworks don't provide any way to cancel the closure when
-  the joinhandle get's dropped. We could make a JoinBlocking type?
 
 # Wrap up
 
