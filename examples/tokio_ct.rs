@@ -21,8 +21,8 @@ fn lib_function( exec: impl LocalSpawn, tx: Sender<String> )
 
 fn main()
 {
-	// You provide the builder, and async_executors will set the right scheduler.
-	// Of course you can set other configuration on the builder before.
+	// If you need to configure tokio, you can call `tokio_builder()` on TokioCtBuilder
+	// to get a `&mut tokio::runtimer::Builder`.
 	//
 	let exec = TokioCtBuilder::new().build().expect( "create tokio threadpool" );
 

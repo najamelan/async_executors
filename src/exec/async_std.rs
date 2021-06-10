@@ -1,9 +1,10 @@
 use
 {
-	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle, join_handle::InnerJh } ,
-	futures_task :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError        } ,
-	futures_util :: { future::abortable                                               } ,
-	std          :: { sync::atomic::AtomicBool                                        } ,
+	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle,               } ,
+	futures_task :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError } ,
+	futures_util :: { future::abortable                                        } ,
+
+	async_std_crate as async_std,
 };
 
 
@@ -37,7 +38,7 @@ impl AsyncStd
 	//
 	pub fn block_on<F: std::future::Future>(future: F) -> F::Output
 	{
-		async_std_crate::task::block_on( future )
+		async_std::task::block_on( future )
 	}
 }
 
@@ -49,7 +50,7 @@ impl Spawn for AsyncStd
 {
 	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
-		async_std_crate::task::spawn_local( future );
+		async_std::task::spawn_local( future );
 
 		Ok(())
 	}
@@ -63,7 +64,7 @@ impl Spawn for AsyncStd
 {
 	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
-		async_std_crate::task::spawn( future );
+		async_std::task::spawn( future );
 
 		Ok(())
 	}
@@ -78,18 +79,16 @@ impl<Out: 'static + Send> SpawnHandle<Out> for AsyncStd
 	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		let (fut, a_handle) = abortable( future );
+		let handle          = async_std::task::spawn( fut );
 
-		Ok( JoinHandle{ inner: crate::join_handle::InnerJh::AsyncStd
-		{
-			handle  : async_std_crate::task::spawn( fut ) ,
-			detached: AtomicBool::new( false )            ,
-			a_handle                                      ,
-		}})
+		Ok( JoinHandle::async_std(handle, a_handle) )
 	}
 }
 
 
 
+// async-std only exposes local_spawn on wasm.
+//
 #[ cfg( target_arch = "wasm32" ) ]
 //
 impl<Out: 'static + Send> SpawnHandle<Out> for AsyncStd
@@ -97,13 +96,10 @@ impl<Out: 'static + Send> SpawnHandle<Out> for AsyncStd
 	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		let (fut, a_handle) = abortable( future );
+		let handle          = async_std::task::spawn_local( fut );
 
-		Ok( JoinHandle{ inner: InnerJh::AsyncStd
-		{
-			handle  : async_std_crate::task::spawn_local( fut ) ,
-			detached: AtomicBool::new( false )                  ,
-			a_handle                                            ,
-		}})
+		Ok( JoinHandle::async_std(handle, a_handle) )
+
 	}
 }
 
@@ -114,13 +110,9 @@ impl<Out: 'static> LocalSpawnHandle<Out> for AsyncStd
 	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
 		let (fut, a_handle) = abortable( future );
+		let handle = async_std::task::spawn_local( fut );
 
-		Ok( JoinHandle{ inner: InnerJh::AsyncStd
-		{
-			handle  : async_std_crate::task::spawn_local( fut ) ,
-			detached: AtomicBool::new( false )            ,
-			a_handle                                      ,
-		}})
+		Ok( JoinHandle::async_std(handle, a_handle))
 	}
 }
 
@@ -132,11 +124,33 @@ impl LocalSpawn for AsyncStd
 	{
 		// We drop the JoinHandle, so the task becomes detached.
 		//
-		let _ = async_std_crate::task::spawn_local( future );
+		let _ = async_std::task::spawn_local( future );
 
 		Ok(())
 	}
 }
+
+
+
+impl crate::YieldNow for AsyncStd {}
+
+
+
+#[ cfg( not(target_arch = "wasm32") ) ]
+//
+impl crate::SpawnBlocking for AsyncStd
+{
+	fn spawn_blocking<F, R>( &self, f: F ) -> crate::BlockingHandle<R>
+
+		where F: FnOnce() -> R + Send + 'static ,
+	         R: Send + 'static                 ,
+	{
+		let handle = async_std::task::spawn_blocking( f );
+
+		crate::BlockingHandle::async_std( handle )
+	}
+}
+
 
 
 impl std::fmt::Debug for AsyncStd
@@ -146,3 +160,46 @@ impl std::fmt::Debug for AsyncStd
 		write!( f, "AsyncStd executor" )
 	}
 }
+
+
+
+/// Signal io can be used on this executor.
+//
+#[ cfg(all( not(target_arch = "wasm32"), feature="async_std_tokio" )) ]
+//
+#[ cfg_attr( nightly, doc(cfg(all( not(target_arch = "wasm32"), feature="async_std_tokio" ))) ) ]
+//
+impl crate::TokioIo for AsyncStd {}
+
+
+
+
+
+
+#[ cfg(not( target_arch = "wasm32" )) ]
+//
+impl crate::Timer for AsyncStd
+{
+	fn sleep( &self, dur: std::time::Duration ) -> futures_core::future::BoxFuture<'static, ()>
+	{
+		Box::pin( async_std::task::sleep(dur) )
+	}
+}
+
+
+
+
+
+// On wasm async_std future is not Send, so use futures-timer.
+//
+#[ cfg(all( target_arch = "wasm32", feature = "timer" )) ]
+//
+impl crate::Timer for AsyncStd
+{
+	fn sleep( &self, dur: std::time::Duration ) -> futures_core::future::BoxFuture<'static, ()>
+	{
+		Box::pin( futures_timer::Delay::new(dur) )
+	}
+}
+
+

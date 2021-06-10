@@ -7,9 +7,12 @@ status = "actively-developed"
 repository = "najamelan/async_executors"
 
 [build-dependencies]
-rustc_version = "^0.3"
+rustc_version = "^0.4"
 
 [dependencies]
+blanket = "^0.2"
+pin-project = "^1"
+
 [dependencies.async-global-executor]
 default-features = false
 optional = true
@@ -21,6 +24,9 @@ optional = true
 package = "async-std"
 version = "^1.6"
 
+[dependencies.futures-core]
+version = "^0.3"
+
 [dependencies.futures-executor]
 optional = true
 version = "^0.3"
@@ -28,13 +34,18 @@ version = "^0.3"
 [dependencies.futures-task]
 version = "^0.3"
 
+[dependencies.futures-timer]
+optional = true
+version = "^3"
+
 [dependencies.futures-util]
 features = ["channel"]
 version = "^0.3"
 
-[dependencies.pin-utils]
+[dependencies.glommio_crate]
 optional = true
-version = "^0.1"
+package = "glommio"
+version = "^0.4"
 
 [dependencies.tokio]
 optional = true
@@ -51,14 +62,11 @@ version = "^0.4"
 
 [dev-dependencies]
 static_assertions = "^1"
+trait-set = "^0.2"
 
 [dev-dependencies.futures]
 features = ["thread-pool"]
 version = "^0.3"
-
-[dev-dependencies.futures-timer]
-features = ["wasm-bindgen"]
-version = "^3"
 
 [dev-dependencies.tracing-subscriber]
 default-features = false
@@ -90,19 +98,50 @@ path = "examples/spawn_handle_multi.rs"
 required-features = ["notwasm", "async_std"]
 
 [[example]]
+name = "trait_set"
+path = "examples/trait_set.rs"
+required-features = ["notwasm", "async_std"]
+
+[[example]]
 name = "tracing"
 path = "examples/tracing.rs"
 required-features = ["notwasm", "tracing", "async_std"]
 
+[[example]]
+name = "glommio_ct"
+path = "examples/glommio_ct.rs"
+required-features = ["notwasm", "glommio"]
+
+[[example]]
+name = "timer"
+path = "examples/timer.rs"
+required-features = ["notwasm", "async_std", "tokio_ct", "tokio_timer"]
+
+[[example]]
+name = "tokio_io"
+path = "examples/tokio_io.rs"
+required-features = ["notwasm", "async_global_tokio", "async_std_tokio", "tokio_ct", "tokio_io"]
+
+[[example]]
+name = "yield_now"
+path = "examples/yield_now.rs"
+required-features = ["notwasm", "tokio_ct"]
+
 [features]
 async_global = ["async-global-executor"]
+async_global_tokio = ["async_global", "async-global-executor/tokio"]
 async_std = ["async_std_crate"]
+async_std_tokio = ["async_std", "async_std_crate/tokio1"]
 bindgen = ["wasm-bindgen-futures"]
 default = ["notwasm"]
+glommio = ["glommio_crate"]
 localpool = ["futures-executor"]
 notwasm = []
 threadpool = ["futures-executor/thread-pool"]
+timer = ["futures-timer"]
 tokio_ct = ["tokio/rt"]
+tokio_io = ["tokio/net", "tokio/process"]
+tokio_timer = ["tokio/time"]
 tokio_tp = ["tokio/rt-multi-thread"]
 tracing = ["tracing-futures"]
 
@@ -118,7 +157,8 @@ license = "Unlicense"
 name = "async_executors"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_executors"
-version = "0.4.1"
+resolver = "2"
+version = "0.4.2"
 
 [package.metadata]
 [package.metadata.docs]
@@ -133,11 +173,18 @@ codegen-units = 1
 [target]
 [target."cfg(not(target_os = \"unknown\"))"]
 [target."cfg(not(target_os = \"unknown\"))".dev-dependencies]
-[target."cfg(not(target_os = \"unknown\"))".dev-dependencies.async_std_crate]
-features = ["attributes", "unstable"]
-package = "async-std"
+futures-timer = "^3"
+
+[target."cfg(not(target_os = \"unknown\"))".dev-dependencies.tokio]
+features = ["io-util", "net"]
 version = "^1"
 
 [target."cfg(target_arch = \"wasm32\")"]
+[target."cfg(target_arch = \"wasm32\")".dependencies]
+[target."cfg(target_arch = \"wasm32\")".dependencies.futures-timer]
+features = ["wasm-bindgen"]
+optional = true
+version = "^3"
+
 [target."cfg(target_arch = \"wasm32\")".dev-dependencies]
 wasm-bindgen-test = "^0.3"

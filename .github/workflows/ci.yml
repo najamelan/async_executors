@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run tests
-        run: bash ci/test.bash
+        run : ci/test.bash
 
 
   linux-nightly:
@@ -52,8 +52,8 @@ jobs:
         run : bash ci/doc.bash
 
 
-      - name: Run tests
-        run : bash ci/test.bash
+ #     - name: Run tests
+ #       run : sudo bash -icE "ulimit -l512; ci/test.bash"
 
 
       - name: Check coverage

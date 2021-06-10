@@ -15,6 +15,8 @@ use
 //
 #[ derive(Debug) ]
 //
+#[ cfg_attr( nightly, doc(cfg( feature = "tokio_tp" )) ) ]
+//
 pub struct TokioTpBuilder
 {
 	builder: Builder,
@@ -49,6 +51,15 @@ impl TokioTpBuilder
 	//
 	pub fn build( &mut self ) -> Result<TokioTp, std::io::Error>
 	{
+		#[ cfg( feature = "tokio_io" ) ]
+		//
+		self.builder.enable_io();
+
+		#[ cfg( feature = "tokio_timer" ) ]
+		//
+		self.builder.enable_time();
+
+
 		let exec = self.builder.build()?;
 
 		Ok( TokioTp

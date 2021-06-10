@@ -8,6 +8,7 @@ set -e
 #
 set -x
 
-cargo clean
-cargo +nightly clippy --tests --examples --benches --all-features -- -D warnings
+cargo clippy --tests --examples --benches --all-features -- -D warnings
 
+rustup target add wasm32-unknown-unknown
+cargo clippy --tests --target wasm32-unknown-unknown --features "bindgen timer async_std async_global" -- -D warnings

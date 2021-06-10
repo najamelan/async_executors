@@ -1,5 +1,5 @@
 #![ cfg(all( feature = "async_global", not(target_os = "unknown") )) ]
-
+//
 // Tested:
 //
 // ✔ pass a     AsyncGlobal  to a function that takes exec: `impl Spawn`
@@ -11,6 +11,23 @@
 // ✔ pass a Arc<AsyncGlobal> to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a    &AsyncGlobal  to a function that takes exec: `&dyn SpawnHandle`
 //
+// ✔ pass a     AsyncGlobal  to a function that takes exec: `impl LocalSpawn`
+// ✔ pass a    &AsyncGlobal  to a function that takes exec: `&impl LocalSpawn`
+// ✔ pass a    &AsyncGlobal  to a function that takes exec: `impl LocalSpawn`
+// ✔ pass a    &AsyncGlobal  to a function that takes exec: `impl LocalSpawn + Clone`
+// ✔ pass a Arc<AsyncGlobal> to a function that takes exec: `impl LocalSpawn`.
+// ✔ pass a     AsyncGlobal  to a function that takes exec: `impl LocalSpawnHandle`
+// ✔ pass an Rc<AsyncGlobal> to a function that takes exec: `impl LocalSpawnHandle`
+// ✔ pass a    &AsyncGlobal  to a function that takes exec: `&dyn LocalSpawnHandle`
+//
+// ✔ pass an AsyncGlobal to a function that requires a SpawnBlocking.
+// ✔ pass an AsyncGlobal to a function that requires a Timer.
+// ✔ Verify AsyncGlobal does not implement Timer when feature is not enabled.
+// ✔ Verify Timeout future.
+//
+// ✔ Verify tokio_io works        when the async_global_tokio feature is enabled.
+// ✔ Verify tokio_io doesn't work when the async_global_tokio feature is not enabled.
+//
 // ✔ Joinhandle::detach allows task to keep running.
 // ✔ Joinhandle::drop aborts the task.
 //
@@ -18,10 +35,10 @@ mod common;
 
 use
 {
-	common  :: { *                        } ,
-	futures :: { channel::mpsc, StreamExt } ,
-	std             :: { time::Duration   } ,
-	futures_timer   :: { Delay            } ,
+	common        :: { *                        } ,
+	futures       :: { channel::mpsc, StreamExt } ,
+	std           :: { time::Duration           } ,
+	futures_timer :: { Delay                    } ,
 };
 
 
@@ -373,4 +390,111 @@ fn spawn_handle_local_os()
 	let result = AsyncGlobal::block_on( increment_spawn_handle_os( 4, &AsyncGlobal ) );
 
 	assert_eq!( 5u8, result );
+}
+
+
+
+// pass an AsyncGlobal to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn timer_should_wake()
+{
+	AsyncGlobal::block_on( timer_should_wake_up( AsyncGlobal ) );
+}
+
+
+
+// pass an AsyncGlobal to a function that requires a SpawnBlocking.
+//
+#[ test ]
+//
+fn spawn_blocking() -> DynResult<()>
+{
+	AsyncGlobal::block_on( blocking( AsyncGlobal ) )
+}
+
+
+
+// pass an AsyncGlobal to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn timer_should_wake_local()
+{
+	AsyncGlobal::block_on( timer_should_wake_up_local( AsyncGlobal ) );
+}
+
+
+
+// pass an AsyncGlobal to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn run_timeout()
+{
+	AsyncGlobal::block_on( timeout( AsyncGlobal ) );
+}
+
+
+
+// pass an AsyncGlobal to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn run_dont_timeout()
+{
+	AsyncGlobal::block_on( dont_timeout( AsyncGlobal ) );
+}
+
+
+
+// Verify AsyncGlobal does not implement Timer when feature is not enabled.
+//
+#[ cfg(not( feature = "timer" )) ]
+//
+#[ test ]
+//
+fn no_feature_no_timer()
+{
+	static_assertions::assert_not_impl_any!( AsyncGlobal: Timer );
+}
+
+
+
+// Verify tokio_io works when the async_global_tokio feature is enabled.
+//
+#[ cfg(all( not(target_arch = "wasm32"), feature = "async_global_tokio" )) ]
+//
+#[ test ]
+//
+fn tokio_io() -> DynResult<()>
+{
+	AsyncGlobal::block_on( tokio_io::tcp( AsyncGlobal ) )
+}
+
+
+
+// Verify tokio_io doesn't work when the async_global_tokio feature is not enabled.
+//
+#[ cfg(all( not(target_arch = "wasm32"), not(feature = "async_global_tokio") )) ]
+//
+#[ test ] #[ should_panic ]
+//
+fn no_tokio_io()
+{
+	let test = async
+	{
+		let _ = tokio_io::socket_pair().await.expect( "socket_pair" );
+	};
+
+	AsyncGlobal::block_on( test );
 }

@@ -2,10 +2,10 @@
 //
 use
 {
-	crate          :: { SpawnHandle, JoinHandle, join_handle::InnerJh     } ,
-	std            :: { sync::{ Arc, atomic::AtomicBool }, future::Future } ,
-	futures_task   :: { FutureObj, Spawn, SpawnError                      } ,
-	tokio::runtime :: { Runtime                                           } ,
+	crate          :: { SpawnHandle, JoinHandle, BlockingHandle } ,
+	std            :: { sync::Arc, future::Future               } ,
+	futures_task   :: { FutureObj, Spawn, SpawnError            } ,
+	tokio::runtime :: { Runtime                                 } ,
 };
 
 
@@ -151,6 +151,13 @@ impl TokioTp
 }
 
 
+#[ cfg( feature = "tokio_io" ) ]
+//
+#[ cfg_attr( nightly, doc(cfg( feature = "tokio_io" )) ) ]
+//
+impl crate::TokioIo for TokioTp {}
+
+
 impl Spawn for TokioTp
 {
 	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), SpawnError>
@@ -169,10 +176,56 @@ impl<Out: 'static + Send> SpawnHandle<Out> for TokioTp
 {
 	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		Ok( JoinHandle{ inner: InnerJh::Tokio
-		{
-			handle  : self.exec.as_ref().unwrap().spawn( future ) ,
-			detached: AtomicBool::new( false  ) ,
-		}})
+		let handle = self.exec.as_ref().unwrap().spawn( future );
+
+		Ok( JoinHandle::tokio(handle) )
+	}
+}
+
+
+
+impl crate::YieldNow for TokioTp {}
+
+
+
+impl crate::SpawnBlocking for TokioTp
+{
+	fn spawn_blocking<F, R>( &self, f: F ) -> BlockingHandle<R>
+
+		where F: FnOnce() -> R + Send + 'static ,
+	         R: Send + 'static                 ,
+	{
+		let handle = self.exec.as_ref().unwrap().spawn_blocking( f );
+
+		BlockingHandle::tokio( handle )
+	}
+}
+
+
+
+
+#[ cfg(all( feature = "timer", not(feature="tokio_timer" )) ) ]
+//
+#[ cfg_attr( nightly, doc(cfg(all( feature = "timer", feature = "tokio_tp" ))) ) ]
+//
+impl crate::Timer for TokioTp
+{
+	fn sleep( &self, dur: std::time::Duration ) -> futures_core::future::BoxFuture<'static, ()>
+	{
+		Box::pin( futures_timer::Delay::new(dur) )
+	}
+}
+
+
+
+#[ cfg( feature = "tokio_timer" ) ]
+//
+#[ cfg_attr( nightly, doc(cfg(all( feature = "tokio_timer", feature = "tokio_tp" ))) ) ]
+//
+impl crate::Timer for TokioTp
+{
+	fn sleep( &self, dur: std::time::Duration ) -> futures_core::future::BoxFuture<'static, ()>
+	{
+		Box::pin( tokio::time::sleep(dur) )
 	}
 }

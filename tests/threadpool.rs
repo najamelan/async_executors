@@ -1,10 +1,14 @@
 #![ cfg( feature = "threadpool" ) ]
-
+//
 // ✔ pass a     ThreadPool  to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a Arc<ThreadPool> to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a    &ThreadPool  to a function that takes exec: `&dyn SpawnHandle`
 //
 // ✔ Joinhandle::detach allows task to keep running.
+//
+// ✔ pass an ThreadPool to a function that requires a Timer.
+// ✔ Verify ThreadPool does not implement Timer when feature is not enabled.
+// ✔ Verify Timeout future.
 //
 mod common;
 
@@ -60,7 +64,7 @@ fn spawn_handle_os()
 //
 fn join_handle_detach()
 {
-	let exec   = ThreadPool::new().expect( "create threadpool" );
+	let exec = ThreadPool::new().expect( "create threadpool" );
 
 	let (in_tx , in_rx ) = oneshot::channel();
 	let (out_tx, out_rx) = oneshot::channel();
@@ -83,4 +87,62 @@ fn join_handle_detach()
 
 		assert_eq!( out_rx.await, Ok(5) );
 	});
+}
+
+
+
+// pass an ThreadPool to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn timer_should_wake()
+{
+	let exec = ThreadPool::new().expect( "create threadpool" );
+
+	block_on( timer_should_wake_up( exec ) );
+}
+
+
+
+// pass an ThreadPool to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn run_timeout()
+{
+	let exec = ThreadPool::new().expect( "create threadpool" );
+
+	block_on( timeout( exec ) );
+}
+
+
+
+// pass an ThreadPool to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ test ]
+//
+fn run_dont_timeout()
+{
+	let exec = ThreadPool::new().expect( "create threadpool" );
+
+	block_on( dont_timeout( exec ) );
+}
+
+
+
+// Verify ThreadPool does not implement Timer when feature is not enabled.
+//
+#[ cfg(not( feature = "timer" )) ]
+//
+#[ test ]
+//
+fn no_feature_no_timer()
+{
+	static_assertions::assert_not_impl_any!( ThreadPool: Timer );
 }

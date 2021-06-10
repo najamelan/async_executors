@@ -21,6 +21,10 @@
 // ✔ pass a  Rc<AsyncStd> to a function that takes exec:  `impl LocalSpawnHandle`
 // ✔ pass a    &AsyncStd  to a function that takes exec:  `&dyn LocalSpawnHandle`
 //
+// ✔ pass an AsyncStd to a function that requires a YieldNow.
+// ✔ pass an AsyncStd to a function that requires a Timer.
+// ✔ Verify Timeout future.
+//
 mod common;
 
 use
@@ -346,4 +350,70 @@ fn spawn_handle_os_local()
 
 	AsyncStd.spawn_local( fut ).expect( "spawn future" );
 }
+
+
+
+// pass a AsyncStd to a function that requires a YieldNow.
+//
+#[ wasm_bindgen_test ]
+//
+fn yield_run_subtask_first()
+{
+	let task = async{ try_yield_now( AsyncStd ).await.expect( "yield_now" ); };
+
+	AsyncStd.spawn_local( task ).expect( "spawn" );
+}
+
+
+
+// pass a AsyncStd to a function that requires a YieldNow.
+//
+#[ wasm_bindgen_test ]
+//
+fn yield_run_subtask_last()
+{
+	let task = async{ without_yield_now( AsyncStd ).await.expect( "yield_now" ); };
+
+	AsyncStd.spawn_local( task ).expect( "spawn" );
+}
+
+
+// pass an AsyncStd to a function that requires a Timer.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ wasm_bindgen_test ]
+//
+fn timer_should_wake_local()
+{
+	AsyncStd.spawn_local( timer_should_wake_up_local( AsyncStd ) ).expect( "spawn future" );
+}
+
+
+
+// Verify timeout future.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ wasm_bindgen_test ]
+//
+fn run_timeout()
+{
+	AsyncStd.spawn_local( timeout( AsyncStd ) ).expect( "spawn" );
+}
+
+
+
+// Verify timeout future.
+//
+#[ cfg( feature = "timer" ) ]
+//
+#[ wasm_bindgen_test ]
+//
+fn run_dont_timeout()
+{
+	AsyncStd.spawn_local( dont_timeout( AsyncStd ) ).expect( "spawn" );
+}
+
+
 

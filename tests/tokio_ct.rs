@@ -1,5 +1,5 @@
-#![ cfg( feature = "tokio_ct" ) ]
-
+#![ cfg(all( not(target_arch = "wasm32"), feature = "tokio_ct" )) ]
+//
 // Tested:
 //
 // ✔ pass a     TokioCt  to a function that takes exec: `impl Spawn`
@@ -21,15 +21,25 @@
 // ✔ pass a   &TokioCt  to a function that takes exec: `&dyn LocalSpawnHandle`
 //
 // ✔ we can spawn without being in a future running on block_on.
+//
+// ✔ pass a TokioCt to a function that requires a YieldNow.
+// ✔ pass a TokioCt to a function that requires a SpawnBlocking.
+// ✔ pass a TokioCt to a function that requires a Timer.
+// ✔ Verify TokioCt does not implement Timer when feature is not enabled.
+// ✔ Verify Timeout future.
+//
+// ✔ Verify tokio_io works        when the tokio_io feature is     enabled.
+// ✔ Verify tokio_io doesn't work when the tokio_io feature is not enabled.
+//
 // ✔ Joinhandle::detach allows task to keep running.
 //
 mod common;
 
 use
 {
-	common          :: * ,
-	futures         :: { channel::{ mpsc }, StreamExt } ,
-	std             :: { rc::Rc                       } ,
+	common  :: { *                            } ,
+	futures :: { channel::{ mpsc }, StreamExt } ,
+	std     :: { rc::Rc                       } ,
 };
 
 
@@ -54,6 +64,7 @@ fn spawn()
 }
 
 
+
 // pass a &TokioCt to a function that takes exec: `&impl Spawn`
 //
 #[ test ]
@@ -72,6 +83,7 @@ fn spawn_ref()
 
 	assert_eq!( 5u8, res );
 }
+
 
 
 // pass a &TokioCt to a function that takes exec: `impl Spawn`
@@ -94,6 +106,7 @@ fn spawn_with_ref()
 }
 
 
+
 // pass a &TokioCt to a function that takes exec: `impl Spawn + Clone`
 //
 #[ test ]
@@ -112,6 +125,7 @@ fn spawn_clone_with_ref()
 
 	assert_eq!( 5u8, res );
 }
+
 
 
 // pass a Arc<TokioCt> to a function that takes exec: `impl Spawn`.
@@ -135,6 +149,7 @@ fn spawn_clone_with_arc()
 }
 
 
+
 // pass a TokioCt to a function that takes exec: `impl SpawnHandle`
 //
 #[ test ]
@@ -147,6 +162,7 @@ fn spawn_handle()
 
 	assert_eq!( 5u8, res );
 }
+
 
 
 // pass an Arc<TokioCt> to a function that takes exec: `impl SpawnHandle`
@@ -206,6 +222,7 @@ fn spawn_handle_many()
 }
 
 
+
 // ------------------ Local
 //
 
@@ -228,6 +245,7 @@ fn spawn_local()
 
 	assert_eq!( 5u8, res );
 }
+
 
 
 // pass a &TokioCt to a function that takes exec: `&impl LocalSpawn`
@@ -270,6 +288,7 @@ fn spawn_with_ref_local()
 }
 
 
+
 // pass a &TokioCt to a function that takes exec: `impl LocalSpawn + Clone`
 //
 #[ test ]
@@ -288,6 +307,7 @@ fn spawn_clone_with_ref_local()
 
 	assert_eq!( 5u8, res );
 }
+
 
 
 // pass a Arc<TokioCt> to a function that takes exec: `impl LocalSpawn`.
@@ -311,6 +331,7 @@ fn spawn_clone_with_rc_local()
 }
 
 
+
 // pass a TokioCt to a function that takes exec: `impl LocalSpawnHandle`
 //
 #[ test ]
@@ -323,6 +344,7 @@ fn spawn_handle_local()
 
 	assert_eq!( 5u8, *res );
 }
+
 
 
 // pass an Rc<TokioCt> to a function that takes exec: `impl LocalSpawnHandle`
@@ -355,7 +377,6 @@ fn spawn_handle_local_os()
 
 
 
-
 // make sure we can spawn without being in a future running on block_on.
 //
 #[ test ]
@@ -363,8 +384,7 @@ fn spawn_handle_local_os()
 fn spawn_outside_block_on()
 {
 	let (mut tx, mut rx) = mpsc::channel( 1 );
-
-	let exec = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec             = TokioCtBuilder::new().build().expect( "create tokio current thread" );
 
 	exec.spawn( async move
 	{
@@ -372,10 +392,12 @@ fn spawn_outside_block_on()
 
 	}).expect( "spawn" );
 
+
 	let result = exec.block_on( async move
 	{
 		rx.next().await.expect( "receive hello" )
 	});
+
 
 	assert_eq!( "hello", result );
 }
@@ -394,7 +416,7 @@ fn join_handle_detach()
 	let (out_tx, out_rx) = oneshot::channel();
 
 
-	let in_join_handle = exec.spawn_handle( async move
+	let handle = exec.spawn_handle( async move
 	{
 		let content = in_rx.await.expect( "receive on in" );
 
@@ -403,7 +425,10 @@ fn join_handle_detach()
 	}).expect( "spawn task" );
 
 
-	in_join_handle.detach();
+	// This moves out handle and drops it.
+	//
+	handle.detach();
+
 
 	exec.block_on( async move
 	{
@@ -411,4 +436,137 @@ fn join_handle_detach()
 
 		assert_eq!( out_rx.await, Ok(5) );
 	});
+}
+
+
+
+// pass a TokioCt to a function that requires a YieldNow.
+//
+#[ test ]
+//
+fn yield_run_subtask_first() -> DynResult<()>
+{
+	let exec = &TokioCtBuilder::new().build().expect( "create tokio threadpool" );
+
+	exec.block_on( try_yield_now( exec ) )
+}
+
+
+
+// pass a TokioCt to a function that requires a YieldNow.
+//
+#[ test ]
+//
+fn yield_run_subtask_last() -> DynResult<()>
+{
+	let exec = &TokioCtBuilder::new().build().expect( "create tokio threadpool" );
+
+	exec.block_on( without_yield_now( exec ) )
+}
+
+
+
+
+// pass a TokioCt to a function that requires a SpawnBlocking.
+//
+#[ test ]
+//
+fn spawn_blocking() -> DynResult<()>
+{
+	let exec = &TokioCtBuilder::new().build()?;
+
+	exec.block_on( blocking( exec ) )
+}
+
+
+
+// pass an TokioCt to a function that requires a Timer.
+//
+#[ cfg(any( feature="timer", feature="tokio_timer" )) ]
+//
+#[ test ]
+//
+fn timer_should_wake_local()
+{
+	let exec = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+
+	exec.block_on( timer_should_wake_up_local( exec.clone() ) );
+}
+
+
+
+// pass an TokioCt to a function that requires a Timer.
+//
+#[ cfg(any( feature="timer", feature="tokio_timer" )) ]
+//
+#[ test ]
+//
+fn run_timeout()
+{
+	let exec = &TokioCtBuilder::new().build().expect( "create tokio current thread" );
+
+	exec.block_on( timeout( exec ) );
+}
+
+
+
+// pass an TokioCt to a function that requires a Timer.
+//
+#[ cfg(any( feature="timer", feature="tokio_timer" )) ]
+//
+#[ test ]
+//
+fn run_dont_timeout()
+{
+	let exec = &TokioCtBuilder::new().build().expect( "create tokio current thread" );
+
+	exec.block_on( dont_timeout( exec ) );
+}
+
+
+
+// Verify TokioCt does not implement Timer when feature is not enabled.
+//
+#[ cfg(not(any( feature="timer", feature="tokio_timer" ))) ]
+//
+#[ test ]
+//
+fn no_feature_no_timer()
+{
+	static_assertions::assert_not_impl_any!( TokioCt: Timer );
+}
+
+
+
+// Verify tokio_io works when the tokio_io feature is enabled.
+//
+#[ cfg( feature = "tokio_io" ) ]
+//
+#[ test ]
+//
+fn tokio_io() -> DynResult<()>
+{
+	let exec = TokioCtBuilder::new().build()?;
+
+	exec.block_on( tokio_io::tcp( exec.clone() ) )
+}
+
+
+
+// Verify tokio_io doesn't work when the tokio_io feature is not enabled.
+//
+#[ cfg(not( feature = "tokio_io" )) ]
+//
+#[ test ] #[ should_panic ]
+//
+fn no_tokio_io()
+{
+	let exec = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+
+	let test = async
+	{
+		let _ = tokio_io::socket_pair().await.expect( "socket_pair" );
+	};
+
+	exec.block_on( test );
 }

@@ -1,9 +1,9 @@
 use
 {
-	crate                :: { SpawnHandle, LocalSpawnHandle, JoinHandle, join_handle::InnerJh } ,
-	wasm_bindgen_futures :: { spawn_local                                                     } ,
-	futures_task         :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError        } ,
-	futures_util         :: { FutureExt                                                       } ,
+	crate                :: { SpawnHandle, LocalSpawnHandle, JoinHandle, YieldNow      } ,
+	wasm_bindgen_futures :: { spawn_local                                              } ,
+	futures_task         :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError } ,
+	futures_util         :: { FutureExt                                                } ,
 };
 
 
@@ -61,7 +61,7 @@ impl<Out: 'static + Send> SpawnHandle<Out> for Bindgen
 		let (fut, handle) = future.remote_handle();
 		spawn_local(fut);
 
-		Ok( JoinHandle{ inner: InnerJh::RemoteHandle( Some(handle) ) } )
+		Ok( JoinHandle::remote_handle(handle) )
 	}
 }
 
@@ -74,9 +74,13 @@ impl<Out: 'static> LocalSpawnHandle<Out> for Bindgen
 		let (fut, handle) = future.remote_handle();
 		spawn_local(fut);
 
-		Ok( JoinHandle{ inner: InnerJh::RemoteHandle( Some(handle) ) } )
+		Ok( JoinHandle::remote_handle(handle) )
 	}
 }
+
+
+
+impl YieldNow for Bindgen {}
 
 
 
@@ -85,5 +89,19 @@ impl std::fmt::Debug for Bindgen
 	fn fmt( &self, f: &mut std::fmt::Formatter<'_> ) -> std::fmt::Result
 	{
 		write!( f, "WASM Bindgen executor" )
+	}
+}
+
+
+
+#[ cfg( feature = "timer" ) ]
+//
+#[ cfg_attr( nightly, doc(cfg(all( feature = "timer", feature = "bindgen" ))) ) ]
+//
+impl crate::Timer for Bindgen
+{
+	fn sleep( &self, dur: std::time::Duration ) -> futures_core::future::BoxFuture<'static, ()>
+	{
+		futures_timer::Delay::new( dur ).boxed()
 	}
 }

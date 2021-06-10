@@ -3,7 +3,7 @@
 use
 {
 	crate :: { TokioCt                          } ,
-	std   :: { sync::Arc                        } ,
+	std   :: { rc::Rc                           } ,
 	tokio :: { task::LocalSet, runtime::Builder } ,
 };
 
@@ -14,6 +14,8 @@ use
 /// Further allows you access to the tokio builder so you can set the other configuration options on it as you see fit.
 //
 #[ derive(Debug) ]
+//
+#[ cfg_attr( nightly, doc(cfg( feature = "tokio_ct" )) ) ]
 //
 pub struct TokioCtBuilder
 {
@@ -50,12 +52,20 @@ impl TokioCtBuilder
 	//
 	pub fn build( &mut self ) -> Result<TokioCt, std::io::Error>
 	{
+		#[ cfg( feature = "tokio_io" ) ]
+		//
+		self.builder.enable_io();
+
+		#[ cfg( feature = "tokio_timer" ) ]
+		//
+		self.builder.enable_time();
+
 		let exec = self.builder.build()?;
 
 		Ok( TokioCt
 		{
-			exec : Arc::new( exec            ) ,
-			local: Arc::new( LocalSet::new() ) ,
+			exec : Rc::new( exec            ) ,
+			local: Rc::new( LocalSet::new() ) ,
 		})
 	}
 }

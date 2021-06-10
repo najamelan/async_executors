@@ -1,9 +1,9 @@
 use
 {
-	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle, join_handle::InnerJh } ,
-	std          :: { sync::Arc, future::Future, sync::atomic::AtomicBool             } ,
-	tokio        :: { task::LocalSet, runtime::{  Runtime }                           } ,
-	futures_task :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError        } ,
+	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle, BlockingHandle } ,
+	std          :: { rc::Rc, future::Future                                    } ,
+	tokio        :: { task::LocalSet, runtime::{  Runtime }                     } ,
+	futures_task :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError  } ,
 };
 
 
@@ -75,8 +75,8 @@ use
 //
 pub struct TokioCt
 {
-	pub(crate) exec  : Arc< Runtime  > ,
-	pub(crate) local : Arc< LocalSet > ,
+	pub(crate) exec : Rc< Runtime  > ,
+	pub(crate) local: Rc< LocalSet > ,
 }
 
 
@@ -97,18 +97,19 @@ impl TokioCt
 	/// This function will panic if it is called from an async context, including but not limited to making a nested
 	/// call. It will also panic if the provided future panics.
 	//
-	pub fn block_on< F: Future >( &self, f: F ) -> F::Output
+	pub fn block_on<F: Future>( &self, f: F ) -> F::Output
 	{
 		self.exec.block_on( self.local.run_until( f ) )
 	}
 }
 
 
+
 impl Spawn for TokioCt
 {
 	fn spawn_obj( &self, future: FutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
-		// We drop the JoinHandle, so the task becomes detached.
+		// We drop the tokio JoinHandle, so the task becomes detached.
 		//
 		let _ = self.local.spawn_local( future );
 
@@ -122,7 +123,7 @@ impl LocalSpawn for TokioCt
 {
 	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
-		// We drop the JoinHandle, so the task becomes detached.
+		// We drop the tokio JoinHandle, so the task becomes detached.
 		//
 		let _ = self.local.spawn_local( future );
 
@@ -136,11 +137,9 @@ impl<Out: 'static + Send> SpawnHandle<Out> for TokioCt
 {
 	fn spawn_handle_obj( &self, future: FutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		Ok( JoinHandle{ inner: InnerJh::Tokio
-		{
-			handle  : self.exec.spawn( future ) ,
-			detached: AtomicBool::new( false  ) ,
-		}})
+		let handle = self.exec.spawn( future );
+
+		Ok( JoinHandle::tokio(handle) )
 	}
 }
 
@@ -150,15 +149,66 @@ impl<Out: 'static> LocalSpawnHandle<Out> for TokioCt
 {
 	fn spawn_handle_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<JoinHandle<Out>, SpawnError>
 	{
-		Ok( JoinHandle{ inner: InnerJh::Tokio
-		{
-			handle  : self.local.spawn_local( future ) ,
-			detached: AtomicBool::new( false )         ,
-		}})
+		let handle = self.local.spawn_local( future );
+
+		Ok( JoinHandle::tokio(handle) )
 
 	}
 }
 
+
+
+#[ cfg(all( feature = "timer", not(feature="tokio_timer" )) ) ]
+//
+#[ cfg_attr( nightly, doc(cfg(all( feature = "timer", feature = "tokio_ct" ))) ) ]
+//
+impl crate::Timer for TokioCt
+{
+	fn sleep( &self, dur: std::time::Duration ) -> futures_core::future::BoxFuture<'static, ()>
+	{
+		Box::pin( futures_timer::Delay::new(dur) )
+	}
+}
+
+
+
+#[ cfg( feature = "tokio_timer" ) ]
+//
+#[ cfg_attr( nightly, doc(cfg(all( feature = "tokio_timer", feature = "tokio_ct" ))) ) ]
+//
+impl crate::Timer for TokioCt
+{
+	fn sleep( &self, dur: std::time::Duration ) -> futures_core::future::BoxFuture<'static, ()>
+	{
+		Box::pin( tokio::time::sleep(dur) )
+	}
+}
+
+
+
+#[ cfg( feature = "tokio_io" ) ]
+//
+#[ cfg_attr( nightly, doc(cfg( feature = "tokio_io" )) ) ]
+//
+impl crate::TokioIo for TokioCt {}
+
+
+impl crate::YieldNow for TokioCt {}
+
+
+
+impl crate::SpawnBlocking for TokioCt
+{
+	fn spawn_blocking<F, R>( &self, f: F ) -> BlockingHandle<R>
+
+		where F: FnOnce() -> R + Send + 'static ,
+	         R: Send + 'static                 ,
+	{
+		let handle = self.exec.as_ref().spawn_blocking( f );
+
+		BlockingHandle::tokio( handle )
+	}
+}
 
 
 #[ cfg(test) ]
