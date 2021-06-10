@@ -45,7 +45,7 @@ impl<T> JoinHandle<T>
 	//
 	pub fn tokio( handle: TokioJoinHandle<T> ) -> Self
 	{
-		let detached = AtomicBool::new( false );
+		let detached = false;
 		let inner    = InnerJh::Tokio { handle, detached };
 
 		Self{ inner }
@@ -79,7 +79,7 @@ impl<T> JoinHandle<T>
 
 	) -> Self
 	{
-		let detached = AtomicBool::new( false );
+		let detached = false;
 		let inner    = InnerJh::AsyncStd{ handle, a_handle, detached };
 
 		Self{ inner }
@@ -109,7 +109,7 @@ enum InnerJh<T>
 	Tokio
 	{
 		handle  : TokioJoinHandle<T> ,
-		detached: AtomicBool         ,
+		detached: bool               ,
 	},
 
 	/// Wrapper around AsyncStd JoinHandle.
@@ -129,7 +129,7 @@ enum InnerJh<T>
 	{
 		handle  : AsyncStdJoinHandle<Result<T, Aborted>> ,
 		a_handle: AbortHandle                            ,
-		detached: AtomicBool                             ,
+		detached: bool                                   ,
 	},
 
 	/// Wrapper around futures RemoteHandle.
@@ -154,13 +154,13 @@ impl<T> JoinHandle<T>
 		{
 			#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
 			//
-			InnerJh::Tokio{ ref detached, .. } =>
+			InnerJh::Tokio{ ref mut detached, .. } =>
 			{
 				// only other use of this is in Drop impl and we consume self here,
 				// so there cannot be any race as this does not sync things across threads,
 				// hence Relaxed ordering.
 				//
-				detached.store( true, Ordering::Relaxed );
+				*detached = true;
 			}
 
 			#[ cfg( feature = "async_global" ) ] InnerJh::AsyncGlobal{ task } =>
@@ -169,9 +169,9 @@ impl<T> JoinHandle<T>
 				task.unwrap().detach();
 			}
 
-			#[ cfg( feature = "async_std" ) ] InnerJh::AsyncStd{ ref detached, .. } =>
+			#[ cfg( feature = "async_std" ) ] InnerJh::AsyncStd{ ref mut detached, .. } =>
 			{
-				detached.store( true, Ordering::Relaxed );
+				*detached = true;
 			}
 
 			InnerJh::RemoteHandle{ handle } =>
@@ -243,12 +243,12 @@ impl<T> Drop for JoinHandle<T>
 			//
 			InnerJh::Tokio{ handle, detached, .. } =>
 
-				if !detached.load( Ordering::Relaxed ) { handle.abort() },
+				if !*detached { handle.abort() },
 
 
 			#[ cfg( feature = "async_std" ) ] InnerJh::AsyncStd { a_handle, detached, .. } =>
 
-				if !detached.load( Ordering::Relaxed ) { a_handle.abort() },
+				if !*detached { a_handle.abort() },
 
 
 			// Nothing needs to be done, just drop it.
