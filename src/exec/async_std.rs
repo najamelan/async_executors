@@ -3,7 +3,6 @@ use
 	crate        :: { SpawnHandle, LocalSpawnHandle, JoinHandle,               } ,
 	futures_task :: { FutureObj, LocalFutureObj, Spawn, LocalSpawn, SpawnError } ,
 	futures_util :: { future::abortable                                        } ,
-	std          :: { future::Future, pin::Pin, time::Duration                 } ,
 
 	async_std_crate as async_std,
 };
@@ -37,7 +36,7 @@ impl AsyncStd
 	#[cfg(not(target_os = "unknown"))]
 	#[ cfg_attr( nightly, doc(cfg(not( target_os = "unknown" ))) ) ]
 	//
-	pub fn block_on<F: Future>(future: F) -> F::Output
+	pub fn block_on<F: std::future::Future>(future: F) -> F::Output
 	{
 		async_std::task::block_on( future )
 	}
@@ -174,23 +173,33 @@ impl crate::TokioIo for AsyncStd {}
 
 
 
+
+
+
+#[ cfg(not( target_arch = "wasm32" )) ]
+//
 impl crate::Timer for AsyncStd
 {
-	/// Future returned by sleep().
-	//
-	#[ cfg( target_arch = "wasm32") ]
-	//
-	type SleepFuture = Pin<Box< dyn Future<Output=()> >>;
-
-	#[ cfg(not( target_arch = "wasm32" )) ]
-	//
-	type SleepFuture = Pin<Box< dyn Future<Output=()> + Send >>;
-
-	fn sleep( &self, dur: Duration ) -> Self::SleepFuture
+	fn sleep( &self, dur: std::time::Duration ) -> futures_core::future::BoxFuture<'static, ()>
 	{
-		Box::pin( async_std::task::sleep( dur ) )
+		Box::pin( async_std::task::sleep(dur) )
 	}
 }
 
+
+
+
+
+// On wasm async_std future is not Send, so use futures-timer.
+//
+#[ cfg(all( target_arch = "wasm32", feature = "timer" )) ]
+//
+impl crate::Timer for AsyncStd
+{
+	fn sleep( &self, dur: std::time::Duration ) -> futures_core::future::BoxFuture<'static, ()>
+	{
+		Box::pin( futures_timer::Delay::new(dur) )
+	}
+}
 
 

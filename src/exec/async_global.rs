@@ -181,11 +181,9 @@ impl crate::TokioIo for AsyncGlobal {}
 //
 impl crate::Timer for AsyncGlobal
 {
-	type SleepFuture = futures_timer::Delay;
-
-	fn sleep( &self, dur: std::time::Duration ) -> Self::SleepFuture
+	fn sleep( &self, dur: std::time::Duration ) -> futures_core::future::BoxFuture<'static, ()>
 	{
-		futures_timer::Delay::new( dur )
+		Box::pin( futures_timer::Delay::new( dur ) )
 	}
 }
 

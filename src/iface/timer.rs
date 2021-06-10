@@ -1,6 +1,8 @@
 use
 {
-	std::{ time::Duration, future::Future, task::{ Poll, Context }, pin::Pin },
+	std          :: { time::Duration, future::Future, task::{ Poll, Context }, pin::Pin } ,
+	futures_core :: { future::BoxFuture                                                 } ,
+
 	pin_project::pin_project,
 };
 
@@ -21,25 +23,11 @@ use
 //
 pub trait Timer
 {
-	/// Future returned by sleep(). On wasm isn't required to be `Send` for now.
-	/// Mainly async-std's sleep future isn't `Send` on Wasm.
-	//
-	#[ cfg( target_arch = "wasm32") ]
-	//
-	type SleepFuture: Future<Output=()> + 'static;
-
-	/// Future returned by sleep().
-	//
-	#[ cfg(not( target_arch = "wasm32" )) ]
-	//
-	type SleepFuture: Future<Output=()> + Send + 'static;
-
-
 	/// Future that resolves after a given duration.
 	//
 	#[ must_use = "sleep() returns a future, which does nothing unless awaited" ]
 	//
-	fn sleep( &self, dur: Duration ) -> Self::SleepFuture;
+	fn sleep( &self, dur: Duration ) -> BoxFuture<'static, ()>;
 }
 
 
@@ -68,7 +56,7 @@ pub trait TimerExt: Timer
 	//
 	#[ must_use = "timeout() returns a future, which does nothing unless awaited." ]
 	//
-	fn timeout<F: Future>( &self, duration: Duration, future: F ) -> Timeout<F, Self::SleepFuture>
+	fn timeout<F: Future>( &self, duration: Duration, future: F ) -> Timeout<F>
 	{
 		let sleep_future = self.sleep( duration );
 
@@ -118,9 +106,7 @@ impl From<TimeoutError> for std::io::Error
 //
 #[pin_project]
 //
-#[ derive(Debug) ]
-//
-pub struct Timeout<T, S>
+pub struct Timeout<T>
 {
 	/// The future we want to execute.
 	//
@@ -128,15 +114,14 @@ pub struct Timeout<T, S>
 
 	/// The future implementing the timeout.
 	//
-	#[pin] sleep_future: S,
+	sleep_future: BoxFuture<'static, ()>,
 }
 
 
 
-impl<T, S> Future for Timeout<T, S>
+impl<T> Future for Timeout<T>
 
-	where T: Future              ,
-	      S: Future<Output = ()> ,
+	where T: Future,
 
 {
 	type Output = Result< T::Output, TimeoutError >;
@@ -153,11 +138,20 @@ impl<T, S> Future for Timeout<T, S>
 		}
 
 
-		match this.sleep_future.poll(cx)
+		match this.sleep_future.as_mut().poll(cx)
 		{
 			Poll::Pending   => Poll::Pending                    ,
 			Poll::Ready(()) => Poll::Ready( Err(TimeoutError) ) ,
 		}
+	}
+}
+
+
+impl<T> std::fmt::Debug for Timeout<T>
+{
+	fn fmt( &self, f: &mut std::fmt::Formatter<'_> ) -> std::fmt::Result
+	{
+		write!( f, "Timeout future" )
 	}
 }
 

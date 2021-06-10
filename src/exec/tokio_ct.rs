@@ -164,11 +164,9 @@ impl<Out: 'static> LocalSpawnHandle<Out> for TokioCt
 //
 impl crate::Timer for TokioCt
 {
-	type SleepFuture = futures_timer::Delay;
-
-	fn sleep( &self, dur: std::time::Duration ) -> Self::SleepFuture
+	fn sleep( &self, dur: std::time::Duration ) -> futures_core::future::BoxFuture<'static, ()>
 	{
-		futures_timer::Delay::new( dur )
+		Box::pin( futures_timer::Delay::new(dur) )
 	}
 }
 
@@ -180,11 +178,9 @@ impl crate::Timer for TokioCt
 //
 impl crate::Timer for TokioCt
 {
-	type SleepFuture = tokio::time::Sleep;
-
-	fn sleep( &self, dur: std::time::Duration ) -> Self::SleepFuture
+	fn sleep( &self, dur: std::time::Duration ) -> futures_core::future::BoxFuture<'static, ()>
 	{
-		tokio::time::sleep( dur )
+		Box::pin( tokio::time::sleep(dur) )
 	}
 }
 

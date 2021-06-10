@@ -380,6 +380,8 @@ fn yield_run_subtask_last()
 
 // pass an AsyncStd to a function that requires a Timer.
 //
+#[ cfg( feature = "timer" ) ]
+//
 #[ wasm_bindgen_test ]
 //
 fn timer_should_wake_local()
@@ -391,6 +393,8 @@ fn timer_should_wake_local()
 
 // Verify timeout future.
 //
+#[ cfg( feature = "timer" ) ]
+//
 #[ wasm_bindgen_test ]
 //
 fn run_timeout()
@@ -401,6 +405,8 @@ fn run_timeout()
 
 
 // Verify timeout future.
+//
+#[ cfg( feature = "timer" ) ]
 //
 #[ wasm_bindgen_test ]
 //

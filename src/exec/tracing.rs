@@ -60,11 +60,9 @@ impl<T, Out> LocalSpawnHandle<Out> for WithDispatch<T> where T: LocalSpawnHandle
 
 impl<T> Timer for Instrumented<T> where T: Timer
 {
-	type SleepFuture = Instrumented<T::SleepFuture>;
-
-	fn sleep( &self, dur: std::time::Duration ) -> Self::SleepFuture
+	fn sleep( &self, dur: std::time::Duration ) -> futures_core::future::BoxFuture<'static, ()>
 	{
-		self.inner().sleep( dur ).instrument( self.span().clone() )
+		self.inner().sleep( dur ).instrument( self.span().clone() ).boxed()
 	}
 }
 
@@ -72,11 +70,9 @@ impl<T> Timer for Instrumented<T> where T: Timer
 
 impl<T> Timer for WithDispatch<T> where T: Timer
 {
-	type SleepFuture = WithDispatch<T::SleepFuture>;
-
-	fn sleep( &self, dur: std::time::Duration ) -> Self::SleepFuture
+	fn sleep( &self, dur: std::time::Duration ) -> futures_core::future::BoxFuture<'static, ()>
 	{
-		self.with_dispatch( self.inner().sleep( dur ) )
+		self.with_dispatch( self.inner().sleep( dur ) ).boxed()
 	}
 }
 

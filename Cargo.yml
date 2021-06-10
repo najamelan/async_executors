@@ -152,6 +152,7 @@ dependencies:
 
   # Public deps
   #
+  futures-core        : { version: ^0.3                                         }
   futures-task        : { version: ^0.3                                         }
   futures-util        : { version: ^0.3, features: [ channel ]                  }
   futures-executor    : { version: ^0.3, optional: true                         }
@@ -183,7 +184,7 @@ dev-dependencies:
 
 build-dependencies:
 
-  rustc_version: ^0.3
+  rustc_version: ^0.4
 
 
 profile:

@@ -100,10 +100,8 @@ impl std::fmt::Debug for Bindgen
 //
 impl crate::Timer for Bindgen
 {
-	type SleepFuture = futures_timer::Delay;
-
-	fn sleep( &self, dur: std::time::Duration ) -> Self::SleepFuture
+	fn sleep( &self, dur: std::time::Duration ) -> futures_core::future::BoxFuture<'static, ()>
 	{
-		futures_timer::Delay::new( dur )
+		futures_timer::Delay::new( dur ).boxed()
 	}
 }
