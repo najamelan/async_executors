@@ -52,7 +52,8 @@ jobs:
         run : bash ci/doc.bash
 
 
- #     - name: Run tests
+      - name: Run tests
+        run : bash ci/test.bash
  #       run : sudo bash -icE "ulimit -l512; ci/test.bash"
 
 
