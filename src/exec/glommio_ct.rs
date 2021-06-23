@@ -181,16 +181,16 @@ fn bind_to_cpu_set(cpuset: CpuSet) -> std::io::Result<()> {
 	let pid = nix::unistd::Pid::this();
 	to_io_error!(nix::sched::sched_setaffinity(pid, &cpuset))
 }
-fn to_cpu_set(cores: impl Iterator<Item = i32>) -> CpuSet {
+fn to_cpu_set(cores: impl Iterator<Item = usize>) -> CpuSet {
 	let mut set = CpuSet::new();
 	let mut is_set = false;
 	for i in cores {
-		set.set(i as _).unwrap();
+		set.set(i).unwrap();
 		is_set = true;
 	}
 	if !is_set {
 		for i in 0..CpuSet::count() {
-			set.set(i as _).unwrap();
+			set.set(i).unwrap();
 		}
 	}
 	set
