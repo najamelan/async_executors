@@ -47,6 +47,10 @@ optional = true
 package = "glommio"
 version = "^0.4"
 
+[dependencies.nix]
+optional = true
+version = "^0.21"
+
 [dependencies.tokio]
 optional = true
 version = "^1"
@@ -134,7 +138,7 @@ async_std = ["async_std_crate"]
 async_std_tokio = ["async_std", "async_std_crate/tokio1"]
 bindgen = ["wasm-bindgen-futures"]
 default = ["notwasm"]
-glommio = ["glommio_crate"]
+glommio = ["glommio_crate", "nix"]
 localpool = ["futures-executor"]
 notwasm = []
 threadpool = ["futures-executor/thread-pool"]

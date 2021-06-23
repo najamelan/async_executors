@@ -122,7 +122,7 @@ features:
   # Enabled the glommio executor. Linux only. Requires kernel 5.8+.
   # GlommioCt implements Timer and GlommioIo.
   #
-  glommio   : [ glommio_crate ]
+  glommio   : [ glommio_crate, nix ]
 
 
   # Add support for the futures LocalPool to SpawnHandle and LocalSpawnHandle.
@@ -167,6 +167,7 @@ dependencies:
   async_std_crate       : { version: ^1.6  , optional: true, package: async-std, features: [ unstable ] }
   pin-project           : ^1
   blanket               : ^0.2
+  nix                   : { version: ^0.21  , optional: true }
 
   # necessary for the crate to compile for `cargo doc`
   #

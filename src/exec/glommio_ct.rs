@@ -6,6 +6,9 @@ use
 	futures_util  :: { FutureExt, task::LocalSpawnExt, future::LocalFutureObj  } ,
 	glommio_crate :: { LocalExecutor, LocalExecutorBuilder, GlommioError, Task } ,
 };
+use crate::{SpawnBlocking, BlockingHandle};
+use std::sync::Arc;
+use nix::sched::CpuSet;
 
 
 /// Single threaded [glommio](https://docs.rs/glommio) executor. This executor works
@@ -140,7 +143,58 @@ impl YieldNow for GlommioCt
 	}
 }
 
+impl SpawnBlocking for GlommioCt {
+	fn spawn_blocking<F, R>(&self, f: F) -> BlockingHandle<R>
+        where F: FnOnce() -> R + Send + 'static,
+                                        R: Send + 'static,
+    {
+		let alive_arc = Arc::new(());
+		let alive = Arc::downgrade(&alive_arc);
+		let handle = std::thread::spawn(move || {
+			bind_to_cpu_set(to_cpu_set(None.into_iter())).unwrap();
+			let r = f();
+			drop(alive_arc);
+			r
+		});
+        BlockingHandle::std_thread(handle, alive)
+	}
+}
 
+macro_rules! to_io_error {
+    ($error:expr) => {{
+        match $error {
+            Ok(x) => Ok(x),
+            Err(nix::Error::Sys(_)) => Err(std::io::Error::last_os_error()),
+            Err(nix::Error::InvalidUtf8) => {
+                Err(std::io::Error::from(std::io::ErrorKind::InvalidInput))
+            }
+            Err(nix::Error::InvalidPath) => {
+                Err(std::io::Error::from(std::io::ErrorKind::InvalidInput))
+            }
+            Err(nix::Error::UnsupportedOperation) => {
+                Err(std::io::Error::from(std::io::ErrorKind::Other))
+            }
+        }
+    }};
+}
+fn bind_to_cpu_set(cpuset: CpuSet) -> std::io::Result<()> {
+	let pid = nix::unistd::Pid::this();
+	to_io_error!(nix::sched::sched_setaffinity(pid, &cpuset))
+}
+fn to_cpu_set(cores: impl Iterator<Item = i32>) -> CpuSet {
+	let mut set = CpuSet::new();
+	let mut is_set = false;
+	for i in cores {
+		set.set(i as _).unwrap();
+		is_set = true;
+	}
+	if !is_set {
+		for i in 0..CpuSet::count() {
+			set.set(i as _).unwrap();
+		}
+	}
+	set
+}
 
 #[ cfg(test) ]
 //
