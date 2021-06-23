@@ -34,7 +34,7 @@ impl<T> BlockingHandle<T>
 	//
 	#[ cfg( feature = "async_global" ) ]
 	//
-	pub fn async_global( task: BoxFuture<T> ) -> Self
+	pub fn async_global( task: BoxFuture<'static, T> ) -> Self
 	{
 		Self( InnerBh::AsyncGlobal(task) )
 	}
