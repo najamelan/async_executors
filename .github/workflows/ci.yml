@@ -57,7 +57,18 @@ jobs:
  #       run : sudo bash -icE "ulimit -l512; ci/test.bash"
 
 
-      - name: Check coverage
-        run: bash ci/coverage.bash
+      - name: Install cargo-tarpaulin binary crate
+        uses: actions-rs/install@v0.1
+        with:
+          crate: cargo-tarpaulin
+          version: latest
+          use-tool-cache: true
+
+      - name: Run cargo-tarpaulin
+        run : |
+          cargo tarpaulin --out Xml
+
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v1.5.2
 
 
