@@ -53,6 +53,11 @@ impl<T> BlockingHandle<T>
 	{
 		Self( InnerBh::AsyncStd(handle) )
 	}
+
+	/// Make a wrapper around
+	pub fn std_thread(handle: std::thread::JoinHandle<T>, alive: std::sync::Weak<()>) -> Self {
+		Self(InnerBh::StdThread(Some(handle), alive))
+	}
 }
 
 
@@ -79,6 +84,9 @@ enum InnerBh<T>
 	//
 	AsyncStd( AsyncStdJoinHandle<T> ),
 
+	/// Wrapper around std::thread::JoinHandle
+	StdThread( Option<std::thread::JoinHandle<T>>, std::sync::Weak<()> ),
+
 	Phantom(std::marker::PhantomData< fn()->T >),
 }
 
@@ -88,15 +96,15 @@ impl<T: 'static> Future for BlockingHandle<T>
 {
 	type Output = T;
 
-	fn poll( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Self::Output>
+	fn poll( mut self: Pin<&mut Self>, cx: &mut Context<'_> ) -> Poll<Self::Output>
 	{
-		match &mut self.get_mut().0
+		match &mut self.0
 		{
 			#[ cfg(any( feature = "tokio_tp", feature = "tokio_ct" )) ]
 			//
 			InnerBh::Tokio(handle) =>
 			{
-				match ready!( Pin::new( handle ).poll( _cx ) )
+				match ready!( Pin::new( handle ).poll( cx ) )
 				{
 					Ok(t)  => Poll::Ready( t ),
 
@@ -105,9 +113,23 @@ impl<T: 'static> Future for BlockingHandle<T>
 				}
 			}
 
-			#[ cfg( feature = "async_std"    ) ] InnerBh::AsyncStd   ( handle ) => Pin::new( handle ).poll( _cx ) ,
-			#[ cfg( feature = "async_global" ) ] InnerBh::AsyncGlobal( task   ) => Pin::new( task   ).poll( _cx ) ,
+			#[ cfg( feature = "async_std"    ) ] InnerBh::AsyncStd   ( handle ) => Pin::new( handle ).poll( cx ) ,
+			#[ cfg( feature = "async_global" ) ] InnerBh::AsyncGlobal( task   ) => Pin::new( task   ).poll( cx ) ,
 
+			InnerBh::StdThread(handle, alive) => {
+				if let Some(_) = alive.upgrade() {
+					// FIXME: use a proper waking mechanism
+					cx.waker().wake_by_ref();
+					Poll::Pending
+				} else {
+					match handle.take().expect("Can only be joined once").join() {
+						Ok(ok) => Poll::Ready(ok),
+						Err(panicked) => {
+							std::panic::resume_unwind(panicked)
+						}
+					}
+				}
+			}
 			InnerBh::Phantom(_) => unreachable!(),
 		}
 	}
