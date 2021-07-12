@@ -141,6 +141,12 @@ impl crate::SpawnBlocking for AsyncGlobal
 
 		crate::BlockingHandle::async_global( Box::pin( handle ) )
 	}
+
+
+	fn spawn_blocking_void( &self, f: Box< dyn FnOnce() + Send > ) -> crate::BlockingHandle<()>
+	{
+		self.spawn_blocking( f )
+	}
 }
 
 

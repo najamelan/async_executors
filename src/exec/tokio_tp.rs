@@ -199,6 +199,12 @@ impl crate::SpawnBlocking for TokioTp
 
 		BlockingHandle::tokio( handle )
 	}
+
+
+	fn spawn_blocking_void( &self, f: Box< dyn FnOnce() + Send > ) -> BlockingHandle<()>
+	{
+		self.spawn_blocking( f )
+	}
 }
 
 
