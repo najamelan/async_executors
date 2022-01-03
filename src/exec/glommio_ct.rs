@@ -17,6 +17,12 @@ use
 /// This always has io_uring enabled and will pull in quite some dependencies including
 /// liburing from C.
 ///
+/// Glommio has some specific behavior. It will always poll spawned tasks immediately,
+/// so a spawned task will pre-empt the currently running task until it's first await.
+///
+/// When it comes to YieldNow, glommio does not yield unless the task has been running for
+/// some time. The glommio method is actually called `yield_if_needed`.
+///
 /// # Panics
 ///
 /// Calling spawn from outside [`block_on`](GlommioCt::block_on) will panic.

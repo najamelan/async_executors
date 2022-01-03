@@ -179,12 +179,14 @@ As you can see from the above example, the output of the future is a type parame
 The best way to define a combination of abilities you need is by making your own trait alias (here shown with a macro from the [trait_set](https://docs.rs/trait-set/) crate, but you can write it out yourself with a blanket implementation if you want):
 
 ```rust
-trait_set!
+use async_executors::*;
+
+trait_set::trait_set!
 {
    pub trait LibExec = SpawnHandle<()> + SpawnHandle<u8> + Timer + YieldNow + Clone;
 }
 
-pub fn lib_function( exec: impl LibExec ) { ... }
+pub fn lib_function( _exec: impl LibExec ) {}
 
 ```
 
