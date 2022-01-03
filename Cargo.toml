@@ -45,7 +45,7 @@ version = "^0.3"
 [dependencies.glommio_crate]
 optional = true
 package = "glommio"
-version = "^0.4"
+version = "^0.6"
 
 [dependencies.tokio]
 optional = true

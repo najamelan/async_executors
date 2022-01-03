@@ -158,7 +158,7 @@ dependencies:
   futures-executor    : { version: ^0.3, optional: true                         }
   futures-timer       : { version: ^3  , optional: true                         }
   tracing-futures     : { version: ^0.2, optional: true, features: [futures-03] }
-  glommio_crate       : { version: ^0.4, optional: true, package: glommio       }
+  glommio_crate       : { version: ^0.6, optional: true, package: glommio       }
   tokio               : { version: ^1  , optional: true                         }
 
   # Private deps
