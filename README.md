@@ -176,9 +176,9 @@ fn main()
 
 As you can see from the above example, the output of the future is a type parameter on `SpawnHandle`. This is necessary because putting it on the method would make the trait no longer object safe, which means it couldn't be stored unless as a type parameter.
 
-The best way to define a combination of abilities you need is by making your own trait alias:
+The best way to define a combination of abilities you need is by making your own trait alias (here shown with a macro from the [trait_set](https://docs.rs/trait-set/) crate, but you can write it out yourself with a blanket implementation if you want):
 
-```rust, ignore
+```rust
 trait_set!
 {
    pub trait LibExec = SpawnHandle<()> + SpawnHandle<u8> + Timer + YieldNow + Clone;
