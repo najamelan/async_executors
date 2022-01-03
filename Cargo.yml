@@ -176,9 +176,9 @@ dependencies:
 dev-dependencies:
 
   static_assertions : ^1
-  futures           : { version: ^0.3, features: [ thread-pool ] }
-  tracing-subscriber: { version: ^0.2, default-features: false, features: [ fmt ] }
-  tracing_crate     : { version: ^0.1, package: tracing }
+  futures           : { version: ^0.3  , features: [ thread-pool ] }
+  tracing-subscriber: { version: ^0.3.5, default-features: false, features: [ fmt ] }
+  tracing_crate     : { version: ^0.1  , package: tracing }
   trait-set         : ^0.2
 
 

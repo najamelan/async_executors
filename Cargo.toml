@@ -71,7 +71,7 @@ version = "^0.3"
 [dev-dependencies.tracing-subscriber]
 default-features = false
 features = ["fmt"]
-version = "^0.2"
+version = "^0.3.5"
 
 [dev-dependencies.tracing_crate]
 package = "tracing"
