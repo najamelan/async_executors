@@ -126,7 +126,7 @@ You can use the `SpawnHandle` and `LocalSpawnHandle` traits as bounds for obtain
 
 ##### Example
 
-```rust
+```rust, ignore
 use
 {
   async_executors :: { JoinHandle, SpawnHandle, SpawnHandleExt       } ,
@@ -178,7 +178,7 @@ As you can see from the above example, the output of the future is a type parame
 
 The best way to define a combination of abilities you need is by making your own trait alias (here shown with a macro from the [trait_set](https://docs.rs/trait-set/) crate, but you can write it out yourself with a blanket implementation if you want):
 
-```rust
+```rust, ignore
 use async_executors::*;
 
 trait_set::trait_set!
@@ -212,7 +212,7 @@ Some executors are a bit special, so make sure to check the API docs for the one
 
 #### Example
 
-```rust
+```rust, ignore
 use
 {
   async_executors :: { AsyncStd, TokioTpBuilder, SpawnHandle } ,
