@@ -9,7 +9,8 @@ pub use
 };
 
 
-pub type DynResult<T> = Result< T, Box<dyn std::error::Error + Send + Sync> >;
+pub type DynResult<T>       = Result< T, Box<dyn std::error::Error + Send + Sync> >;
+pub type DynResultNoSend<T> = Result< T, Box<dyn std::error::Error> >;
 
 
 #[ cfg(not( target_arch = "wasm32" )) ]
@@ -307,13 +308,6 @@ pub async fn try_yield_now( exec: impl SpawnHandle<()> + YieldNow ) -> DynResult
 
 	let handle = exec.spawn_handle( task )?;
 
-	// glommio will only yield if we have been running sufficiently long.
-	//
-	#[ cfg( feature = "glommio" ) ]
-	//
-	std::thread::sleep( Duration::from_millis( 20 ) );
-
-
 	exec.yield_now().await;
 
 	// by now task should have run because of the yield_now.
@@ -341,7 +335,7 @@ pub async fn without_yield_now( exec: impl SpawnHandle<()> + YieldNow ) -> DynRe
 
 	let handle = exec.spawn_handle( task )?;
 
-	// by now task should have run because of the yield_now.
+	// spawned task should not have run yet.
 	//
 	assert!( !flag.load(SeqCst) );
 
