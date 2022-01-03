@@ -20,7 +20,8 @@ cargo check --features localpool
 cargo check --features threadpool
 
 
-# Do not try to test glommio on github actions.
+# Do not try to test glommio on github actions. Glommio requires the rlimit to be raised, but we found
+# no proper way to get it working.
 #
 if [ -z "$GITHUB_ACTION" ]
 then
