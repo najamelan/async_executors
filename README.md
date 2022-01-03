@@ -126,7 +126,7 @@ You can use the `SpawnHandle` and `LocalSpawnHandle` traits as bounds for obtain
 
 ##### Example
 
-```rust, ignore
+```rust
 use
 {
   async_executors :: { JoinHandle, SpawnHandle, SpawnHandleExt       } ,
@@ -210,7 +210,7 @@ Some executors are a bit special, so make sure to check the API docs for the one
 
 #### Example
 
-```rust, ignore
+```rust
 use
 {
   async_executors :: { AsyncStd, TokioTpBuilder, SpawnHandle } ,
