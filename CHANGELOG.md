@@ -3,7 +3,17 @@
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/najamelan/async_executors/compare/0.4.2...dev
+[Unreleased]: https://github.com/najamelan/async_executors/compare/0.5...dev
+
+
+## [0.5.0] - 2022-01-04
+
+[0.5.0]: https://github.com/najamelan/async_executors/compare/0.4.2..0.5
+
+### Added 
+
+  - **BREAKING**: update glommio to 0.6.
+  - add `SpawnBlocking` trait and `BlockingHandle`.
 
 
 ## [0.4.2] - 2021-06-10
