@@ -14,7 +14,11 @@ use
 /// This cannot be object safe because it works on a closure, which is un-nameble.
 /// that means the method has to be generic. If you must store an executor with
 /// this trait, you will have to make your struct generic.
+///
+/// There is an object safe method on the trait ([SpawnBlocking::spawn_blocking_void])
+/// that only accepts a boxed closure without return value.
 //
+// Doesn't work with blanket.
 // #[ blanket(derive( Mut, Box, Arc, Rc )) ]
 //
 pub trait SpawnBlocking

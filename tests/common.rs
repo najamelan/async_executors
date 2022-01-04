@@ -370,3 +370,31 @@ pub async fn blocking( exec: impl SpawnBlocking ) -> DynResult<()>
 
 	Ok(())
 }
+
+
+
+// Use same exec to run this function as you pass in. This tests for
+// the possibility of an object safe SpawnBlocking.
+//
+pub async fn blocking_void( exec: &dyn SpawnBlocking ) -> DynResult<()>
+{
+	let flag  = Arc::new( AtomicBool::new( false ) );
+	let flag2 = flag.clone();
+
+	let task = move ||
+	{
+		// blocking work
+		//
+		std::thread::sleep( Duration::from_millis( 5 ) );
+
+		flag2.store( true, SeqCst );
+	};
+
+	let handle = exec.spawn_blocking_void( Box::new(task) );
+
+	handle.await;
+
+	assert!( flag.load(SeqCst) );
+
+	Ok(())
+}
