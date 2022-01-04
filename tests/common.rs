@@ -348,7 +348,7 @@ pub async fn without_yield_now( exec: impl SpawnHandle<()> + YieldNow ) -> DynRe
 
 // Use same exec to run this function as you pass in.
 //
-pub async fn blocking( exec: impl SpawnBlocking ) -> DynResult<()>
+pub async fn blocking( exec: impl SpawnBlocking<()> ) -> DynResult<()>
 {
 	let flag  = Arc::new( AtomicBool::new( false ) );
 	let flag2 = flag.clone();
@@ -376,7 +376,7 @@ pub async fn blocking( exec: impl SpawnBlocking ) -> DynResult<()>
 // Use same exec to run this function as you pass in. This tests for
 // the possibility of an object safe SpawnBlocking.
 //
-pub async fn blocking_void( exec: &dyn SpawnBlocking ) -> DynResult<()>
+pub async fn blocking_void( exec: &dyn SpawnBlocking<()> ) -> DynResult<()>
 {
 	let flag  = Arc::new( AtomicBool::new( false ) );
 	let flag2 = flag.clone();
@@ -390,7 +390,7 @@ pub async fn blocking_void( exec: &dyn SpawnBlocking ) -> DynResult<()>
 		flag2.store( true, SeqCst );
 	};
 
-	let handle = exec.spawn_blocking_void( Box::new(task) );
+	let handle = exec.spawn_blocking_dyn( Box::new(task) );
 
 	handle.await;
 

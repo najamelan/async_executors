@@ -130,12 +130,11 @@ impl crate::YieldNow for AsyncGlobal {}
 
 #[ cfg( not(target_arch = "wasm32") ) ]
 //
-impl crate::SpawnBlocking for AsyncGlobal
+impl<R: Send + 'static> crate::SpawnBlocking<R> for AsyncGlobal
 {
-	fn spawn_blocking<F, R>( &self, f: F ) -> crate::BlockingHandle<R>
+	fn spawn_blocking<F>( &self, f: F ) -> crate::BlockingHandle<R>
 
 		where F: FnOnce() -> R + Send + 'static ,
-	         R: Send + 'static                 ,
 	{
 		let handle = async_global::spawn_blocking( f );
 
@@ -143,7 +142,7 @@ impl crate::SpawnBlocking for AsyncGlobal
 	}
 
 
-	fn spawn_blocking_void( &self, f: Box< dyn FnOnce() + Send > ) -> crate::BlockingHandle<()>
+	fn spawn_blocking_dyn( &self, f: Box< dyn FnOnce()->R + Send > ) -> crate::BlockingHandle<R>
 	{
 		self.spawn_blocking( f )
 	}
