@@ -138,16 +138,21 @@ impl crate::YieldNow for AsyncStd {}
 
 #[ cfg( not(target_arch = "wasm32") ) ]
 //
-impl crate::SpawnBlocking for AsyncStd
+impl<R: Send + 'static> crate::SpawnBlocking<R> for AsyncStd
 {
-	fn spawn_blocking<F, R>( &self, f: F ) -> crate::BlockingHandle<R>
+	fn spawn_blocking<F>( &self, f: F ) -> crate::BlockingHandle<R>
 
 		where F: FnOnce() -> R + Send + 'static ,
-	         R: Send + 'static                 ,
 	{
 		let handle = async_std::task::spawn_blocking( f );
 
 		crate::BlockingHandle::async_std( handle )
+	}
+
+
+	fn spawn_blocking_dyn( &self, f: Box< dyn FnOnce()->R + Send > ) -> crate::BlockingHandle<R>
+	{
+		self.spawn_blocking( f )
 	}
 }
 

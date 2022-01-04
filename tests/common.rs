@@ -9,7 +9,8 @@ pub use
 };
 
 
-pub type DynResult<T> = Result< T, Box<dyn std::error::Error + Send + Sync> >;
+pub type DynResult<T>       = Result< T, Box<dyn std::error::Error + Send + Sync> >;
+pub type DynResultNoSend<T> = Result< T, Box<dyn std::error::Error> >;
 
 
 #[ cfg(not( target_arch = "wasm32" )) ]
@@ -307,13 +308,6 @@ pub async fn try_yield_now( exec: impl SpawnHandle<()> + YieldNow ) -> DynResult
 
 	let handle = exec.spawn_handle( task )?;
 
-	// glommio will only yield if we have been running sufficiently long.
-	//
-	#[ cfg( feature = "glommio" ) ]
-	//
-	std::thread::sleep( Duration::from_millis( 20 ) );
-
-
 	exec.yield_now().await;
 
 	// by now task should have run because of the yield_now.
@@ -341,7 +335,7 @@ pub async fn without_yield_now( exec: impl SpawnHandle<()> + YieldNow ) -> DynRe
 
 	let handle = exec.spawn_handle( task )?;
 
-	// by now task should have run because of the yield_now.
+	// spawned task should not have run yet.
 	//
 	assert!( !flag.load(SeqCst) );
 
@@ -354,7 +348,7 @@ pub async fn without_yield_now( exec: impl SpawnHandle<()> + YieldNow ) -> DynRe
 
 // Use same exec to run this function as you pass in.
 //
-pub async fn blocking( exec: impl SpawnBlocking ) -> DynResult<()>
+pub async fn blocking( exec: impl SpawnBlocking<()> ) -> DynResult<()>
 {
 	let flag  = Arc::new( AtomicBool::new( false ) );
 	let flag2 = flag.clone();
@@ -369,6 +363,34 @@ pub async fn blocking( exec: impl SpawnBlocking ) -> DynResult<()>
 	};
 
 	let handle = exec.spawn_blocking( task );
+
+	handle.await;
+
+	assert!( flag.load(SeqCst) );
+
+	Ok(())
+}
+
+
+
+// Use same exec to run this function as you pass in. This tests for
+// the possibility of an object safe SpawnBlocking.
+//
+pub async fn blocking_void( exec: &dyn SpawnBlocking<()> ) -> DynResult<()>
+{
+	let flag  = Arc::new( AtomicBool::new( false ) );
+	let flag2 = flag.clone();
+
+	let task = move ||
+	{
+		// blocking work
+		//
+		std::thread::sleep( Duration::from_millis( 5 ) );
+
+		flag2.store( true, SeqCst );
+	};
+
+	let handle = exec.spawn_blocking_dyn( Box::new(task) );
 
 	handle.await;
 

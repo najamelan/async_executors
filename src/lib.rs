@@ -1,6 +1,5 @@
 #![ cfg_attr( nightly, feature(doc_cfg) ) ]
-#![ cfg_attr( nightly, cfg_attr( nightly, doc = include_str!("../README.md") )) ]
-#![ doc = "" ] // empty doc line to handle missing doc warning when the feature is missing.
+#![ doc = include_str!("../README.md") ]
 
 #![ doc   ( html_root_url = "https://docs.rs/async_executors" ) ]
 #![ deny  ( missing_docs                                      ) ]

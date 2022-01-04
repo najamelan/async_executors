@@ -21,6 +21,7 @@
 // ✔ pass a    &AsyncGlobal  to a function that takes exec: `&dyn LocalSpawnHandle`
 //
 // ✔ pass an AsyncGlobal to a function that requires a SpawnBlocking.
+// ✔ pass an AsyncGlobal to a function that requires an object safe SpawnBlocking.
 // ✔ pass an AsyncGlobal to a function that requires a Timer.
 // ✔ Verify AsyncGlobal does not implement Timer when feature is not enabled.
 // ✔ Verify Timeout future.
@@ -414,6 +415,17 @@ fn timer_should_wake()
 fn spawn_blocking() -> DynResult<()>
 {
 	AsyncGlobal::block_on( blocking( AsyncGlobal ) )
+}
+
+
+
+// pass an AsyncGlobal to a function that requires a SpawnBlocking.
+//
+#[ test ]
+//
+fn spawn_blocking_void() -> DynResult<()>
+{
+	AsyncGlobal::block_on( blocking_void( &AsyncGlobal ) )
 }
 
 

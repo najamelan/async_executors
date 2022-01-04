@@ -13,6 +13,7 @@
 // ✔ pass a builder with some config set.
 //
 // ✔ pass a TokioTp to a function that requires a SpawnBlocking.
+// ✔ pass a TokioTp to a function that requires an object safe SpawnBlocking.
 // ✔ pass a TokioTp to a function that requires a Timer.
 // ✔ Verify TokioTp does not implement Timer when feature is not enabled.
 // ✔ Verify Timeout future.
@@ -279,7 +280,6 @@ fn no_feature_no_timer()
 
 
 
-
 // pass a TokioTp to a function that requires SpawnBlocking.
 //
 #[ test ]
@@ -289,6 +289,19 @@ fn spawn_blocking() -> DynResult<()>
 	let exec = &TokioTpBuilder::new().build()?;
 
 	exec.block_on( blocking( exec ) )
+}
+
+
+
+// pass a TokioTp to a function that requires an object safe SpawnBlocking.
+//
+#[ test ]
+//
+fn spawn_blocking_void() -> DynResult<()>
+{
+	let exec = &TokioTpBuilder::new().build()?;
+
+	exec.block_on( blocking_void( exec ) )
 }
 
 

@@ -434,7 +434,7 @@ fn join_handle_detach()
 //
 #[ test ]
 //
-fn yield_run_subtask_first() -> DynResult<()>
+fn yield_run_subtask_first() -> DynResultNoSend<()>
 {
 	let builder = LocalExecutorBuilder::new()
 
@@ -443,7 +443,7 @@ fn yield_run_subtask_first() -> DynResult<()>
 
 	let exec = &GlommioCt::new( builder )?;
 
-	exec.block_on( try_yield_now( exec ) )
+	exec.block_on( try_yield_now_glommio( exec ) ).map_err( |e| e as Box<dyn std::error::Error> )
 }
 
 
@@ -452,16 +452,80 @@ fn yield_run_subtask_first() -> DynResult<()>
 //
 #[ test ]
 //
-fn yield_run_subtask_last() -> DynResult<()>
+fn yield_run_subtask_last() -> DynResultNoSend<()>
 {
 	let builder = LocalExecutorBuilder::new()
 
 		.preempt_timer( std::time::Duration::from_millis(20) )
 	;
 
-	let exec = &GlommioCt::new( builder )?;
+	let exec = GlommioCt::new( builder )?;
 
-	exec.block_on( without_yield_now( exec ) )
+	exec.block_on( without_yield_now_glommio( exec.clone() ) ).map_err( |e| e as Box<dyn std::error::Error> )
+}
+
+
+// Use same exec to run this function as you pass in. This is different from the one for other
+// executors as it will sleep because glommio does not yield unless the task has been running for some time.
+//
+pub async fn try_yield_now_glommio( exec: impl SpawnHandle<()> + YieldNow ) -> DynResult<()>
+{
+	let flag  = Arc::new( AtomicBool::new( false ) );
+	let flag2 = flag.clone();
+
+	let task = async move
+	{
+		flag2.store( true, SeqCst );
+	};
+
+	let handle = exec.spawn_handle( task )?;
+
+	// glommio will only yield if we have been running sufficiently long.
+	//
+	std::thread::sleep( Duration::from_millis( 20 ) );
+
+
+	exec.yield_now().await;
+
+	// by now task should have run because of the yield_now.
+	//
+	assert!( flag.load(SeqCst) );
+
+	handle.await;
+
+	Ok(())
+}
+
+
+// Glommio immediately polls a spawned task. Hence this test doesnt work unless we try to do the
+// yield_now in the subtask. Otherwise the subtask runs during the spawn call.
+//
+async fn without_yield_now_glommio( exec: impl LocalSpawnHandle<()> + YieldNow + Clone + 'static ) -> DynResult<()>
+{
+	let flag  = Arc::new( AtomicBool::new( false ) );
+	let flag2 = flag.clone();
+	let exec2 = exec.clone();
+
+	let task = async move
+	{
+		// Glommio also doesn't yield unless the task has been running for some time.
+		//
+		std::thread::sleep( Duration::from_millis( 20 ) );
+
+		exec2.yield_now().await;
+
+		flag2.store( true, SeqCst );
+	};
+
+	let handle = exec.spawn_handle_local( task )?;
+
+	// spawned task should not have run yet.
+	//
+	assert!( !flag.load(SeqCst) );
+
+	handle.await;
+
+	Ok(())
 }
 
 

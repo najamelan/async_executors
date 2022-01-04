@@ -20,7 +20,8 @@
 // ✔ pass a Arc<AsyncStd> to a function that takes exec:  `impl LocalSpawnHandle`
 // ✔ pass a    &AsyncStd  to a function that takes exec:  `&dyn LocalSpawnHandle`
 //
-// ✔ pass an AsyncGlobal to a function that requires a SpawnBlocking.
+// ✔ pass an AsyncStd to a function that requires a SpawnBlocking.
+// ✔ pass an AsyncStd to a function that requires an object safe SpawnBlocking.
 // ✔ pass an AsyncStd to a function that requires a Timer.
 // ✔ Verify tokio_io works when the async_std_tokio feature is enabled.
 // ✔ Verify tokio_io doesn't work when the async_std_tokio feature is not enabled.
@@ -439,6 +440,17 @@ fn run_dont_timeout()
 fn spawn_blocking() -> DynResult<()>
 {
 	AsyncStd::block_on( blocking( AsyncStd ) )
+}
+
+
+
+// pass an AsyncStd to a function that requires a SpawnBlocking.
+//
+#[ test ]
+//
+fn spawn_blocking_void() -> DynResult<()>
+{
+	AsyncStd::block_on( blocking_void( &AsyncStd ) )
 }
 
 

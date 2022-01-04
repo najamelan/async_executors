@@ -15,8 +15,9 @@ type BoxedFut<T> = Pin<Box< dyn Future<Output=T> + Send >>;
 
 
 /// A framework agnostic BlockingHandle type. This is returned by [`SpawnBlocking`](crate::SpawnBlocking).
-/// Await this handle for the output of the task. You can't cancel a blocking task once it has started running.
-/// If you drop this after the task starts running, it will just detach and let the task run in the background.
+/// Await this handle for the output of the task. As opposed to a [`JoinHandle`], you can't cancel a blocking
+/// task once it has started running. If you drop this after the task starts running, it will just detach
+/// and let the task run in the background.
 //
 #[ derive( Debug ) ]
 //
@@ -79,7 +80,10 @@ enum InnerBh<T>
 	//
 	AsyncStd( AsyncStdJoinHandle<T> ),
 
-	Phantom(std::marker::PhantomData< fn()->T >),
+	// Since the other variants are behind feature flags, the generic won't be
+	// used if we don't include this.
+	//
+	Phantom( std::marker::PhantomData< fn()->T > ),
 }
 
 

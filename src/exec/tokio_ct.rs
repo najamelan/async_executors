@@ -197,18 +197,24 @@ impl crate::YieldNow for TokioCt {}
 
 
 
-impl crate::SpawnBlocking for TokioCt
+impl<R: Send + 'static> crate::SpawnBlocking<R> for TokioCt
 {
-	fn spawn_blocking<F, R>( &self, f: F ) -> BlockingHandle<R>
+	fn spawn_blocking<F>( &self, f: F ) -> BlockingHandle<R>
 
 		where F: FnOnce() -> R + Send + 'static ,
-	         R: Send + 'static                 ,
 	{
 		let handle = self.exec.as_ref().spawn_blocking( f );
 
 		BlockingHandle::tokio( handle )
 	}
+
+
+	fn spawn_blocking_dyn( &self, f: Box< dyn FnOnce()->R + Send > ) -> BlockingHandle<R>
+	{
+		self.spawn_blocking( f )
+	}
 }
+
 
 
 #[ cfg(test) ]

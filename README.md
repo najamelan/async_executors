@@ -41,14 +41,14 @@ With [cargo yaml](https://gitlab.com/storedbox/cargo-yaml):
 ```yaml
 dependencies:
 
-   async_executors: ^0.4
+   async_executors: ^0.5
 ```
 
 With Cargo.toml
 ```toml
 [dependencies]
 
-    async_executors = "0.4"
+    async_executors = "0.5"
 ```
 
 ### Upgrade
@@ -68,19 +68,19 @@ This crate has a lot of features. Lets go over them:
 
 ### General features
 - `tracing`: when enabled, all traits are re-implemented for [`tracing-futures::Instrumented`] and [`tracing-futures::WithDispatch`].
-- `timer`  : Provides executor's with timer support. For executors that don't have built in timers, the _future-timer_ crate is used.
+- `timer`  : Turns on the _futures-timer_ crate. This enables executors to async sleep. On _tokio_, alternatively you can enable `tokio_timer` to enable the tokio native timer. _async_std_, when not on wasm, provides a timer without needing this feature.
 
 ### Executor specific:
 - `async_global`      : Turns on the executor from [_async-global-executor_](https://docs.rs/async-global-executor).
    Supports Wasm, `!Send` tasks.
-- `async_global_tokio`: Makes sure a tokio reactor is running for tasks spawned on [`AsyncGlobal`].
+- `async_global_tokio`: Makes sure a tokio reactor is running for tasks spawned on [`AsyncGlobal`]. [`AsyncGlobal`] will implement the [`TokioIo`] trait.
 - `async_std`         : Turns on the executor from the [_async-std_](https://docs.rs/async-std) crate. Supports Wasm and `!Send` tasks.
-- `async_std_tokio`   : Makes sure a tokio reactor is running for tasks spawned on [`AsyncStd`].
+- `async_std_tokio`   : Makes sure a tokio reactor is running for tasks spawned on [`AsyncStd`]. [`AsyncStd`] will implement the [`TokioIo`] trait.
 - `glommio`           : Turns on the executor from the [_glommio_](https://docs.rs/glommio) crate. Single threaded, Linux 5.8+ only. Supports `!Send` tasks.
 - `tokio_ct`          : Tokio Current thread, enables a single threaded runtime from the [_tokio_](https://docs.rs/tokio) crate. Supports `!Send` tasks.
 - `tokio_tp`          : Tokio threadpool, enables a threadpool runtime from the [_tokio_](https://docs.rs/tokio) crate.
 - `tokio_timer`       : Will enable the `time` feature on _tokio_ and call `enable_time()` on any tokio runtimes you create. For tokio runtimes, this takes precedence over the `timer` feature.
-- `tokio_io`          : Will enable the `net` and `process` features on _tokio_ and call `enable_reactor()` on any tokio runtimes you create.
+- `tokio_io`          : Will enable the `net` and `process` features on _tokio_ and call `enable_reactor()` on any tokio runtimes you create. [`TokioCt`] and [`TokioTp`] will implement the [`TokioIo`] trait.
 - `localpool`         : Enables the single threaded executor from [_futures-executor_](http://docs.rs/futures-executor). Supports `!Send` tasks. `LocalPool` and `LocalSpawner` will be re-exported from this crate and have our traits implemented.
 - `threadpool`        : Enables the treadpool executor from [_futures-executor_](http://docs.rs/futures-executor). `ThreadPool` will be re-exported from this crate and have our traits implemented.
 - `bindgen`           : Enables the single threaded executor from [_wasm-bindgen-futures_](https://docs.rs/wasm-bindgen-futures). Wasm only. Supports `!Send` tasks.
@@ -104,13 +104,6 @@ to put them in a queue you probably get 2 heap allocations per spawn.
 `SpawnHandle` and `LocalSpawnHandle` require boxing the future twice, just like `Spawn` and `LocalSpawn`.
 
 Existing benchmarks for all executors can be found in [executor_benchmarks](https://github.com/najamelan/executor_benchmarks).
-
-
-## Missing features
-
-These are some features that aren't provided yet but that are on the todo list:
-
-- an agnostic interface for `spawn_blocking`.
 
 
 ## Usage
@@ -183,15 +176,17 @@ fn main()
 
 As you can see from the above example, the output of the future is a type parameter on `SpawnHandle`. This is necessary because putting it on the method would make the trait no longer object safe, which means it couldn't be stored unless as a type parameter.
 
-The best way to define a combination of abilities you need is by making your own trait alias:
+The best way to define a combination of abilities you need is by making your own trait alias (here shown with a macro from the [trait_set](https://docs.rs/trait-set/) crate, but you can write it out yourself with a blanket implementation if you want):
 
 ```rust, ignore
-trait_set!
+use async_executors::*;
+
+trait_set::trait_set!
 {
    pub trait LibExec = SpawnHandle<()> + SpawnHandle<u8> + Timer + YieldNow + Clone;
 }
 
-pub fn lib_function( exec: impl LibExec ) { ... }
+pub fn lib_function( _exec: impl LibExec ) {}
 
 ```
 
@@ -206,6 +201,7 @@ You can basically pass the wrapper types provided in _async_executors_ to API's 
   - `impl LocalSpawn`
   - `impl SpawnHandle<T>`
   - `impl LocalSpawnHandle<T>`
+  - `impl SpawnBlocking`
   - `impl YieldNow`
   - `impl Timer`
   - `impl TokioIo`

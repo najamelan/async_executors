@@ -11,20 +11,115 @@ use
 
 
 /// Indicate the executor can provide a threadpool for blocking operations.
-/// This cannot be object safe because it works on a closure, which is un-nameble.
-/// that means the method has to be generic. If you must store an executor with
-/// this trait, you will have to make your struct generic.
+/// There is two methods of this trait. One of them requires boxing the closure
+/// and the other is not object safe.
 //
-#[ blanket(derive( Ref, Mut, Box, Arc, Rc )) ]
+// Doesn't work with blanket.
+// #[ blanket(derive( Mut, Box, Arc, Rc )) ]
 //
-pub trait SpawnBlocking
+pub trait SpawnBlocking<R> where R: Send + 'static
 {
 	/// Runs the provided closure on a thread where blocking is acceptable.
 	//
-	fn spawn_blocking<F, R>( &self, f: F ) -> BlockingHandle<R>
+	fn spawn_blocking<F>( &self, f: F ) -> BlockingHandle<R>
 
-		where F: FnOnce() -> R + Send + 'static ,
-	         R: Send + 'static                 ,
+		where F   : FnOnce() -> R + Send + 'static ,
+	         R   : Send + 'static                 ,
+	         Self: Sized                          ,
 	;
+
+	/// Runs the provided closure on a thread where blocking is acceptable. This part of the trait is
+	/// object safe but your closure must be boxed and you cannot have a return value.
+	//
+	fn spawn_blocking_dyn( &self, f: Box< dyn FnOnce()->R + Send > ) -> BlockingHandle<R>;
 }
 
+
+impl<R, T> SpawnBlocking<R> for &T  where T: SpawnBlocking<R>, R: Send + 'static
+{
+	fn spawn_blocking<F>( &self, f: F ) -> BlockingHandle<R>
+
+		where F: FnOnce() -> R + Send + 'static ,
+	         T: Sized                          ,
+	{
+		(**self).spawn_blocking( f )
+	}
+
+
+	fn spawn_blocking_dyn( &self, f: Box< dyn FnOnce()->R + Send > ) -> BlockingHandle<R>
+	{
+		(**self).spawn_blocking_dyn( f )
+	}
+}
+
+
+impl<R, T: SpawnBlocking<R>> SpawnBlocking<R> for &mut T where T: SpawnBlocking<R>, R: Send + 'static
+{
+	fn spawn_blocking<F>( &self, f: F ) -> BlockingHandle<R>
+
+		where F: FnOnce() -> R + Send + 'static ,
+	         T: Sized                          ,
+	{
+		(**self).spawn_blocking( f )
+	}
+
+
+	fn spawn_blocking_dyn( &self, f: Box< dyn FnOnce()->R + Send > ) -> BlockingHandle<R>
+	{
+		(**self).spawn_blocking_dyn( f )
+	}
+}
+
+
+impl<R, T: SpawnBlocking<R>> SpawnBlocking<R> for Box<T> where T: SpawnBlocking<R>, R: Send + 'static
+{
+	fn spawn_blocking<F>( &self, f: F ) -> BlockingHandle<R>
+
+		where F: FnOnce() -> R + Send + 'static ,
+	         T: Sized                          ,
+	{
+		(**self).spawn_blocking( f )
+	}
+
+
+	fn spawn_blocking_dyn( &self, f: Box< dyn FnOnce()->R + Send > ) -> BlockingHandle<R>
+	{
+		(**self).spawn_blocking_dyn( f )
+	}
+}
+
+
+impl<R, T: SpawnBlocking<R>> SpawnBlocking<R> for Arc<T> where T: SpawnBlocking<R>, R: Send + 'static
+{
+	fn spawn_blocking<F>( &self, f: F ) -> BlockingHandle<R>
+
+		where F: FnOnce() -> R + Send + 'static ,
+	         T: Sized                          ,
+	{
+		(**self).spawn_blocking( f )
+	}
+
+
+	fn spawn_blocking_dyn( &self, f: Box< dyn FnOnce()->R + Send > ) -> BlockingHandle<R>
+	{
+		(**self).spawn_blocking_dyn( f )
+	}
+}
+
+
+impl<R, T: SpawnBlocking<R>> SpawnBlocking<R> for Rc<T> where T: SpawnBlocking<R>, R: Send + 'static
+{
+	fn spawn_blocking<F>( &self, f: F ) -> BlockingHandle<R>
+
+		where F: FnOnce() -> R + Send + 'static ,
+	         T: Sized                          ,
+	{
+		(**self).spawn_blocking( f )
+	}
+
+
+	fn spawn_blocking_dyn( &self, f: Box< dyn FnOnce()->R + Send > ) -> BlockingHandle<R>
+	{
+		(**self).spawn_blocking_dyn( f )
+	}
+}
