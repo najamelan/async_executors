@@ -7,6 +7,12 @@ use
 /// Trait indicating that tasks can yield to the executor. This put's
 /// the current task at the back of the schedulers queue, giving other
 /// tasks a chance to run.
+///
+/// In practice for most executors this just returns a future that will,
+/// the first time it is polled, wake up the waker and then return Pending.
+///
+/// The problem with using the executors native implementation is that they
+/// generally return an opaque future we would have to box.
 //
 #[ blanket( derive(Ref, Mut, Arc, Rc, Box) ) ]
 //

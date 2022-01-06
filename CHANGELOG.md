@@ -3,12 +3,21 @@
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/najamelan/async_executors/compare/0.5...dev
+[Unreleased]: https://github.com/najamelan/async_executors/compare/0.5.1...dev
+
+
+## [0.5.1] - 2022-01-06
+
+[0.5.1]: https://github.com/najamelan/async_executors/compare/0.5.0..0.5.1
+
+### Added 
+
+  - forward SpawnBlocking trait from `tracing_futures::Instrumented` and `tracing_futures::WithDispatch`.
 
 
 ## [0.5.0] - 2022-01-04
 
-[0.5.0]: https://github.com/najamelan/async_executors/compare/0.4.2..0.5
+[0.5.0]: https://github.com/najamelan/async_executors/compare/0.4.2..0.5.0
 
 ### Added 
 
