@@ -3,6 +3,7 @@
 - clarify in docs and cargo.yml that it is LocalSpawner that is the executor and not LocalPool.
 - async-io also provides a timer. So maybe in async-global-executor if async-io is already enabled, we should use
   that instead of futures-timer.
+- implement Timer for futures-timer?
 - verify unwind safety of all our public types and make sure the traits are correctly implemented or not.
 - pass on traits to Nursery in async_nursery where possible.
 

@@ -24,7 +24,6 @@ pub trait SpawnBlocking<R> where R: Send + 'static
 	fn spawn_blocking<F>( &self, f: F ) -> BlockingHandle<R>
 
 		where F   : FnOnce() -> R + Send + 'static ,
-	         R   : Send + 'static                 ,
 	         Self: Sized                          ,
 	;
 
