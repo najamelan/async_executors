@@ -1,9 +1,9 @@
 use
 {
-	async_executors  :: { GlommioCt                } ,
-	futures::channel :: { oneshot, oneshot::Sender } ,
-	futures::task    :: { Spawn, SpawnExt          } ,
-	glommio_crate    :: { LocalExecutorBuilder     } ,
+	async_executors  :: { GlommioCt                       } ,
+	futures::channel :: { oneshot, oneshot::Sender        } ,
+	futures::task    :: { Spawn, SpawnExt                 } ,
+	glommio_crate    :: { LocalExecutorBuilder, Placement } ,
 };
 
 
@@ -24,7 +24,7 @@ fn main()
 	// You provide the builder, and async_executors will set the right scheduler.
 	// Of course you can set other configuration on the builder before.
 	//
-	let builder = LocalExecutorBuilder::new();
+	let builder = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec    = GlommioCt::new( builder ).expect( "create exec" );
 
 	let program = async

@@ -36,9 +36,9 @@ mod common;
 use
 {
 	common        :: * ,
-	futures       :: { channel::{ mpsc }, StreamExt } ,
-	glommio_crate :: { LocalExecutorBuilder         } ,
-	std           :: { rc::Rc                       } ,
+	futures       :: { channel::{ mpsc }, StreamExt    } ,
+	glommio_crate :: { LocalExecutorBuilder, Placement } ,
+	std           :: { rc::Rc                          } ,
 };
 
 
@@ -50,7 +50,7 @@ use
 fn spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = GlommioCt::new( builder ).expect( "create exec" );
 	let ex2          = exec.clone();
 
@@ -73,7 +73,7 @@ fn spawn()
 fn spawn_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = GlommioCt::new( builder ).expect( "create exec" );
 
 	let res = exec.block_on( async
@@ -95,7 +95,7 @@ fn spawn_ref()
 fn spawn_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = GlommioCt::new( builder ).expect( "create exec" );
 
 	let res = exec.block_on( async
@@ -117,7 +117,7 @@ fn spawn_with_ref()
 fn spawn_clone_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = GlommioCt::new( builder ).expect( "create exec" );
 
 	let res = exec.block_on( async
@@ -140,7 +140,7 @@ fn spawn_clone_with_ref()
 fn spawn_clone_with_arc()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = GlommioCt::new( builder ).expect( "create exec" );
 
 	let res = exec.block_on( async
@@ -161,7 +161,7 @@ fn spawn_clone_with_arc()
 //
 fn spawn_handle()
 {
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = GlommioCt::new( builder ).expect( "create exec" );
 
 	let res = exec.block_on( increment_spawn_handle( 4, exec.clone() ) );
@@ -177,7 +177,7 @@ fn spawn_handle()
 //
 fn spawn_handle_arc()
 {
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = GlommioCt::new( builder ).expect( "create exec" );
 
 	let res = exec.block_on( increment_spawn_handle( 4, Arc::new( exec.clone() ) ) );
@@ -193,7 +193,7 @@ fn spawn_handle_arc()
 //
 fn spawn_handle_os()
 {
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = GlommioCt::new( builder ).expect( "create exec" );
 
 	let result = exec.block_on( increment_spawn_handle_os( 4, &exec ) );
@@ -209,7 +209,7 @@ fn spawn_handle_os()
 //
 fn spawn_handle_many()
 {
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = &GlommioCt::new( builder ).expect( "create exec" );
 
 	let _result = exec.block_on( async move
@@ -243,7 +243,7 @@ fn spawn_handle_many()
 fn spawn_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = GlommioCt::new( builder ).expect( "create exec" );
 
 	let res = exec.block_on( async
@@ -265,7 +265,7 @@ fn spawn_local()
 fn spawn_ref_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = GlommioCt::new( builder ).expect( "create exec" );
 
 	let res = exec.block_on( async
@@ -287,7 +287,7 @@ fn spawn_ref_local()
 fn spawn_with_ref_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = GlommioCt::new( builder ).expect( "create exec" );
 
 	let res = exec.block_on( async
@@ -309,7 +309,7 @@ fn spawn_with_ref_local()
 fn spawn_clone_with_ref_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = GlommioCt::new( builder ).expect( "create exec" );
 
 	let res = exec.block_on( async
@@ -332,7 +332,7 @@ fn spawn_clone_with_ref_local()
 fn spawn_clone_with_rc_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = GlommioCt::new( builder ).expect( "create exec" );
 
 	let res = exec.block_on( async
@@ -353,7 +353,7 @@ fn spawn_clone_with_rc_local()
 //
 fn spawn_handle_local()
 {
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = GlommioCt::new( builder ).expect( "create exec" );
 
 	let res = exec.block_on( increment_spawn_handle_local( 4, exec.clone() ) );
@@ -369,7 +369,7 @@ fn spawn_handle_local()
 //
 fn spawn_handle_rc_local()
 {
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = GlommioCt::new( builder ).expect( "create exec" );
 
 	let res = exec.block_on( increment_spawn_handle_local( 4, Rc::new( exec.clone() ) ) );
@@ -385,7 +385,7 @@ fn spawn_handle_rc_local()
 //
 fn spawn_handle_local_os()
 {
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = GlommioCt::new( builder ).expect( "create exec" );
 
 	let result = exec.block_on( increment_spawn_handle_os( 4, &exec ) );
@@ -401,7 +401,7 @@ fn spawn_handle_local_os()
 //
 fn join_handle_detach()
 {
-	let builder      = LocalExecutorBuilder::new();
+	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = &GlommioCt::new( builder ).expect( "create exec" );
 
 	let (in_tx , in_rx ) = oneshot::channel();
@@ -436,7 +436,7 @@ fn join_handle_detach()
 //
 fn yield_run_subtask_first() -> DynResultNoSend<()>
 {
-	let builder = LocalExecutorBuilder::new()
+	let builder = LocalExecutorBuilder::new( Placement::Unbound )
 
 		.preempt_timer( std::time::Duration::from_millis(20) )
 	;
@@ -454,7 +454,7 @@ fn yield_run_subtask_first() -> DynResultNoSend<()>
 //
 fn yield_run_subtask_last() -> DynResultNoSend<()>
 {
-	let builder = LocalExecutorBuilder::new()
+	let builder = LocalExecutorBuilder::new( Placement::Unbound )
 
 		.preempt_timer( std::time::Duration::from_millis(20) )
 	;
@@ -538,7 +538,7 @@ async fn without_yield_now_glommio( exec: impl LocalSpawnHandle<()> + YieldNow +
 //
 fn timer_should_wake_local()
 {
-	let exec = GlommioCt::new( LocalExecutorBuilder::new() ).expect( "create exec" );
+	let exec = GlommioCt::new( LocalExecutorBuilder::new( Placement::Unbound ) ).expect( "create exec" );
 	exec.block_on( timer_should_wake_up_local( exec.clone() ) );
 }
 
@@ -552,7 +552,7 @@ fn timer_should_wake_local()
 //
 fn run_timeout()
 {
-	let exec = &GlommioCt::new( LocalExecutorBuilder::new() ).expect( "create exec" );
+	let exec = &GlommioCt::new( LocalExecutorBuilder::new( Placement::Unbound ) ).expect( "create exec" );
 
 	exec.block_on( timeout( exec ) );
 }
@@ -567,7 +567,7 @@ fn run_timeout()
 //
 fn run_dont_timeout()
 {
-	let exec = &GlommioCt::new( LocalExecutorBuilder::new() ).expect( "create exec" );
+	let exec = &GlommioCt::new( LocalExecutorBuilder::new( Placement::Unbound ) ).expect( "create exec" );
 
 	exec.block_on( dont_timeout( exec ) );
 }

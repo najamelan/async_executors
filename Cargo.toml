@@ -45,7 +45,7 @@ version = "^0.3"
 [dependencies.glommio_crate]
 optional = true
 package = "glommio"
-version = "^0.6"
+version = "^0.7"
 
 [dependencies.tokio]
 optional = true
@@ -62,7 +62,7 @@ version = "^0.4"
 
 [dev-dependencies]
 static_assertions = "^1"
-trait-set = "^0.2"
+trait-set = "^0.3"
 
 [dev-dependencies.futures]
 features = ["thread-pool"]
