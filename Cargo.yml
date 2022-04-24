@@ -26,7 +26,7 @@ package:
   # - `git tag x.x.x` with version number.
   # - `git push && git push --tags`
   #
-  version       : 0.5.1
+  version       : 0.6.0
   name          : async_executors
   authors       : [ Naja Melan <najamelan@autistici.org> ]
   description   : Implements Spawn, SpawnLocal and SpawnHandle for commonly used executors.
@@ -158,7 +158,7 @@ dependencies:
   futures-executor    : { version: ^0.3, optional: true                         }
   futures-timer       : { version: ^3  , optional: true                         }
   tracing-futures     : { version: ^0.2, optional: true, features: [futures-03] }
-  glommio_crate       : { version: ^0.6, optional: true, package: glommio       }
+  glommio_crate       : { version: ^0.7, optional: true, package: glommio       }
   tokio               : { version: ^1  , optional: true                         }
 
   # Private deps
@@ -179,7 +179,7 @@ dev-dependencies:
   futures           : { version: ^0.3  , features: [ thread-pool ] }
   tracing-subscriber: { version: ^0.3.5, default-features: false, features: [ fmt ] }
   tracing_crate     : { version: ^0.1  , package: tracing }
-  trait-set         : ^0.2
+  trait-set         : ^0.3
 
 
 build-dependencies:
