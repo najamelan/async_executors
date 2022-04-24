@@ -3,7 +3,16 @@
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/najamelan/async_executors/compare/0.5.1...dev
+[Unreleased]: https://github.com/najamelan/async_executors/compare/0.6.0...dev
+
+
+## [0.6.0] - 2022-04-24
+
+[0.6.0]: https://github.com/najamelan/async_executors/compare/0.5.1..0.6.0
+
+### Added 
+
+  - **BREAKING**: update glommio to 0.7.
 
 
 ## [0.5.1] - 2022-01-06
