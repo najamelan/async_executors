@@ -24,6 +24,10 @@ jobs:
       - name: Run tests
         run : ci/test.bash
 
+      - name: Check semver
+        uses: obi1kenobi/cargo-semver-checks-action@v1
+        with:
+          version-tag-prefix: ''
 
   linux-nightly:
 
