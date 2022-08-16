@@ -200,7 +200,7 @@ fn join_handle_abort()
 		// This will never end.
 		// TODO: Replace with the std version when that is merged in stable.
 		//
-		let () = futures::future::pending().await;
+		std::future::pending().await;
 
 	}).expect( "spawn task" );
 
