@@ -84,6 +84,7 @@ fn spawn_with_ref()
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = AsyncStd::default();
 
+	#[allow(clippy::needless_borrow)]
 	increment( 4, &exec, tx );
 
 	let result = AsyncStd::block_on( rx.next() ).expect( "Some" );
@@ -195,8 +196,8 @@ fn join_handle_abort()
 		let _notify = DropNotify{ tx: Some(tx) };
 
 		// This will never end.
-		// TODO: Replace with the std version when that is merged in stable.
 		//
+		#[allow(clippy::let_unit_value)]
 		let () = futures::future::pending().await;
 
 	}).expect( "spawn task" );
@@ -301,6 +302,7 @@ fn spawn_with_ref_local()
 
 	let res = AsyncStd::block_on( async
 	{
+		#[allow(clippy::needless_borrow)]
 		increment_local( 4, &AsyncStd, tx );
 
 		rx.next().await.expect( "Some" )

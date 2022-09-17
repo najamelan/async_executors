@@ -90,6 +90,7 @@ fn spawn_with_ref()
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = Bindgen::default();
 
+	#[allow(clippy::needless_borrow)]
 	increment( 4, &exec, tx );
 
 	let fut = async move
@@ -262,6 +263,7 @@ fn spawn_with_ref_local()
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = Bindgen::default();
 
+	#[allow(clippy::needless_borrow)]
 	increment_local( 4, &exec, tx );
 
 	let fut = async move

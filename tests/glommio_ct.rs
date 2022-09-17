@@ -212,7 +212,7 @@ fn spawn_handle_many()
 	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = &GlommioCt::new( builder ).expect( "create exec" );
 
-	let _result = exec.block_on( async move
+	exec.block_on( async move
 	{
 		let amount  = 1000;
 		let mut rxs = Vec::with_capacity( amount );

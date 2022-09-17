@@ -86,6 +86,7 @@ fn spawn_with_ref()
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec         = AsyncGlobal::default();
 
+	#[allow(clippy::needless_borrow)]
 	increment( 4, &exec, tx );
 
 	let result = AsyncGlobal::block_on( rx.next() ).expect( "Some" );
@@ -199,6 +200,7 @@ fn join_handle_abort()
 
 		// This will never end.
 		//
+		#[allow(clippy::let_unit_value)]
 		let () = std::future::pending().await;
 
 	}).expect( "spawn task" );
@@ -306,6 +308,7 @@ fn spawn_with_ref_local()
 
 	let res = AsyncGlobal::block_on( async
 	{
+		#[allow(clippy::needless_borrow)]
 		increment_local( 4, &AsyncGlobal, tx );
 
 		rx.next().await.expect( "Some" )

@@ -31,6 +31,15 @@ pub mod exec;
 //
 pub mod iface;
 
+#[ cfg( any
+(
+	feature = "tokio_ct",
+	feature = "tokio_tp",
+	feature = "async_global",
+	feature = "async_std",
+	feature = "glommio",
+	feature = "bindgen"
+)) ]
 pub use exec::*;
 pub use iface::*;
 
