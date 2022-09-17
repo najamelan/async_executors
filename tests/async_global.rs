@@ -198,9 +198,8 @@ fn join_handle_abort()
 		let _notify = DropNotify{ tx: Some(tx) };
 
 		// This will never end.
-		// TODO: Replace with the std version when that is merged in stable.
 		//
-		std::future::pending().await;
+		let () = std::future::pending().await;
 
 	}).expect( "spawn task" );
 
