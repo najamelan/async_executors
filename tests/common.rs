@@ -4,6 +4,7 @@ pub use
 {
 	futures         :: { FutureExt, SinkExt, channel::{ mpsc::Sender, oneshot }, executor::block_on      } ,
 	futures::task   :: { LocalSpawnExt, SpawnExt, LocalSpawn, Spawn                                      } ,
+	std             :: { convert::TryFrom                                                                } ,
 	std             :: { sync::{ Arc, atomic::{ AtomicBool, Ordering::SeqCst } }, rc::Rc, time::Duration } ,
 	async_executors :: { *                                                                               } ,
 };

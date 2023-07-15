@@ -1,7 +1,7 @@
 use
 {
 	futures::task    :: { Spawn, SpawnExt          } ,
-	async_executors  :: { TokioTpBuilder                  } ,
+	async_executors  :: { TokioTp                  } ,
 	futures::channel :: { oneshot, oneshot::Sender } ,
 };
 
@@ -21,7 +21,7 @@ fn main()
 	// You provide the builder, and async_executors will set the right scheduler.
 	// Of course you can set other configuration on the builder before.
 	//
-	let exec = TokioTpBuilder::new().build().expect( "create tokio threadpool" );
+	let exec = TokioTp::new().expect( "create tokio threadpool" );
 
 	let program = async
 	{

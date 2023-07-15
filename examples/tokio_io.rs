@@ -22,13 +22,13 @@
 //
 use
 {
-	async_executors :: { AsyncGlobal, AsyncStd, TokioCtBuilder, TokioIo, SpawnHandle, SpawnHandleExt } ,
-	trait_set       :: { trait_set                                                                   } ,
-	tokio::net      :: { TcpListener, TcpStream                                                      } ,
+	async_executors :: { AsyncGlobal, AsyncStd, TokioCt, TokioIo, SpawnHandle, SpawnHandleExt } ,
+	trait_set       :: { trait_set                                                            } ,
+	tokio::net      :: { TcpListener, TcpStream                                               } ,
 };
 
 
-pub type DynResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync> >;
+pub type DynResult<T> = Result<T, Box<dyn std::error::Error> >;
 
 
 /// Creates a connected pair of sockets.
@@ -74,7 +74,7 @@ fn main() -> DynResult<()>
 	AsyncGlobal::block_on( lib_function( "async-global-executor", AsyncGlobal ) )?;
 	AsyncStd   ::block_on( lib_function( "async-std"            , AsyncStd    ) )?;
 
-	let tokio_ct = &TokioCtBuilder::new().build()?;
+	let tokio_ct = &TokioCt::new()?;
 
 	tokio_ct.block_on( lib_function( "tokio current thread", tokio_ct.clone() ) )?;
 

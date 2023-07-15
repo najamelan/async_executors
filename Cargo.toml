@@ -10,7 +10,7 @@ repository = "najamelan/async_executors"
 rustc_version = "^0.4"
 
 [dependencies]
-blanket = "^0.2"
+blanket = "^0.3"
 pin-project = "^1"
 
 [dependencies.async-global-executor]
@@ -45,7 +45,7 @@ version = "^0.3"
 [dependencies.glommio_crate]
 optional = true
 package = "glommio"
-version = "^0.7"
+version = "^0.8"
 
 [dependencies.tokio]
 optional = true
@@ -67,6 +67,10 @@ trait-set = "^0.3"
 [dev-dependencies.futures]
 features = ["thread-pool"]
 version = "^0.3"
+
+[dev-dependencies.tokio]
+features = ["macros", "rt", "rt-multi-thread"]
+version = "^1"
 
 [dev-dependencies.tracing-subscriber]
 default-features = false
@@ -158,7 +162,7 @@ name = "async_executors"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_executors"
 resolver = "2"
-version = "0.6.0"
+version = "0.7.0"
 
 [package.metadata]
 [package.metadata.docs]

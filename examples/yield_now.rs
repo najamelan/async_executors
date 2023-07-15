@@ -7,8 +7,8 @@
 //
 use
 {
-	async_executors :: { TokioCtBuilder, SpawnHandle, SpawnHandleExt, YieldNow } ,
-	std             :: { sync::{ atomic::{ AtomicBool, Ordering::SeqCst }, Arc } }
+	async_executors :: { TokioCt, SpawnHandle, SpawnHandleExt, YieldNow          } ,
+	std             :: { sync::{ atomic::{ AtomicBool, Ordering::SeqCst }, Arc } } ,
 };
 
 
@@ -47,7 +47,7 @@ pub async fn lib_function( exec: impl SpawnHandle<()> + YieldNow ) -> DynResult<
 
 fn main() -> DynResult<()>
 {
-	let exec = TokioCtBuilder::new().build().expect( "create tokio threadpool" );
+	let exec = TokioCt::new().expect( "create tokio threadpool" );
 
 	exec.block_on( lib_function( &exec ) )
 }

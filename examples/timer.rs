@@ -29,12 +29,12 @@
 //
 use
 {
-	async_executors :: { AsyncStd, TokioCtBuilder, Timer, SpawnHandle } ,
-	trait_set       :: { trait_set                                    } ,
-	std             :: { time::Duration                               } ,
+	async_executors :: { AsyncStd, TokioCt, Timer, SpawnHandle } ,
+	trait_set       :: { trait_set                             } ,
+	std             :: { time::Duration                        } ,
 };
 
-pub type DynResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync> >;
+pub type DynResult<T> = Result<T, Box<dyn std::error::Error> >;
 
 
 trait_set!
@@ -57,7 +57,7 @@ fn main() -> DynResult<()>
 {
 	AsyncStd::block_on( lib_function( "async-std", AsyncStd ) );
 
-	let tokio_ct = &TokioCtBuilder::new().build()?;
+	let tokio_ct = TokioCt::new()?;
 
 	tokio_ct.block_on( lib_function( "tokio current thread", tokio_ct.clone() ) );
 
