@@ -44,7 +44,7 @@ wasm_bindgen_test_configure!( run_in_browser );
 fn spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = Bindgen::default();
+	let exec         = Bindgen;
 
 	increment( 4, exec, tx );
 
@@ -66,7 +66,7 @@ fn spawn()
 fn spawn_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = Bindgen::default();
+	let exec         = Bindgen;
 
 	increment_ref( 4, &exec, tx );
 
@@ -88,7 +88,7 @@ fn spawn_ref()
 fn spawn_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = Bindgen::default();
+	let exec         = Bindgen;
 
 	#[allow(clippy::needless_borrow)]
 	increment( 4, &exec, tx );
@@ -111,7 +111,7 @@ fn spawn_with_ref()
 fn spawn_clone_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = Bindgen::default();
+	let exec         = Bindgen;
 
 	increment_clone( 4, &exec, tx );
 
@@ -134,7 +134,7 @@ fn spawn_clone_with_ref()
 fn spawn_clone_with_arc()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = Bindgen::default();
+	let exec         = Bindgen;
 
 	increment( 4, Arc::new(exec), tx );
 
@@ -155,7 +155,7 @@ fn spawn_clone_with_arc()
 //
 fn spawn_handle()
 {
-	let exec = Bindgen::default();
+	let exec = Bindgen;
 
 	let fut = async move
 	{
@@ -174,7 +174,7 @@ fn spawn_handle()
 //
 fn spawn_handle_arc()
 {
-	let exec = Bindgen::default();
+	let exec = Bindgen;
 
 	let fut = async move
 	{
@@ -193,7 +193,7 @@ fn spawn_handle_arc()
 //
 fn spawn_handle_os()
 {
-	let exec = Bindgen::default();
+	let exec = Bindgen;
 
 	let fut = async move
 	{
@@ -217,7 +217,7 @@ fn spawn_handle_os()
 fn spawn_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = Bindgen::default();
+	let exec         = Bindgen;
 
 	increment_local( 4, exec, tx );
 
@@ -239,7 +239,7 @@ fn spawn_local()
 fn spawn_ref_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = Bindgen::default();
+	let exec         = Bindgen;
 
 	increment_ref_local( 4, &exec, tx );
 
@@ -261,7 +261,7 @@ fn spawn_ref_local()
 fn spawn_with_ref_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = Bindgen::default();
+	let exec         = Bindgen;
 
 	#[allow(clippy::needless_borrow)]
 	increment_local( 4, &exec, tx );
@@ -284,7 +284,7 @@ fn spawn_with_ref_local()
 fn spawn_clone_with_ref_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = Bindgen::default();
+	let exec         = Bindgen;
 
 	increment_clone_local( 4, &exec, tx );
 
@@ -307,7 +307,7 @@ fn spawn_clone_with_ref_local()
 fn spawn_clone_with_arc_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = Bindgen::default();
+	let exec         = Bindgen;
 
 	increment_local( 4, Arc::new(exec), tx );
 
@@ -328,7 +328,7 @@ fn spawn_clone_with_arc_local()
 //
 fn spawn_handle_local()
 {
-	let exec = Bindgen::default();
+	let exec = Bindgen;
 
 	let fut = async move
 	{
@@ -347,7 +347,7 @@ fn spawn_handle_local()
 //
 fn spawn_handle_arc_local()
 {
-	let exec = Bindgen::default();
+	let exec = Bindgen;
 
 
 	let fut = async move
@@ -367,7 +367,7 @@ fn spawn_handle_arc_local()
 //
 fn spawn_handle_os_local()
 {
-	let exec = Bindgen::default();
+	let exec = Bindgen;
 
 	let fut = async move
 	{

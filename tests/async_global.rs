@@ -50,7 +50,7 @@ use
 fn spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = AsyncGlobal::default();
+	let exec         = AsyncGlobal;
 
 	increment( 4, exec, tx );
 
@@ -67,7 +67,7 @@ fn spawn()
 fn spawn_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = AsyncGlobal::default();
+	let exec         = AsyncGlobal;
 
 	increment_ref( 4, &exec, tx );
 
@@ -84,7 +84,7 @@ fn spawn_ref()
 fn spawn_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = AsyncGlobal::default();
+	let exec         = AsyncGlobal;
 
 	#[allow(clippy::needless_borrow)]
 	increment( 4, &exec, tx );
@@ -102,7 +102,7 @@ fn spawn_with_ref()
 fn spawn_clone_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = AsyncGlobal::default();
+	let exec         = AsyncGlobal;
 
 	increment_clone( 4, &exec, tx );
 
@@ -120,7 +120,7 @@ fn spawn_clone_with_ref()
 fn spawn_clone_with_arc()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = AsyncGlobal::default();
+	let exec         = AsyncGlobal;
 
 	increment( 4, Arc::new(exec), tx );
 
@@ -136,7 +136,7 @@ fn spawn_clone_with_arc()
 //
 fn spawn_handle()
 {
-	let exec   = AsyncGlobal::default();
+	let exec   = AsyncGlobal;
 	let result = AsyncGlobal::block_on( increment_spawn_handle( 4, exec ) );
 
 	assert_eq!( 5u8, result );
@@ -149,7 +149,7 @@ fn spawn_handle()
 //
 fn spawn_handle_arc()
 {
-	let exec   = AsyncGlobal::default();
+	let exec   = AsyncGlobal;
 	let result = AsyncGlobal::block_on( increment_spawn_handle( 4, Arc::new(exec) ) );
 
 	assert_eq!( 5u8, result );
@@ -162,7 +162,7 @@ fn spawn_handle_arc()
 //
 fn spawn_handle_os()
 {
-	let exec   = AsyncGlobal::default();
+	let exec   = AsyncGlobal;
 	let result = AsyncGlobal::block_on( increment_spawn_handle_os( 4, &exec ) );
 
 	assert_eq!( 5u8, result );
@@ -191,7 +191,7 @@ impl Drop for DropNotify
 //
 fn join_handle_abort()
 {
-	let exec      = AsyncGlobal::default();
+	let exec      = AsyncGlobal;
 	let (tx , rx) = oneshot::channel::<()>();
 
 	let join_handle = exec.spawn_handle( async move
@@ -226,7 +226,7 @@ fn join_handle_abort()
 //
 fn join_handle_detach()
 {
-	let exec              = AsyncGlobal::default();
+	let exec              = AsyncGlobal;
 	let (out_tx , out_rx) = oneshot::channel::<()>();
 	let (in_tx  , in_rx ) = oneshot::channel::<()>();
 

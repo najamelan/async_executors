@@ -48,7 +48,7 @@ use
 fn spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = AsyncStd::default();
+	let exec         = AsyncStd;
 
 	increment( 4, exec, tx );
 
@@ -65,7 +65,7 @@ fn spawn()
 fn spawn_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = AsyncStd::default();
+	let exec         = AsyncStd;
 
 	increment_ref( 4, &exec, tx );
 
@@ -82,7 +82,7 @@ fn spawn_ref()
 fn spawn_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = AsyncStd::default();
+	let exec         = AsyncStd;
 
 	#[allow(clippy::needless_borrow)]
 	increment( 4, &exec, tx );
@@ -100,7 +100,7 @@ fn spawn_with_ref()
 fn spawn_clone_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = AsyncStd::default();
+	let exec         = AsyncStd;
 
 	increment_clone( 4, &exec, tx );
 
@@ -118,7 +118,7 @@ fn spawn_clone_with_ref()
 fn spawn_clone_with_arc()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = AsyncStd::default();
+	let exec         = AsyncStd;
 
 	increment( 4, Arc::new(exec), tx );
 
@@ -134,7 +134,7 @@ fn spawn_clone_with_arc()
 //
 fn spawn_handle()
 {
-	let exec   = AsyncStd::default();
+	let exec   = AsyncStd;
 	let result = AsyncStd::block_on( increment_spawn_handle( 4, exec ) );
 
 	assert_eq!( 5u8, result );
@@ -147,7 +147,7 @@ fn spawn_handle()
 //
 fn spawn_handle_arc()
 {
-	let exec   = AsyncStd::default();
+	let exec   = AsyncStd;
 	let result = AsyncStd::block_on( increment_spawn_handle( 4, Arc::new(exec) ) );
 
 	assert_eq!( 5u8, result );
@@ -160,7 +160,7 @@ fn spawn_handle_arc()
 //
 fn spawn_handle_os()
 {
-	let exec   = AsyncStd::default();
+	let exec   = AsyncStd;
 	let result = AsyncStd::block_on( increment_spawn_handle_os( 4, &exec ) );
 
 	assert_eq!( 5u8, result );
