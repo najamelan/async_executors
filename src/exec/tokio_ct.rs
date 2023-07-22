@@ -15,7 +15,7 @@ enum Spawner
 }
 
 
-/// An executor that uses a [`tokio::runtime::Runtime`] with the [current thread](tokio::runtime::Builder::new_current_thread)
+/// An executor that uses a [`tokio::runtime::Runtime`] with the [`current thread`](tokio::runtime::Builder::new_current_thread)
 /// and a [`tokio::task::LocalSet`]. Can spawn `!Send` futures.
 ///
 /// ## Creation of the runtime
@@ -70,7 +70,7 @@ enum Spawner
 /// Note that these are logic errors, not related to the class of problems that cannot happen
 /// in safe rust (memory safety, undefined behavior, unsoundness, data races, ...). See the relevant
 /// [catch_unwind RFC](https://github.com/rust-lang/rfcs/blob/master/text/1236-stabilize-catch-panic.md)
-/// and it's discussion threads for more info as well as the documentation of [std::panic::UnwindSafe]
+/// and it's discussion threads for more info as well as the documentation of [`std::panic::UnwindSafe`]
 /// for more information.
 ///
 //
@@ -167,11 +167,11 @@ impl TokioCt
 
 
 
-	/// Try to construct a [TokioCt] from the currently entered [Runtime]. You can do this
+	/// Try to construct a [`TokioCt`] from the currently entered [`Runtime`]. You can do this
 	/// if you want to construct your runtime with the tokio macros eg:
 	///
 	/// ```
-	/// #[tokio::main(flavor = "current_thread")]
+	/// #[ tokio::main(flavor = "current_thread") ]
 	/// async fn main()
 	/// {
 	///    // ...
@@ -187,7 +187,7 @@ impl TokioCt
 	/// The main footgun here is that you are now already in async context, so you must call
 	/// [`TokioCt::run_until`] instead of [`TokioCt::block_on`]. `block_on` will panic when run from
 	/// within an existing async context. This can be surprising for your upstream libraries to
-	/// which you pass a [TokioCt] executor.
+	/// which you pass a [`TokioCt`] executor.
 	///
 	/// # Errors
 	///
@@ -213,7 +213,7 @@ impl TokioCt
 	/// For simplicity, it's advised to just create top level task that you run through `block_on` and make sure your
 	/// program is done when it returns.
 	///
-	/// See: [tokio::runtime::Runtime::block_on]
+	/// See: [`tokio::runtime::Runtime::block_on`]
 	///
 	/// ## Panics
 	///
@@ -375,13 +375,13 @@ impl<R: Send + 'static> crate::SpawnBlocking<R> for TokioCt
 #[derive(Debug, Clone)]
 pub enum TokioCtErr
 {
-	/// The [tokio::runtime::builder] returned an error when construting the [Runtime].
+	/// The [`tokio::runtime::Builder`] returned an error when construting the [`Runtime`].
 	Builder( std::io::ErrorKind ),
 
-	/// There are other clones of the [Runtime], so we cannot shut it down.
+	/// There are other clones of the [`Runtime`], so we cannot shut it down.
 	Cloned( TokioCt ),
 
-	/// This executor was constructed from the a [Handle], so cannot be shut down.
+	/// This executor was constructed from the a [`Handle`], so cannot be shut down.
 	Handle( TokioCt ),
 
 	/// Can't create from current runtime because no runtime currently entered.

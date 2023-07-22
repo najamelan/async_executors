@@ -69,7 +69,7 @@ features = ["thread-pool"]
 version = "^0.3"
 
 [dev-dependencies.tokio]
-features = ["macros", "rt", "rt-multi-thread"]
+features = ["macros", "rt"]
 version = "^1"
 
 [dev-dependencies.tracing-subscriber]
@@ -154,14 +154,13 @@ authors = ["Naja Melan <najamelan@autistici.org>"]
 categories = ["asynchronous", "concurrency"]
 description = "Implements Spawn, SpawnLocal and SpawnHandle for commonly used executors."
 documentation = "https://docs.rs/async_executors"
-edition = "2018"
+edition = "2021"
 exclude = ["examples", "tests", "TODO.md", "deny.toml", ".travis.yml", "CONTRIBUTING.md"]
 keywords = ["async", "executor", "futures"]
 license = "Unlicense"
 name = "async_executors"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_executors"
-resolver = "2"
 version = "0.7.0"
 
 [package.metadata]
@@ -180,7 +179,7 @@ codegen-units = 1
 futures-timer = "^3"
 
 [target."cfg(not(target_os = \"unknown\"))".dev-dependencies.tokio]
-features = ["io-util", "net"]
+features = ["io-util", "net", "rt-multi-thread"]
 version = "^1"
 
 [target."cfg(target_arch = \"wasm32\")"]

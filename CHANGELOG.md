@@ -3,8 +3,25 @@
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/najamelan/async_executors/compare/0.6.0...dev
+[Unreleased]: https://github.com/najamelan/async_executors/compare/0.7.0...dev
 
+
+## [0.7.0] - 2023-07-22
+
+[0.7.0]: https://github.com/najamelan/async_executors/compare/0.6.0..0.7.0
+
+### Added 
+
+  - **BREAKING**: Create tokio executors from currently entered runtimes as well as handles.
+
+### Removed 
+
+  - **BREAKING**: The _tokio_ builder types. As tokio now exposes the `runtime_flavour`, we
+    can use it to keep you from creating a runtime of the wrong type. Thus the builder types
+    are no longer needed.
+    
+### Updated
+  - **BREAKING**: glommio to v0.8
 
 ## [0.6.0] - 2022-04-24
 

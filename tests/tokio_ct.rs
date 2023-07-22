@@ -9,9 +9,9 @@
 // ✔ pass a    &TokioCt  to a function that takes exec: `&impl Spawn`
 // ✔ pass a    &TokioCt  to a function that takes exec: `impl Spawn`
 // ✔ pass a    &TokioCt  to a function that takes exec: `impl Spawn + Clone`
-// ✔ pass a Arc<TokioCt> to a function that takes exec: `impl Spawn`
+// ✔ pass a  Rc<TokioCt> to a function that takes exec: `impl Spawn`
 // ✔ pass a     TokioCt  to a function that takes exec: `impl SpawnHandle`
-// ✔ pass a Arc<TokioCt> to a function that takes exec: `impl SpawnHandle`
+// ✔ pass a  Rc<TokioCt> to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a    &TokioCt  to a function that takes exec: `&dyn SpawnHandle`
 //
 // ✔ pass a    TokioCt  to a function that takes exec: `impl LocalSpawn`
@@ -181,19 +181,19 @@ fn spawn_clone_with_ref()
 
 
 
-// pass a Arc<TokioCt> to a function that takes exec: `impl Spawn`.
+// pass a Rc<TokioCt> to a function that takes exec: `impl Spawn`.
 // Possible since futures 0.3.2.
 //
 #[ test ]
 //
-fn spawn_clone_with_arc()
+fn spawn_clone_with_rc()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let exec     = TokioCt::new().expect( "create tokio current thread" );
 
 	let res = exec.block_on( async
 	{
-		increment_clone( 4, Arc::new( exec.clone() ), tx );
+		increment_clone( 4, Rc::new( exec.clone() ), tx );
 
 		rx.next().await.expect( "Some" )
 	});
@@ -218,7 +218,7 @@ fn spawn_handle()
 
 
 
-// pass an Arc<TokioCt> to a function that takes exec: `impl SpawnHandle`
+// pass an Rc<TokioCt> to a function that takes exec: `impl SpawnHandle`
 //
 #[ test ]
 //
@@ -226,7 +226,7 @@ fn spawn_handle_arc()
 {
 	let exec = TokioCt::new().expect( "create tokio current thread" );
 
-	let res = exec.block_on( increment_spawn_handle( 4, Arc::new( exec.clone() ) ) );
+	let res = exec.block_on( increment_spawn_handle( 4, Rc::new( exec.clone() ) ) );
 
 	assert_eq!( 5u8, res );
 }
@@ -363,7 +363,7 @@ fn spawn_clone_with_ref_local()
 
 
 
-// pass a Arc<TokioCt> to a function that takes exec: `impl LocalSpawn`.
+// pass a `Arc<TokioCt>` to a function that takes exec: `impl LocalSpawn`.
 // Possible since futures 0.3.2.
 //
 #[ test ]
@@ -385,7 +385,7 @@ fn spawn_clone_with_rc_local()
 
 
 
-// pass a TokioCt to a function that takes exec: `impl LocalSpawnHandle`
+// pass a [`TokioCt`] to a function that takes exec: `impl LocalSpawnHandle`
 //
 #[ test ]
 //
@@ -400,7 +400,7 @@ fn spawn_handle_local()
 
 
 
-// pass an Rc<TokioCt> to a function that takes exec: `impl LocalSpawnHandle`
+// pass an `Rc<TokioCt>` to a function that takes exec: `impl LocalSpawnHandle`
 //
 #[ test ]
 //
@@ -415,7 +415,7 @@ fn spawn_handle_rc_local()
 
 
 
-// pass a &TokioCt to a function that takes exec: `&dyn LocalSpawnHandle`
+// pass a `&TokioCt` to a function that takes exec: `&dyn LocalSpawnHandle`
 //
 #[ test ]
 //
@@ -457,7 +457,7 @@ fn spawn_outside_block_on()
 
 
 
-// Joinhandle::detach allows task to keep running.
+// [`Joinhandle::detach`] allows task to keep running.
 //
 #[ test ]
 //

@@ -50,9 +50,7 @@ fn unpin_handle()
 //
 fn unpin_handle_async_std()
 {
-	let exec = AsyncStd::default();
-
-	let join_handle = exec.spawn_handle( async { Boon } ).expect( "spawn" );
+	let join_handle = AsyncStd.spawn_handle( async { Boon } ).expect( "spawn" );
 
 	assert_unpin( &join_handle );
 	let t = AsyncStd::block_on( join_handle );

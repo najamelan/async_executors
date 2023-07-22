@@ -9,7 +9,7 @@ use
 };
 
 
-/// An executor that uses [tokio::runtime::Runtime].
+/// An executor that uses [`tokio::runtime::Runtime`].
 ///
 /// ## Example
 ///
@@ -60,7 +60,7 @@ use
 /// ## Unwind Safety.
 ///
 /// You must only spawn futures to this API that are unwind safe. Tokio will wrap it in
-/// [std::panic::AssertUnwindSafe] and wrap the poll invocation with [std::panic::catch_unwind].
+/// [`std::panic::AssertUnwindSafe`] and wrap the poll invocation with [`std::panic::catch_unwind`].
 ///
 /// They reason that this is fine because they require `Send + 'static` on the future. As far
 /// as I can tell this is wrong. Unwind safety can be circumvented in several ways even with
@@ -75,7 +75,7 @@ use
 /// Note that unwind safety is related to logic errors, not related to the memory safety issues that cannot happen
 /// in safe rust (memory safety, undefined behavior, unsoundness, data races, ...). See the relevant
 /// [catch_unwind RFC](https://github.com/rust-lang/rfcs/blob/master/text/1236-stabilize-catch-panic.md)
-/// and it's discussion threads for more info as well as the documentation of [std::panic::UnwindSafe].
+/// and it's discussion threads for more info as well as the documentation of [`std::panic::UnwindSafe`].
 //
 #[ derive( Debug, Clone ) ]
 //
@@ -175,7 +175,7 @@ impl TokioTp
 
 
 
-	/// Try to construct a [TokioTp] from the currently entered [Runtime]. You can do this
+	/// Try to construct a [`TokioTp`] from the currently entered [`Runtime`]. You can do this
 	/// if you want to construct your runtime with the tokio macros eg:
 	///
 	/// ```
@@ -211,7 +211,7 @@ impl TokioTp
 	}
 
 
-	/// Forwards to [Runtime::block_on] or [Handle::block_on].
+	/// Forwards to [`Runtime::block_on`] or [`Handle::block_on`].
 	///
 	/// # Panics
 	///
@@ -228,9 +228,9 @@ impl TokioTp
 	}
 
 
-	/// See: [tokio::runtime::Runtime::shutdown_timeout]
+	/// See: [`tokio::runtime::Runtime::shutdown_timeout`]
 	///
-	///  This tries to unwrap the Arc<Runtime> we hold, so that works only if no other clones are around. If this is not the
+	///  This tries to unwrap the `Arc<Runtime>` we hold, so that works only if no other clones are around. If this is not the
 	///  only reference, self will be returned to you as an error. It means you cannot shutdown the runtime because there are
 	///  other clones of the executor still alive.
 	///
@@ -267,9 +267,9 @@ impl TokioTp
 
 
 
-	/// See: [tokio::runtime::Runtime::shutdown_background]
+	/// See: [`tokio::runtime::Runtime::shutdown_background`]
 	///
-	///  This tries to unwrap the Arc<Runtime> we hold, so that works only if no other clones are around. If this is not the
+	///  This tries to unwrap the `Arc<Runtime>` we hold, so that works only if no other clones are around. If this is not the
 	///  only reference, self will be returned to you as an error. It means you cannot shutdown the runtime because there are
 	///  other clones of the executor still alive.
 	///
@@ -409,13 +409,13 @@ impl crate::Timer for TokioTp
 #[derive(Debug, Clone)]
 pub enum TokioTpErr
 {
-	/// The [tokio::runtime::builder] returned an error when construting the [Runtime].
+	/// The [`tokio::runtime::Builder`] returned an error when construting the [`Runtime`].
 	Builder( std::io::ErrorKind ),
 
-	/// There are other clones of the [Runtime], so we cannot shut it down.
+	/// There are other clones of the [`Runtime`], so we cannot shut it down.
 	Cloned ( TokioTp ),
 
-	/// This executor was constructed from the a [Handle], so cannot be shut down.
+	/// This executor was constructed from the a [`Handle`], so cannot be shut down.
 	Handle ( TokioTp ),
 
 	/// Can't create from current runtime because no runtime currently entered.

@@ -36,8 +36,7 @@ package:
   keywords      : [ async, executor, futures  ]
   categories    : [ asynchronous, concurrency ]
   license       : Unlicense
-  edition       : '2018'
-  resolver      : '2'
+  edition       : '2021'
   exclude       : [ examples, tests, TODO.md, deny.toml, .travis.yml, CONTRIBUTING.md ]
 
   metadata:
@@ -180,7 +179,7 @@ dev-dependencies:
   tracing-subscriber: { version: ^0.3.5, default-features: false, features: [ fmt ] }
   tracing_crate     : { version: ^0.1  , package: tracing }
   trait-set         : ^0.3
-  tokio             : { version: ^1  , features: [macros, rt, rt-multi-thread]                         }
+  tokio             : { version: ^1  , features: [macros, rt] }
 
 
 build-dependencies:
@@ -214,7 +213,7 @@ target:
 
     dev-dependencies:
 
-      tokio          : { version: ^1, features: [ io-util, net ] }
+      tokio          : { version: ^1, features: [ io-util, net, rt-multi-thread ] }
       futures-timer  : ^3
 
 
