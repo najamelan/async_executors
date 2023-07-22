@@ -88,6 +88,7 @@ fn spawn_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 
+	#[allow(clippy::needless_borrow)]
 	increment( 4, &AsyncGlobal, tx );
 
 	let fut = async move
@@ -247,6 +248,8 @@ fn spawn_ref_local()
 fn spawn_with_ref_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
+
+	#[allow(clippy::needless_borrow)]
 	increment_local( 4, &AsyncGlobal, tx );
 
 	let fut = async move

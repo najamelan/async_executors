@@ -22,11 +22,11 @@ pub struct AsyncStd;
 
 impl AsyncStd
 {
-	/// Create a new AsyncStd wrapper, forwards to `Default::default`.
+	/// Create a new AsyncStd wrapper.
 	///
 	pub fn new() -> Self
 	{
-		Self::default()
+		Self
 	}
 
 
@@ -124,7 +124,7 @@ impl LocalSpawn for AsyncStd
 	{
 		// We drop the JoinHandle, so the task becomes detached.
 		//
-		let _ = async_std::task::spawn_local( future );
+		drop( async_std::task::spawn_local(future) );
 
 		Ok(())
 	}

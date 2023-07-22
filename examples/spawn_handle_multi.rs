@@ -64,7 +64,7 @@ impl Connection
 
 fn main()
 {
-	let exec = Arc::new( AsyncStd::default() );
+	let exec = Arc::new( AsyncStd );
 	let ex2  = exec.clone();
 
 	// We can't just spawn conn.run(), because it takes &self, but a spawned

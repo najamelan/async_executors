@@ -2,13 +2,16 @@
 //
 // Tested:
 //
+// ✔ build a TokioCt from a currently entered runtime.
+// ✔ build a TokioCt from a handle.
+//
 // ✔ pass a     TokioCt  to a function that takes exec: `impl Spawn`
 // ✔ pass a    &TokioCt  to a function that takes exec: `&impl Spawn`
 // ✔ pass a    &TokioCt  to a function that takes exec: `impl Spawn`
 // ✔ pass a    &TokioCt  to a function that takes exec: `impl Spawn + Clone`
-// ✔ pass a Arc<TokioCt> to a function that takes exec: `impl Spawn`
+// ✔ pass a  Rc<TokioCt> to a function that takes exec: `impl Spawn`
 // ✔ pass a     TokioCt  to a function that takes exec: `impl SpawnHandle`
-// ✔ pass a Arc<TokioCt> to a function that takes exec: `impl SpawnHandle`
+// ✔ pass a  Rc<TokioCt> to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a    &TokioCt  to a function that takes exec: `&dyn SpawnHandle`
 //
 // ✔ pass a    TokioCt  to a function that takes exec: `impl LocalSpawn`
@@ -40,7 +43,57 @@ use
 	common  :: { *                            } ,
 	futures :: { channel::{ mpsc }, StreamExt } ,
 	std     :: { rc::Rc                       } ,
+	tokio   :: { runtime::Handle              } ,
 };
+
+
+
+// build from current.
+//
+#[ tokio::test ]
+//
+async fn build_from_current()
+{
+	let (tx, rx) = oneshot::channel();
+
+	let exec = TokioCt::try_current().expect( "create TokioCt from current" );
+
+	let task = async move
+	{
+		let name = std::thread::current().name().expect( "some name" ).to_string();
+		tx.send( name ).expect( "send on oneshot" );
+	};
+
+	exec.spawn( task ).expect( "spawn" );
+
+	let output = exec.run_until(rx).await.expect( "read channel" );
+	assert_eq!( output, "build_from_current" );
+}
+
+
+
+// build from a `Handle`.
+//
+#[ tokio::test ]
+//
+async fn build_from_handle()
+{
+	let (tx, rx) = oneshot::channel();
+	let handle = Handle::current();
+
+	let exec = TokioCt::try_from( handle ).expect( "create TokioCt from current" );
+
+	let task = async move
+	{
+		let name = std::thread::current().name().expect( "some name" ).to_string();
+		tx.send( name ).expect( "send on oneshot" );
+	};
+
+	exec.spawn( task ).expect( "spawn" );
+
+	let output = exec.run_until(rx).await.expect( "read channel" );
+	assert_eq!( output, "build_from_handle" );
+}
 
 
 // pass a TokioCt to a function that takes exec: `impl Spawn`
@@ -50,7 +103,7 @@ use
 fn spawn()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec         = TokioCt::new().expect( "create tokio current thread" );
 	let ex2          = exec.clone();
 
 	let res = exec.block_on( async
@@ -72,7 +125,7 @@ fn spawn()
 fn spawn_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec         = TokioCt::new().expect( "create tokio current thread" );
 
 	let res = exec.block_on( async
 	{
@@ -93,7 +146,7 @@ fn spawn_ref()
 fn spawn_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec         = TokioCt::new().expect( "create tokio current thread" );
 
 	let res = exec.block_on( async
 	{
@@ -114,7 +167,7 @@ fn spawn_with_ref()
 fn spawn_clone_with_ref()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec         = TokioCt::new().expect( "create tokio current thread" );
 
 	let res = exec.block_on( async
 	{
@@ -128,19 +181,19 @@ fn spawn_clone_with_ref()
 
 
 
-// pass a Arc<TokioCt> to a function that takes exec: `impl Spawn`.
+// pass a Rc<TokioCt> to a function that takes exec: `impl Spawn`.
 // Possible since futures 0.3.2.
 //
 #[ test ]
 //
-fn spawn_clone_with_arc()
+fn spawn_clone_with_rc()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec     = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec     = TokioCt::new().expect( "create tokio current thread" );
 
 	let res = exec.block_on( async
 	{
-		increment_clone( 4, Arc::new( exec.clone() ), tx );
+		increment_clone( 4, Rc::new( exec.clone() ), tx );
 
 		rx.next().await.expect( "Some" )
 	});
@@ -156,7 +209,7 @@ fn spawn_clone_with_arc()
 //
 fn spawn_handle()
 {
-	let exec = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec = TokioCt::new().expect( "create tokio current thread" );
 
 	let res = exec.block_on( increment_spawn_handle( 4, exec.clone() ) );
 
@@ -165,15 +218,15 @@ fn spawn_handle()
 
 
 
-// pass an Arc<TokioCt> to a function that takes exec: `impl SpawnHandle`
+// pass an Rc<TokioCt> to a function that takes exec: `impl SpawnHandle`
 //
 #[ test ]
 //
 fn spawn_handle_arc()
 {
-	let exec = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec = TokioCt::new().expect( "create tokio current thread" );
 
-	let res = exec.block_on( increment_spawn_handle( 4, Arc::new( exec.clone() ) ) );
+	let res = exec.block_on( increment_spawn_handle( 4, Rc::new( exec.clone() ) ) );
 
 	assert_eq!( 5u8, res );
 }
@@ -186,7 +239,7 @@ fn spawn_handle_arc()
 //
 fn spawn_handle_os()
 {
-	let exec = TokioCtBuilder::new().build().expect( "create tokio threadpool" );
+	let exec = TokioCt::new().expect( "create tokio current thread" );
 
 	let result = exec.block_on( increment_spawn_handle_os( 4, &exec ) );
 
@@ -201,9 +254,9 @@ fn spawn_handle_os()
 //
 fn spawn_handle_many()
 {
-	let exec = TokioCtBuilder::new().build().expect( "create tokio threadpool" );
+	let exec = TokioCt::new().expect( "create tokio current thread" );
 
-	let _result = exec.block_on( async move
+	exec.block_on( async move
 	{
 		let amount  = 1000;
 		let mut rxs = Vec::with_capacity( amount );
@@ -234,7 +287,7 @@ fn spawn_handle_many()
 fn spawn_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec = TokioCt::new().expect( "create tokio current thread" );
 
 	let res = exec.block_on( async
 	{
@@ -255,7 +308,7 @@ fn spawn_local()
 fn spawn_ref_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec         = TokioCt::new().expect( "create tokio current thread" );
 
 	let res = exec.block_on( async
 	{
@@ -275,7 +328,7 @@ fn spawn_ref_local()
 fn spawn_with_ref_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec         = TokioCt::new().expect( "create tokio current thread" );
 
 	let res = exec.block_on( async
 	{
@@ -296,7 +349,7 @@ fn spawn_with_ref_local()
 fn spawn_clone_with_ref_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec         = TokioCt::new().expect( "create tokio current thread" );
 
 	let res = exec.block_on( async
 	{
@@ -310,7 +363,7 @@ fn spawn_clone_with_ref_local()
 
 
 
-// pass a Arc<TokioCt> to a function that takes exec: `impl LocalSpawn`.
+// pass a `Arc<TokioCt>` to a function that takes exec: `impl LocalSpawn`.
 // Possible since futures 0.3.2.
 //
 #[ test ]
@@ -318,7 +371,7 @@ fn spawn_clone_with_ref_local()
 fn spawn_clone_with_rc_local()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
-	let exec         = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec         = TokioCt::new().expect( "create tokio current thread" );
 
 	let res = exec.block_on( async
 	{
@@ -332,13 +385,13 @@ fn spawn_clone_with_rc_local()
 
 
 
-// pass a TokioCt to a function that takes exec: `impl LocalSpawnHandle`
+// pass a [`TokioCt`] to a function that takes exec: `impl LocalSpawnHandle`
 //
 #[ test ]
 //
 fn spawn_handle_local()
 {
-	let exec = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec = TokioCt::new().expect( "create tokio current thread" );
 
 	let res = exec.block_on( increment_spawn_handle_local( 4, exec.clone() ) );
 
@@ -347,13 +400,13 @@ fn spawn_handle_local()
 
 
 
-// pass an Rc<TokioCt> to a function that takes exec: `impl LocalSpawnHandle`
+// pass an `Rc<TokioCt>` to a function that takes exec: `impl LocalSpawnHandle`
 //
 #[ test ]
 //
 fn spawn_handle_rc_local()
 {
-	let exec = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec = TokioCt::new().expect( "create tokio current thread" );
 
 	let res = exec.block_on( increment_spawn_handle_local( 4, Rc::new( exec.clone() ) ) );
 
@@ -362,13 +415,13 @@ fn spawn_handle_rc_local()
 
 
 
-// pass a &TokioCt to a function that takes exec: `&dyn LocalSpawnHandle`
+// pass a `&TokioCt` to a function that takes exec: `&dyn LocalSpawnHandle`
 //
 #[ test ]
 //
 fn spawn_handle_local_os()
 {
-	let exec = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec = TokioCt::new().expect( "create tokio current thread" );
 
 	let result = exec.block_on( increment_spawn_handle_os( 4, &exec ) );
 
@@ -384,7 +437,7 @@ fn spawn_handle_local_os()
 fn spawn_outside_block_on()
 {
 	let (mut tx, mut rx) = mpsc::channel( 1 );
-	let exec             = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec             = TokioCt::new().expect( "create tokio current thread" );
 
 	exec.spawn( async move
 	{
@@ -404,13 +457,13 @@ fn spawn_outside_block_on()
 
 
 
-// Joinhandle::detach allows task to keep running.
+// [`Joinhandle::detach`] allows task to keep running.
 //
 #[ test ]
 //
 fn join_handle_detach()
 {
-	let exec = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec = TokioCt::new().expect( "create tokio current thread" );
 
 	let (in_tx , in_rx ) = oneshot::channel();
 	let (out_tx, out_rx) = oneshot::channel();
@@ -446,9 +499,9 @@ fn join_handle_detach()
 //
 fn yield_run_subtask_first() -> DynResult<()>
 {
-	let exec = &TokioCtBuilder::new().build().expect( "create tokio threadpool" );
+	let exec = TokioCt::new().expect( "create tokio current thread" );
 
-	exec.block_on( try_yield_now( exec ) )
+	exec.block_on( try_yield_now( &exec ) )
 }
 
 
@@ -459,7 +512,7 @@ fn yield_run_subtask_first() -> DynResult<()>
 //
 fn yield_run_subtask_last() -> DynResult<()>
 {
-	let exec = &TokioCtBuilder::new().build().expect( "create tokio threadpool" );
+	let exec = &TokioCt::new().expect( "create tokio current thread" );
 
 	exec.block_on( without_yield_now( exec ) )
 }
@@ -473,7 +526,7 @@ fn yield_run_subtask_last() -> DynResult<()>
 //
 fn spawn_blocking() -> DynResult<()>
 {
-	let exec = &TokioCtBuilder::new().build()?;
+	let exec = &TokioCt::new().expect( "create tokio current thread" );
 
 	exec.block_on( blocking( exec ) )
 }
@@ -488,7 +541,7 @@ fn spawn_blocking() -> DynResult<()>
 //
 fn timer_should_wake_local()
 {
-	let exec = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec = TokioCt::new().expect( "create tokio current thread" );
 
 	exec.block_on( timer_should_wake_up_local( exec.clone() ) );
 }
@@ -503,7 +556,7 @@ fn timer_should_wake_local()
 //
 fn run_timeout()
 {
-	let exec = &TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec = &TokioCt::new().expect( "create tokio current thread" );
 
 	exec.block_on( timeout( exec ) );
 }
@@ -518,7 +571,7 @@ fn run_timeout()
 //
 fn run_dont_timeout()
 {
-	let exec = &TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec = &TokioCt::new().expect( "create tokio current thread" );
 
 	exec.block_on( dont_timeout( exec ) );
 }
@@ -546,7 +599,7 @@ fn no_feature_no_timer()
 //
 fn tokio_io() -> DynResult<()>
 {
-	let exec = TokioCtBuilder::new().build()?;
+	let exec = TokioCt::new().expect( "create tokio current thread" );
 
 	exec.block_on( tokio_io::tcp( exec.clone() ) )
 }
@@ -561,7 +614,7 @@ fn tokio_io() -> DynResult<()>
 //
 fn no_tokio_io()
 {
-	let exec = TokioCtBuilder::new().build().expect( "create tokio current thread" );
+	let exec = TokioCt::new().expect( "create tokio current thread" );
 
 	let test = async
 	{

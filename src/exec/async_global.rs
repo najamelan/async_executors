@@ -25,7 +25,7 @@ impl AsyncGlobal
 	///
 	pub fn new() -> Self
 	{
-		Self::default()
+		Self
 	}
 
 
@@ -117,7 +117,7 @@ impl LocalSpawn for AsyncGlobal
 {
 	fn spawn_local_obj( &self, future: LocalFutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
-		let _ = async_global::spawn_local( future ).detach();
+		async_global::spawn_local( future ).detach();
 
 		Ok(())
 	}

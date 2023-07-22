@@ -41,14 +41,14 @@ With [cargo yaml](https://gitlab.com/storedbox/cargo-yaml):
 ```yaml
 dependencies:
 
-   async_executors: ^0.6
+   async_executors: ^0.7
 ```
 
 With Cargo.toml
 ```toml
 [dependencies]
 
-    async_executors = "0.6"
+    async_executors = "0.7"
 ```
 
 ### Upgrade
@@ -215,8 +215,8 @@ Some executors are a bit special, so make sure to check the API docs for the one
 ```rust, ignore
 use
 {
-  async_executors :: { AsyncStd, TokioTpBuilder, SpawnHandle } ,
-  std             :: { convert::TryFrom                      } ,
+  async_executors :: { AsyncStd, SpawnHandle, TokioTp } ,
+  std             :: { convert::TryFrom               } ,
 };
 
 fn needs_exec( exec: impl SpawnHandle<()> + SpawnHandle<String> ){};
@@ -228,7 +228,7 @@ needs_exec( AsyncStd );
 // We need a builder type for tokio, as we guarantee by the type of TokioTp that it
 // will be a threadpool.
 //
-let tp = TokioTpBuilder::new().build().expect( "build threadpool" );
+let tp = TokioTp::new().expect( "build threadpool" );
 
 needs_exec( tp );
 ```

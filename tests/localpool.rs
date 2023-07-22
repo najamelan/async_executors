@@ -3,7 +3,7 @@
 // Tested:
 //
 // ✔ pass a     LocalSpawner  to a function that takes exec: `impl SpawnHandle`
-// ✔ pass a Arc<LocalSpawner> to a function that takes exec: `impl SpawnHandle`
+// ✔ pass a  Rc<LocalSpawner> to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a    &LocalSpawner  to a function that takes exec: `&dyn SpawnHandle`
 //
 // ✔ pass a    LocalSpawner  to a function that takes exec: `impl LocalSpawnHandle`
@@ -40,16 +40,16 @@ fn spawn_handle()
 }
 
 
-// pass an Arc<LocalSpawner> to a function that takes exec: `impl SpawnHandle`
+// pass an Rc<LocalSpawner> to a function that takes exec: `impl SpawnHandle`
 //
 #[ test ]
 //
-fn spawn_handle_arc()
+fn spawn_handle_rc()
 {
 	let mut exec     = LocalPool::new();
 	let     spawner  = exec.spawner();
 
-	let res = exec.run_until( increment_spawn_handle( 4, Arc::new(spawner) ) );
+	let res = exec.run_until( increment_spawn_handle( 4, Rc::new(spawner) ) );
 
 	assert_eq!( 5u8, res );
 }

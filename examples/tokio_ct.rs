@@ -1,7 +1,7 @@
 use
 {
 	futures::task    :: { LocalSpawn, LocalSpawnExt } ,
-	async_executors  :: { TokioCtBuilder            } ,
+	async_executors  :: { TokioCt                   } ,
 	std              :: { rc::Rc                    } ,
 	futures::channel :: { oneshot, oneshot::Sender  } ,
 };
@@ -21,10 +21,10 @@ fn lib_function( exec: impl LocalSpawn, tx: Sender<String> )
 
 fn main()
 {
-	// If you need to configure tokio, you can call `tokio_builder()` on TokioCtBuilder
-	// to get a `&mut tokio::runtimer::Builder`.
+	// If you need to configure tokio, you can use `tokio::runtimer::Builder`
+	// to create your runtime and then create the `TokioCt` from it.
 	//
-	let exec = TokioCtBuilder::new().build().expect( "create tokio threadpool" );
+	let exec = TokioCt::new().expect( "create tokio threadpool" );
 
 	let program = async
 	{

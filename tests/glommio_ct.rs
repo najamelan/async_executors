@@ -9,9 +9,9 @@
 // ✔ pass a    &GlommioCt  to a function that takes exec: `&impl Spawn`
 // ✔ pass a    &GlommioCt  to a function that takes exec: `impl Spawn`
 // ✔ pass a    &GlommioCt  to a function that takes exec: `impl Spawn + Clone`
-// ✔ pass a Arc<GlommioCt> to a function that takes exec: `impl Spawn`
+// ✔ pass a  Rc<GlommioCt> to a function that takes exec: `impl Spawn`
 // ✔ pass a     GlommioCt  to a function that takes exec: `impl SpawnHandle`
-// ✔ pass a Arc<GlommioCt> to a function that takes exec: `impl SpawnHandle`
+// ✔ pass a  Rc<GlommioCt> to a function that takes exec: `impl SpawnHandle`
 // ✔ pass a    &GlommioCt  to a function that takes exec: `&dyn SpawnHandle`
 //
 // ✔ pass a    GlommioCt  to a function that takes exec: `impl LocalSpawn`
@@ -132,12 +132,12 @@ fn spawn_clone_with_ref()
 
 
 
-// pass a Arc<GlommioCt> to a function that takes exec: `impl Spawn`.
+// pass a Rc<GlommioCt> to a function that takes exec: `impl Spawn`.
 // Possible since futures 0.3.2.
 //
 #[ test ]
 //
-fn spawn_clone_with_arc()
+fn spawn_clone_with_rc()
 {
 	let (tx, mut rx) = mpsc::channel( 1 );
 	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
@@ -145,7 +145,7 @@ fn spawn_clone_with_arc()
 
 	let res = exec.block_on( async
 	{
-		increment_clone( 4, Arc::new( exec.clone() ), tx );
+		increment_clone( 4, Rc::new( exec.clone() ), tx );
 
 		rx.next().await.expect( "Some" )
 	});
@@ -171,16 +171,16 @@ fn spawn_handle()
 
 
 
-// pass an Arc<GlommioCt> to a function that takes exec: `impl SpawnHandle`
+// pass an Rc<GlommioCt> to a function that takes exec: `impl SpawnHandle`
 //
 #[ test ]
 //
-fn spawn_handle_arc()
+fn spawn_handle_rc()
 {
 	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = GlommioCt::new( builder ).expect( "create exec" );
 
-	let res = exec.block_on( increment_spawn_handle( 4, Arc::new( exec.clone() ) ) );
+	let res = exec.block_on( increment_spawn_handle( 4, Rc::new( exec.clone() ) ) );
 
 	assert_eq!( 5u8, res );
 }
@@ -212,7 +212,7 @@ fn spawn_handle_many()
 	let builder      = LocalExecutorBuilder::new( Placement::Unbound );
 	let exec         = &GlommioCt::new( builder ).expect( "create exec" );
 
-	let _result = exec.block_on( async move
+	exec.block_on( async move
 	{
 		let amount  = 1000;
 		let mut rxs = Vec::with_capacity( amount );

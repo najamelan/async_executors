@@ -20,11 +20,11 @@ pub struct Bindgen;
 
 impl Bindgen
 {
-	/// Create a new Bindgen wrapper, forwards to `Default::default`.
+	/// Create a new Bindgen wrapper.
 	///
 	pub fn new() -> Self
 	{
-		Self::default()
+		Self
 	}
 }
 
